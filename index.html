@@ -1043,29 +1043,41 @@ async function fetchVentas() {
     console.log('[DigiLife] Ventas row 4:', rows[4]);
     console.log('[DigiLife] Ventas dataStart:', dataStart);
 
-    const dataRows = rows.slice(dataStart).filter(r => {
-      const mes  = (r[0]||'').toString().trim();
+    // Forward-fill mes column: if col A is empty, use previous row's mes
+    let lastMes = '';
+    const filledRows = rows.slice(dataStart).map(r => {
+      const mes = (r[0]||'').toString().trim();
+      if (mes && !mes.includes('Nueva') && !mes.includes('TOTAL') && !mes.includes('fila')) {
+        lastMes = mes;
+      }
+      return [lastMes, ...r.slice(1)];
+    });
+
+    const dataRows = filledRows.filter(r => {
+      const mes  = r[0];
       const zona = (r[1]||'').toString().trim();
-      // Skip empty rows, buffer rows, total rows
       if (!mes || !zona) return false;
       if (mes.includes('Nueva') || mes.includes('TOTAL') || mes.includes('fila')) return false;
-      if (zona.includes('Nueva') || zona.includes('TOTAL')) return false;
+      if (zona.includes('Nueva') || zona.includes('TOTAL') || zona.includes('→')) return false;
       return true;
     });
 
-    console.log('[DigiLife] Ventas dataRows after filter:', dataRows.length);
+    console.log('[DigiLife] Ventas dataRows after fill+filter:', dataRows.length);
     if (dataRows.length > 0) {
-      console.log('[DigiLife] First dataRow:', dataRows[0]);
-      console.log('[DigiLife] Last dataRow:', dataRows[dataRows.length-1]);
+      console.log('[DigiLife] First:', dataRows[0][0], dataRows[0][1], dataRows[0][2]);
+      console.log('[DigiLife] Last:', dataRows[dataRows.length-1][0], dataRows[dataRows.length-1][1]);
     }
 
     if (dataRows.length === 0) return;
 
-    // Get latest month (last entry in col A)
-    const latestMes = dataRows[dataRows.length - 1][0];
+    // Get latest month — most frequent or last
+    const mesCounts = {};
+    dataRows.forEach(r => { mesCounts[r[0]] = (mesCounts[r[0]]||0) + 1; });
+    const latestMes = Object.entries(mesCounts).sort((a,b) => b[1]-a[1])[0][0];
+    console.log('[DigiLife] latestMes:', latestMes, '| count:', mesCounts[latestMes]);
 
     // Filter to latest month only
-    const mesRows = dataRows.filter(r => (r[0]||'').toString().trim() === latestMes);
+    const mesRows = dataRows.filter(r => r[0] === latestMes);
 
     console.log('[DigiLife] Ventas CSV — mes:', latestMes, '| zonas:', mesRows.length);
 
