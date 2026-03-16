@@ -1019,6 +1019,9 @@ function updateUI() {
   // Sync gan-neta and margen to P&L page duplicate IDs
   set('kpi-gan-neta2', fmt(kpiData.gan_neta));
   set('kpi-margen2', kpiData.ing_operativo ? ((kpiData.gan_neta/kpiData.ing_operativo)*100).toFixed(1)+'%' : '—');
+
+  // Color coding
+  const moraPct = (kpiData.tasa_mora||0) * 100;
   setC('kpi-tasa-mora', moraPct >= 15 ? 'var(--red)' : moraPct >= 8 ? 'var(--amber2)' : 'var(--green)');
   const nrrColor = (kpiData.nrr_corp||0) >= 1 ? 'var(--green)' : (kpiData.nrr_corp||0) >= 0.95 ? 'var(--amber)' : 'var(--red)';
   setC('kpi-nrr', nrrColor);
