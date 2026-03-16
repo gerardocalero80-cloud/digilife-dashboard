@@ -720,6 +720,16 @@ Chart.defaults.font.family="'Plus Jakarta Sans',sans-serif";
 // CONEXIÓN GOOGLE SHEETS — REEMPLAZAR LA URL CUANDO SE PUBLIQUE
 // ══════════════════════════════════════════════════════════════════════════════
 const SHEETS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?gid=1080435328&single=true&output=csv";
+const VENTAS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?gid=1033049400&single=true&output=csv";
+
+// Ventas data — updated from VENTAS_URL, fallback to feb seed
+let ventasData = {
+  zonas:  ['Ecoterra','Marsella','Mediterráneo','San Miguel','Sonsonate','Villa Pan.'],
+  ventas: [88, 150, 33, 24, 10, 29],
+  inst:   [53, 148, 16, 25, 9, 31],
+  bajas:  [18, 50, 4, 0, 4, 10],
+  mes:    'Feb 2026'
+};
 
 // Índices de filas en KPI_RESUMEN (fila 4 = índice 0 del CSV después del header)
 const KPI_IDX = {
@@ -999,8 +1009,108 @@ function rebuildAlarms() {
   scroll.innerHTML = items;
 }
 
-// ── Auto-refresh every 5 minutes ─────────────────────────────────────────────
-// (called at bottom of script after all declarations)
+// ── Fetch ventas campo por zona ───────────────────────────────────────────────
+async function fetchVentas() {
+  if (!VENTAS_URL) return;
+  try {
+    const res = await fetch(VENTAS_URL);
+    if (!res.ok) return;
+    const text = await res.text();
+    const rows = parseCSV(text);
+
+    // Structure: row 0=title, row 1=subtitle, row 2=headers, row 3+=data
+    // Cols: A=Mes, B=Zona, C=Ventas brutas, D=Reservas, E=Total ventas, F=Instalaciones, G=Bajas, H=Netos
+    // Find header row
+    let dataStart = 3;
+    for (let i = 0; i < Math.min(rows.length, 6); i++) {
+      const c0 = (rows[i][0]||'').toLowerCase();
+      const c1 = (rows[i][1]||'').toLowerCase();
+      if (c0.includes('mes') || c1.includes('zona')) { dataStart = i + 1; break; }
+    }
+
+    // Get the most recent month's data
+    // Find last non-empty, non-buffer, non-total row
+    const dataRows = rows.slice(dataStart).filter(r => {
+      const zona = (r[1]||'').toString().trim();
+      const mes  = (r[0]||'').toString().trim();
+      return zona && mes && !zona.includes('Nueva fila') && !zona.includes('TOTAL') && !mes.includes('TOTAL');
+    });
+
+    if (dataRows.length === 0) return;
+
+    // Get latest month (last entry in col A)
+    const latestMes = dataRows[dataRows.length - 1][0];
+
+    // Filter to latest month only
+    const mesRows = dataRows.filter(r => (r[0]||'').toString().trim() === latestMes);
+
+    console.log('[DigiLife] Ventas CSV — mes:', latestMes, '| zonas:', mesRows.length);
+
+    // Aggregate by zona (in case same zona appears multiple times)
+    const agg = {};
+    mesRows.forEach(r => {
+      const zona  = (r[1]||'').toString().trim();
+      const vtas  = parseNum(r[2]) || 0;
+      const inst  = parseNum(r[5]) || 0;
+      const bajas = parseNum(r[6]) || 0;
+      if (!zona) return;
+      if (!agg[zona]) agg[zona] = { vtas:0, inst:0, bajas:0 };
+      agg[zona].vtas  += vtas;
+      agg[zona].inst  += inst;
+      agg[zona].bajas += bajas;
+    });
+
+    // Sort by ventas desc, take top 8 for readability
+    const sorted = Object.entries(agg)
+      .sort((a,b) => b[1].vtas - a[1].vtas)
+      .slice(0, 10);
+
+    ventasData = {
+      zonas:  sorted.map(([z]) => z.length > 12 ? z.substring(0,12)+'.' : z),
+      ventas: sorted.map(([,v]) => v.vtas),
+      inst:   sorted.map(([,v]) => v.inst),
+      bajas:  sorted.map(([,v]) => v.bajas),
+      mes:    latestMes
+    };
+
+    console.log('[DigiLife] ventasData:', ventasData);
+
+    // Rebuild charts if already rendered
+    rebuildVentasCharts();
+
+  } catch(e) {
+    console.warn('[DigiLife] fetchVentas error:', e);
+  }
+}
+
+// Rebuild ventas charts with fresh data
+function rebuildVentasCharts() {
+  // Destroy and rebuild c-ini-ventas
+  const el1 = document.getElementById('c-ini-ventas');
+  if (el1) {
+    const ex = Chart.getChart(el1);
+    if (ex) ex.destroy();
+    mkBar('c-ini-ventas', ventasData.zonas, [
+      {label:'Ventas',data:ventasData.ventas,backgroundColor:'#0066FF',borderRadius:3},
+      {label:'Instalaciones',data:ventasData.inst,backgroundColor:'#10B981',borderRadius:3},
+      {label:'Bajas',data:ventasData.bajas,backgroundColor:'rgba(239,68,68,.7)',borderRadius:3}
+    ],{yFmt:v=>v});
+  }
+  // Destroy and rebuild c-campo-zona
+  const el2 = document.getElementById('c-campo-zona');
+  if (el2) {
+    const ex = Chart.getChart(el2);
+    if (ex) ex.destroy();
+    mkBar('c-campo-zona', ventasData.zonas, [
+      {label:'Ventas',data:ventasData.ventas,backgroundColor:'#0066FF',borderRadius:3},
+      {label:'Instalaciones',data:ventasData.inst,backgroundColor:'#10B981',borderRadius:3},
+      {label:'Bajas',data:ventasData.bajas,backgroundColor:'rgba(239,68,68,.7)',borderRadius:3}
+    ],{yFmt:v=>v});
+    // Update chart title
+    const titleEl = document.querySelector('#page-ventas-campo .ct');
+    if (titleEl) titleEl.childNodes[0].textContent = `Ventas e instalaciones por zona · ${ventasData.mes}`;
+  }
+}
 
 
 const fmtK=v=>'$'+(v/1000).toFixed(0)+'k';
@@ -1020,6 +1130,7 @@ function showMain(id,el){
   if(id==='inicio'||id==='retencion'){
     document.getElementById('page-'+id).classList.add('active');
     if(!built[id]){build(id);built[id]=true;}
+    if(id==='inicio') rebuildVentasCharts();
   } else {
     const sub=document.getElementById('sub-'+id);
     const first=sub?sub.querySelector('.stab'):null;
@@ -1036,6 +1147,8 @@ function showSub(main,sub,el){
   if(pg)pg.classList.add('active');
   const k=main+'-'+sub;
   if(!built[k]){build(k);built[k]=true;}
+  // Always rebuild ventas charts with latest data when opening ventas-campo or inicio
+  if(k==='ventas-campo'||k==='inicio') rebuildVentasCharts();
 }
 
 // ── Vendor table helpers ──────────────────────────────────────────────────────
@@ -1134,18 +1247,18 @@ function mkLine(id,labels,datasets,opts={}){
 }
 
 function bInicio(){
-  mkBar('c-ini-ventas',zonas,[
-    {label:'Ventas',data:ventasFeb,backgroundColor:'#0066FF',borderRadius:3},
-    {label:'Instalaciones',data:instFeb,backgroundColor:'#10B981',borderRadius:3},
-    {label:'Bajas',data:bajasFeb,backgroundColor:'rgba(239,68,68,.7)',borderRadius:3}
+  mkBar('c-ini-ventas',ventasData.zonas,[
+    {label:'Ventas',data:ventasData.ventas,backgroundColor:'#0066FF',borderRadius:3},
+    {label:'Instalaciones',data:ventasData.inst,backgroundColor:'#10B981',borderRadius:3},
+    {label:'Bajas',data:ventasData.bajas,backgroundColor:'rgba(239,68,68,.7)',borderRadius:3}
   ],{yFmt:v=>v});
 }
 
 function bCampo(){
-  mkBar('c-campo-zona',zonas,[
-    {label:'Ventas',data:ventasFeb,backgroundColor:'#0066FF',borderRadius:3},
-    {label:'Instalaciones',data:instFeb,backgroundColor:'#10B981',borderRadius:3},
-    {label:'Bajas',data:bajasFeb,backgroundColor:'rgba(239,68,68,.7)',borderRadius:3}
+  mkBar('c-campo-zona',ventasData.zonas,[
+    {label:'Ventas',data:ventasData.ventas,backgroundColor:'#0066FF',borderRadius:3},
+    {label:'Instalaciones',data:ventasData.inst,backgroundColor:'#10B981',borderRadius:3},
+    {label:'Bajas',data:ventasData.bajas,backgroundColor:'rgba(239,68,68,.7)',borderRadius:3}
   ],{yFmt:v=>v});
 
   const causas=['Retiro serv.','Comp.','Cobertura','Insatisfacción','Incumplimiento','Terminación','Otros'];
@@ -1364,7 +1477,9 @@ function bRetencion(){
 
 // ── Iniciar — todas las declaraciones están listas ────────────────────────────
 fetchSheets();
+fetchVentas();
 setInterval(fetchSheets, 5 * 60 * 1000);
+setInterval(fetchVentas, 5 * 60 * 1000);
 </script>
 </body>
 </html>
