@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TeleNetwork · DigiLife — Dashboard Ejecutivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#F0F4F8;--surf:#FFFFFF;--surf2:#F7F9FC;--surf3:#EEF2F8;
+  --border:#E2E8F0;--border2:#CBD5E1;
+  --text:#0F172A;--text2:#475569;--text3:#94A3B8;
+  --brand:#0047CC;--brand2:#0066FF;--brand3:#3385FF;--brand-l:#E8F0FF;
+  --green:#059669;--green2:#10B981;--green-l:#ECFDF5;
+  --amber:#B45309;--amber2:#F59E0B;--amber-l:#FFFBEB;
+  --red:#DC2626;--red2:#EF4444;--red-l:#FEF2F2;
+  --purple:#6D28D9;--purple2:#8B5CF6;--purple-l:#F5F3FF;
+  --teal:#0D9488;--teal2:#14B8A6;--teal-l:#F0FDFA;
+  --coral:#C2410C;--coral2:#F97316;--coral-l:#FFF7ED;
+  --font:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;
+  --r:10px;--r-sm:6px;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;display:flex;flex-direction:column;}
+
+/* Header */
+.hdr{background:var(--surf);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:var(--sh);}
+.brand{display:flex;align-items:center;gap:10px;}
+.bmark{width:34px;height:34px;background:var(--brand2);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.bmark svg{width:18px;height:18px;fill:none;stroke:white;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.bname{font-size:14px;font-weight:800;letter-spacing:-.3px;}
+.bname em{color:var(--brand2);font-style:normal;}
+.btag{font-size:10px;font-family:var(--mono);padding:2px 7px;border-radius:4px;}
+.btag-blue{background:var(--brand-l);color:var(--brand);border:1px solid rgba(0,71,204,.15);}
+.btag-teal{background:var(--teal-l);color:var(--teal);border:1px solid rgba(13,148,136,.2);}
+.btag-warn{background:var(--amber-l);color:var(--amber);border:1px solid rgba(180,83,9,.2);}
+.live{display:flex;align-items:center;gap:5px;font-size:11px;font-family:var(--mono);color:var(--text2);}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green2);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.4);}50%{box-shadow:0 0 0 4px rgba(16,185,129,0);}}
+
+/* Alarm bar */
+.alarm-bar{background:var(--red-l);border-bottom:1px solid rgba(220,38,38,.2);height:30px;display:flex;align-items:center;flex-shrink:0;overflow:hidden;}
+.alarm-bar-label{padding:0 14px;font-size:10px;font-weight:800;color:var(--red);white-space:nowrap;border-right:1px solid rgba(220,38,38,.25);height:100%;display:flex;align-items:center;background:rgba(220,38,38,.07);flex-shrink:0;}
+.alarm-track{flex:1;overflow:hidden;height:100%;display:flex;align-items:center;}
+.alarm-scroll{display:flex;align-items:center;animation:marquee 32s linear infinite;white-space:nowrap;}
+.alarm-scroll:hover{animation-play-state:paused;}
+@keyframes marquee{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.alarm{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--red);white-space:nowrap;padding:0 28px;border-right:1px solid rgba(220,38,38,.15);}
+.alarm::before{content:'⚠';font-size:10px;}
+
+/* Main nav */
+.nav{background:var(--surf);border-bottom:1px solid var(--border);padding:0 20px;display:flex;gap:2px;flex-shrink:0;}
+.ntab{display:flex;align-items:center;gap:6px;padding:11px 16px 9px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);cursor:pointer;border-bottom:3px solid transparent;transition:all .15s;white-space:nowrap;}
+.ntab:hover{color:var(--text2);}
+.ntab.active{color:var(--brand2);border-bottom-color:var(--brand2);}
+.ntab svg{width:13px;height:13px;}
+
+/* Sub nav */
+.subnav{background:var(--surf2);border-bottom:1px solid var(--border);padding:0 20px;display:flex;gap:2px;overflow-x:auto;flex-shrink:0;}
+.subnav.hidden{display:none;}
+.stab{padding:7px 14px;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;}
+.stab:hover{color:var(--text2);}
+.stab.active{color:var(--brand2);border-bottom-color:var(--brand2);}
+
+/* Content */
+.content{flex:1;overflow-y:auto;padding:18px 20px;}
+.content::-webkit-scrollbar{width:5px;}
+.content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.page{display:none;animation:fu .18s ease;}
+.page.active{display:block;}
+@keyframes fu{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+/* Grid */
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px;}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:12px;}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px;}
+.g5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:12px;}
+.g32{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px;}
+.g23{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-bottom:12px;}
+@media(max-width:900px){.g2,.g3,.g4,.g5,.g32,.g23{grid-template-columns:1fr;}}
+
+/* Card */
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--sh);}
+.ct{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.ctag{font-size:9px;font-family:var(--mono);background:var(--surf2);color:var(--text3);padding:2px 7px;border-radius:4px;text-transform:none;letter-spacing:0;font-weight:400;}
+
+/* KPI */
+.kpi{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:14px;box-shadow:var(--sh);position:relative;overflow:hidden;}
+.kpi-bar{position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi-lbl{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text2);margin-bottom:7px;line-height:1.4;}
+.kpi-val{font-size:24px;font-weight:800;letter-spacing:-1px;line-height:1;margin-bottom:4px;}
+.kpi-sub{font-size:10px;font-family:var(--mono);color:var(--text3);}
+.kpi-fx{font-size:9px;font-family:var(--mono);color:var(--text3);margin-top:5px;padding-top:5px;border-top:1px solid var(--border);}
+.up{color:var(--green2);font-weight:600;}
+.dn{color:var(--red2);font-weight:600;}
+.wn{color:var(--amber2);font-weight:600;}
+
+/* Summary KPI (homepage) */
+.skpi{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;box-shadow:var(--sh);border-left:4px solid var(--brand2);}
+.skpi.g{border-left-color:var(--green2);}
+.skpi.a{border-left-color:var(--amber2);}
+.skpi.r{border-left-color:var(--red2);}
+.skpi.p{border-left-color:var(--purple2);}
+.skpi.t{border-left-color:var(--teal2);}
+.skpi-area{font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.09em;color:var(--text3);}
+.skpi-lbl{font-size:11px;font-weight:600;color:var(--text2);margin:2px 0;}
+.skpi-val{font-size:20px;font-weight:800;letter-spacing:-.5px;}
+.skpi-d{font-size:10px;font-family:var(--mono);}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{text-align:left;font-size:9px;font-family:var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--text3);padding:0 8px 7px;border-bottom:2px solid var(--border);font-weight:500;}
+.tbl th:not(:first-child){text-align:right;}
+.tbl td{padding:7px 8px;border-bottom:1px solid var(--border);color:var(--text2);}
+.tbl td:not(:first-child){text-align:right;font-family:var(--mono);font-size:10px;}
+.tbl td:first-child{color:var(--text);font-weight:600;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:var(--surf2);}
+.tbl tfoot td{font-weight:700;border-top:2px solid var(--border2);padding-top:8px;border-bottom:none;}
+
+/* Pills */
+.pill{display:inline-flex;align-items:center;font-size:9px;font-family:var(--mono);padding:2px 7px;border-radius:20px;font-weight:600;}
+.pg{background:var(--green-l);color:var(--green);}
+.pa{background:var(--amber-l);color:var(--amber);}
+.pr{background:var(--red-l);color:var(--red);}
+.pb{background:var(--brand-l);color:var(--brand);}
+.pp{background:var(--purple-l);color:var(--purple);}
+
+/* Alarm pill */
+.alarm-pill{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:var(--red-l);color:var(--red);}
+
+/* Progress */
+.prog{margin-bottom:8px;}
+.prog-h{display:flex;justify-content:space-between;margin-bottom:3px;font-size:10px;}
+.prog-l{color:var(--text2);}
+.prog-v{font-family:var(--mono);font-size:9px;font-weight:600;}
+.prog-bar{height:6px;background:var(--surf3);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;}
+
+/* Info boxes */
+.ibox{border-left:3px solid var(--brand2);padding:8px 11px;background:var(--brand-l);border-radius:0 5px 5px 0;font-size:10px;color:var(--text2);line-height:1.6;margin-top:8px;}
+.abox{border-left:3px solid var(--red2);padding:8px 11px;background:var(--red-l);border-radius:0 5px 5px 0;font-size:10px;color:var(--text2);line-height:1.6;margin-top:8px;}
+.sbox{border-left:3px solid var(--green2);padding:8px 11px;background:var(--green-l);border-radius:0 5px 5px 0;font-size:10px;color:var(--text2);line-height:1.6;margin-top:8px;}
+.wbox{border-left:3px solid var(--amber2);padding:8px 11px;background:var(--amber-l);border-radius:0 5px 5px 0;font-size:10px;color:var(--text2);line-height:1.6;margin-top:8px;}
+.ibox strong{color:var(--brand);}
+.abox strong{color:var(--red);}
+.sbox strong{color:var(--green);}
+.wbox strong{color:var(--amber);}
+
+/* Vendor row status */
+.vs-green{background:var(--green-l);color:var(--green);font-weight:700;padding:2px 7px;border-radius:20px;font-size:9px;font-family:var(--mono);}
+.vs-amber{background:var(--amber-l);color:var(--amber);font-weight:700;padding:2px 7px;border-radius:20px;font-size:9px;font-family:var(--mono);}
+.vs-red{background:var(--red-l);color:var(--red);font-weight:700;padding:2px 7px;border-radius:20px;font-size:9px;font-family:var(--mono);}
+
+/* Mini stats */
+.mstats{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px;}
+.mstat{background:var(--surf2);border-radius:var(--r-sm);padding:9px 11px;border:1px solid var(--border);}
+.mstat-l{font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:2px;}
+.mstat-v{font-size:18px;font-weight:800;letter-spacing:-.5px;}
+.mstat-s{font-size:9px;color:var(--text3);}
+
+/* Pending */
+.pending{background:var(--surf2);border:1.5px dashed var(--border2);border-radius:var(--r-sm);padding:10px 12px;font-size:10px;color:var(--text3);}
+.pending strong{display:block;font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--amber);margin-bottom:2px;}
+
+/* Funnel */
+.funnel{display:flex;flex-direction:column;gap:4px;}
+.funnel-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;font-size:11px;}
+.funnel-label{color:var(--text2);flex:1;font-weight:500;}
+.funnel-val{font-size:16px;font-weight:800;font-family:var(--mono);min-width:30px;text-align:right;}
+.funnel-money{font-size:10px;font-family:var(--mono);color:var(--text3);}
+
+/* Section label */
+.slbl{font-size:9px;font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;margin-top:16px;}
+.slbl:first-child{margin-top:0;}
+
+/* Divider */
+.div{height:1px;background:var(--border);margin:10px 0;}
+
+/* Penetration badge */
+.pen-badge{display:inline-block;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-family:var(--mono);}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="brand">
+    <div class="bmark">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <div class="bname">TeleNetwork · <em>DigiLife</em></div>
+    <div class="btag btag-blue">Dashboard Ejecutivo</div>
+    <div class="btag btag-teal">Sin IVA · H1-2026</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="btag btag-warn">Δ $6,591 pendiente conciliar</div>
+    <span id="data-status" style="font-size:10px;font-family:var(--mono);color:var(--amber2);">Cargando...</span>
+    <div class="live"><span class="live-dot"></span><span id="hdr-date">12 marzo 2026</span></div>
+  </div>
+</div>
+
+<!-- ALARM BAR -->
+<div class="alarm-bar">
+  <div class="alarm-bar-label">⚠ ALARMAS</div>
+  <div class="alarm-track">
+    <div class="alarm-scroll" id="alarmScroll">
+      <div class="alarm">Revamp: ritmo 11.25/día — necesario 24.5 (brecha 2.2×)</div>
+      <div class="alarm">Corporativo: −11% ingreso en 2 meses · NRR 89%</div>
+      <div class="alarm">Marsella II penetración 14% — meta mínima 50% (cerrado)</div>
+      <div class="alarm">Versalles penetración 2% — crítico · 3,210 hogares con competencia</div>
+      <div class="alarm">Mora 11.9% — zona alerta (benchmark &lt;8%)</div>
+      <div class="alarm">Proyección cierre marzo: ~270 brutas vs meta 600</div>
+      <div class="alarm">Sonsonate televentas: 0 cierres — canal sin ventas</div>
+      <div class="alarm">Revamp: ritmo 11.25/día — necesario 24.5 (brecha 2.2×)</div>
+      <div class="alarm">Corporativo: −11% ingreso en 2 meses · NRR 89%</div>
+      <div class="alarm">Marsella II penetración 14% — meta mínima 50% (cerrado)</div>
+      <div class="alarm">Versalles penetración 2% — crítico · 3,210 hogares con competencia</div>
+      <div class="alarm">Mora 11.9% — zona alerta (benchmark &lt;8%)</div>
+      <div class="alarm">Proyección cierre marzo: ~270 brutas vs meta 600</div>
+      <div class="alarm">Sonsonate televentas: 0 cierres — canal sin ventas</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN NAV -->
+<div class="nav">
+  <div class="ntab active" onclick="showMain('inicio',this)">
+    <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1" fill="currentColor" opacity=".8"/><rect x="9" y="1" width="6" height="6" rx="1" fill="currentColor" opacity=".8"/><rect x="1" y="9" width="6" height="6" rx="1" fill="currentColor" opacity=".8"/><rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" opacity=".8"/></svg>
+    Resumen
+  </div>
+  <div class="ntab" onclick="showMain('ventas',this)">
+    <svg viewBox="0 0 16 16"><polyline points="1,12 5,7 8,9 12,4 15,6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+    Ventas
+  </div>
+  <div class="ntab" onclick="showMain('cxc',this)">
+    <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 5v4l2 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    CXC
+  </div>
+  <div class="ntab" onclick="showMain('retencion',this)">
+    <svg viewBox="0 0 16 16"><path d="M8 14s-6-3.5-6-8a6 6 0 0 1 12 0c0 4.5-6 8-6 8z" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+    Retención
+  </div>
+</div>
+
+<!-- SUB NAV -->
+<div class="subnav hidden" id="sub-ventas">
+  <div class="stab active" onclick="showSub('ventas','campo',this)">🏘 Campo / Agencia</div>
+  <div class="stab" onclick="showSub('ventas','televentas',this)">📞 Televentas</div>
+  <div class="stab" onclick="showSub('ventas','proyectos',this)">🗺 Proyectos</div>
+  <div class="stab" onclick="showSub('ventas','corp',this)">🏦 Corporativo</div>
+  <div class="stab" onclick="showSub('ventas','pyme',this)">🏢 Pyme</div>
+  <div class="stab" onclick="showSub('ventas','proy',this)">📈 Proyección</div>
+</div>
+<div class="subnav hidden" id="sub-cxc">
+  <div class="stab active" onclick="showSub('cxc','cobr',this)">💰 Cobranza</div>
+  <div class="stab" onclick="showSub('cxc','aging',this)">⏱ Aging</div>
+  <div class="stab" onclick="showSub('cxc','pl',this)">📊 P&amp;L</div>
+  <div class="stab" onclick="showSub('cxc','proy',this)">📈 Proyección</div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- ══════════ INICIO -->
+<div id="page-inicio" class="page active">
+  <div class="slbl">resumen ejecutivo · 12 marzo 2026 · cierre febrero 2026</div>
+  <div class="g5">
+    <div class="skpi g"><div class="skpi-area">Ventas campo</div><div class="skpi-lbl">Ventas brutas feb</div><div class="skpi-val" id="kpi-ventas-feb">539</div><div class="skpi-d wn">Instalaciones: <span id="kpi-inst-feb">292</span> · Bajas: <span id="kpi-bajas-feb">87</span></div></div>
+    <div class="skpi"><div class="skpi-area">Televentas</div><div class="skpi-lbl">Cierres feb</div><div class="skpi-val">29</div><div class="skpi-d">13 directa · 16 reserva · +$929/mes</div></div>
+    <div class="skpi a"><div class="skpi-area">Penetración</div><div class="skpi-lbl">Penetración global</div><div class="skpi-val" id="kpi-penetracion">26%</div><div class="skpi-d wn"><span id="kpi-con-digi">8,552</span> / <span id="kpi-universo">32,314</span> hogares</div></div>
+    <div class="skpi r"><div class="skpi-area">Corporativo</div><div class="skpi-lbl">Pipeline + NRR</div><div class="skpi-val" id="kpi-pipeline">$10,521</div><div class="skpi-d dn">NRR: <span id="kpi-nrr">89%</span> · Ing: <span id="kpi-ing-corp">$24,897</span></div></div>
+    <div class="skpi p"><div class="skpi-area">Pyme</div><div class="skpi-lbl">Activos facturando</div><div class="skpi-val" id="kpi-cartera-pyme">$169K</div><div class="skpi-d">Vigentes 73.6% · Vencidos 23%</div></div>
+  </div>
+  <div class="g3">
+    <div class="card">
+      <div class="ct">Ventas feb · por zona</div>
+      <div style="position:relative;height:200px;"><canvas id="c-ini-ventas"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Penetración proyectos · top/bottom</div>
+      <table class="tbl">
+        <thead><tr><th>Proyecto</th><th>Tipo</th><th>Hogares</th><th>DigiLife</th><th>%</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>Marsella I</td><td><span class="pill pa">Abierto</span></td><td>5,310</td><td>3,481</td><td>66%</td><td><span class="pill pg">✓ bueno</span></td></tr>
+          <tr><td>Sitio Grande</td><td><span class="pill pa">Abierto</span></td><td>596</td><td>388</td><td>65%</td><td><span class="pill pg">✓ bueno</span></td></tr>
+          <tr><td>Acrópolis</td><td><span class="pill pb">Cerrado</span></td><td>737</td><td>397</td><td>54%</td><td><span class="pill pg">✓ ok</span></td></tr>
+          <tr><td>Versalles</td><td><span class="pill pa">Abierto</span></td><td>4,220</td><td>102</td><td>2%</td><td><span class="pill pr">⚠ crítico</span></td></tr>
+          <tr><td>Marsella II</td><td><span class="pill pb">Cerrado</span></td><td>7,881</td><td>1,097</td><td>14%</td><td><span class="pill pr">⚠ alerta</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="ct">Cobranza y retención</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:var(--green-l);border-radius:6px;padding:10px;text-align:center;"><div style="font-size:9px;color:var(--green);font-family:var(--mono);margin-bottom:2px;">COBRANZA FEB</div><div style="font-size:22px;font-weight:800;color:var(--green);">95%</div><div style="font-size:9px;color:var(--green);">$284,183 / $299,234</div></div>
+        <div style="background:var(--green-l);border-radius:6px;padding:10px;text-align:center;"><div style="font-size:9px;color:var(--green);font-family:var(--mono);margin-bottom:2px;">CHURN Q1</div><div style="font-size:22px;font-weight:800;color:var(--green);">0.98%</div><div style="font-size:9px;color:var(--green);">83 bajas/mes</div></div>
+        <div style="background:var(--amber-l);border-radius:6px;padding:10px;text-align:center;"><div style="font-size:9px;color:var(--amber);font-family:var(--mono);margin-bottom:2px;">MORA</div><div style="font-size:22px;font-weight:800;color:var(--amber);">11.9%</div><div style="font-size:9px;color:var(--amber);">1,257 clientes</div></div>
+        <div style="background:var(--brand-l);border-radius:6px;padding:10px;text-align:center;"><div style="font-size:9px;color:var(--brand);font-family:var(--mono);margin-bottom:2px;">RENOVACIONES</div><div style="font-size:22px;font-weight:800;color:var(--brand);">608</div><div style="font-size:9px;color:var(--brand);">feb · vs meta</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="slbl">indicadores financieros · P&L feb 2026</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Ingreso operativo</div><div class="kpi-val" id="kpi-ing-operativo">$299,595</div><div class="kpi-sub"><span class="dn">▼ −2.3%</span> vs dic 2025</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Ganancia neta</div><div class="kpi-val" style="color:var(--green);" id="kpi-gan-neta">$132,617</div><div class="kpi-sub"><span class="up">▲ +6.0%</span> vs ene 2026</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">Margen neto</div><div class="kpi-val" style="color:var(--teal);" id="kpi-margen">43.2%</div><div class="kpi-sub"><span class="up">▲ +3.3pp</span> vs dic 2025</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Corporativo</div><div class="kpi-val" style="color:var(--red);">$24,897</div><div class="kpi-sub"><span class="dn">▼ −11%</span> en 2 meses · alerta</div></div>
+  </div>
+</div>
+
+<!-- ══════════ VENTAS · CAMPO -->
+<div id="page-ventas-campo" class="page">
+  <div class="slbl">ventas campo · agencias · freelance · digital · referidos · feb 2026</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Ventas brutas feb</div><div class="kpi-val">539</div><div class="kpi-sub">Ventas + Reservas por zona</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Instalaciones feb</div><div class="kpi-val" style="color:var(--green);">292</div><div class="kpi-sub">Activaciones reserva 94 · Directas 205 <span class="wn">⚠ gap 247</span></div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Bajas feb</div><div class="kpi-val" style="color:var(--red);">87</div><div class="kpi-sub">Retiro servicio 52 · Competencia 7 · Cobertura 6</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Netos reales</div><div class="kpi-val" style="color:var(--amber);">205</div><div class="kpi-sub">292 inst. − 87 bajas</div><div class="kpi-fx">Factor conv. a pagante: 77%</div></div>
+  </div>
+
+  <div class="g32">
+    <div class="card">
+      <div class="ct">Ventas e instalaciones por zona · feb 2026</div>
+      <div style="position:relative;height:220px;"><canvas id="c-campo-zona"></canvas></div>
+      <div style="display:flex;gap:12px;margin-top:8px;font-size:10px;color:var(--text2);">
+        <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:#0066FF;"></span>Ventas</span>
+        <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:#10B981;"></span>Instalaciones</span>
+        <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:#EF4444;"></span>Bajas</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">Causas de baja · feb 2026</div>
+      <div style="position:relative;height:180px;"><canvas id="c-campo-bajas"></canvas></div>
+      <div class="abox"><strong>52 retiros de servicio residencial</strong> dominan las bajas (60%). Requiere análisis de causa raíz — puede indicar problema de calidad de servicio en campo.</div>
+    </div>
+  </div>
+
+  <div class="slbl">rendimiento por vendedor · campo + canales · marzo 2026 (día 12)</div>
+  <div class="card">
+    <div class="ct">Detalle vendedores — meta mensual vs avance actual
+      <span class="ctag">Alarma si ritmo &lt;70% del esperado al día 12</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tbl" id="tbl-vendedores-campo">
+        <thead>
+          <tr>
+            <th>Vendedor</th><th>Canal</th><th>Zona</th>
+            <th>Meta mes</th><th>Acum. día 12</th><th>Esperado día 12</th>
+            <th>% ritmo</th><th>Proyección cierre</th><th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-campo"></tbody>
+      </table>
+    </div>
+    <div class="wbox" style="margin-top:10px;"><strong>Nota:</strong> Los datos de vendedores de campo no están atribuidos en el ERP. Esta tabla requiere carga manual en la plantilla Google Sheets. Las celdas en amarillo indican vendedores con ritmo entre 70–89% del esperado; rojo indica &lt;70%.</div>
+  </div>
+
+  <div class="slbl">renovaciones · feb 2026</div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Reservas activas por proyecto</div>
+      <div style="position:relative;height:180px;"><canvas id="c-reservas"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Renovaciones · avance vs meta por zona</div>
+      <div style="position:relative;height:180px;"><canvas id="c-renovaciones"></canvas></div>
+      <div class="ibox"><strong>608 renovaciones</strong> en feb. Marsella 274 / Ecoterra 136 / Villa Pan. 67 / Megápolis 61. Mayor brecha: Marsella falta 515 para meta 789.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ VENTAS · TELEVENTAS -->
+<div id="page-ventas-televentas" class="page">
+  <div class="slbl">televentas · feb 2026 · datos reales</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Cierres totales feb</div><div class="kpi-val">29</div><div class="kpi-sub">13 directa · 16 reserva</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Facturación incremental</div><div class="kpi-val" style="color:var(--green);">+$929</div><div class="kpi-sub">mensual recurrente feb</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Leads trabajados</div><div class="kpi-val" style="color:var(--amber);">5+3</div><div class="kpi-sub">5 en proceso · 3 cerrados</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--purple2);"></div><div class="kpi-lbl">Facturación total período</div><div class="kpi-val" style="color:var(--purple);">$16,163</div><div class="kpi-sub">Plan 18m: 25 · Plan 12m: 2</div></div>
+  </div>
+
+  <div class="g32">
+    <div class="card">
+      <div class="ct">Cierres por zona · feb 2026</div>
+      <div style="position:relative;height:200px;"><canvas id="c-tv-zona"></canvas></div>
+      <div style="display:flex;gap:12px;margin-top:8px;font-size:10px;color:var(--text2);">
+        <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:#0066FF;"></span>Venta directa</span>
+        <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:#3385FF;opacity:.6;"></span>Reserva</span>
+      </div>
+      <div class="sbox"><strong>Marsella domina con 18 cierres</strong> (62% del total televentas). Sonsonate 0 — canal sin ventas en zona, alarma activa.</div>
+    </div>
+    <div class="card">
+      <div class="ct">Mix de planes · período acumulado</div>
+      <div style="position:relative;height:140px;"><canvas id="c-tv-planes"></canvas></div>
+      <div class="div"></div>
+      <div class="ct" style="margin-bottom:8px;">Funnel leads</div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <div style="background:var(--brand-l);border-radius:5px;padding:8px 12px;display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--text2);">Leads entrantes</span><span style="font-size:16px;font-weight:800;color:var(--brand);">5</span></div>
+        <div style="background:var(--teal-l);border-radius:5px;padding:8px 12px;display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--text2);">En gestión activa</span><span style="font-size:16px;font-weight:800;color:var(--teal);">3</span></div>
+        <div style="background:var(--green-l);border-radius:5px;padding:8px 12px;display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--text2);">Cierres feb</span><span style="font-size:16px;font-weight:800;color:var(--green);">29</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slbl">rendimiento agentes televentas · marzo 2026 (día 12)</div>
+  <div class="card">
+    <div class="ct">Detalle agentes televentas
+      <span class="ctag">Alarma conv. &lt;5% · Sin ventas 3+ días</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tbl" id="tbl-tv">
+        <thead>
+          <tr><th>Agente</th><th>Llamadas mes</th><th>Contactos ef.</th><th>Tasa contacto</th><th>Cierres</th><th>Tasa conv.</th><th>Meta mes</th><th>% meta</th><th>Proyección</th><th>Estado</th></tr>
+        </thead>
+        <tbody id="tbody-tv"></tbody>
+      </table>
+    </div>
+    <div class="wbox" style="margin-top:8px;"><strong>Dato ERP disponible para televentas.</strong> Actualizar diariamente en la plantilla Google Sheets para que las alarmas de conversión &lt;5% se activen automáticamente.</div>
+  </div>
+</div>
+
+<!-- ══════════ VENTAS · PROYECTOS -->
+<div id="page-ventas-proyectos" class="page">
+  <div class="slbl">penetración de mercado por proyecto · datos reales feb 2026</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Universo total</div><div class="kpi-val">32,314</div><div class="kpi-sub">hogares en todos los proyectos</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Con DigiLife</div><div class="kpi-val" style="color:var(--green);">8,552</div><div class="kpi-sub">penetración global 26%</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Proyectos en alerta</div><div class="kpi-val" style="color:var(--red);">4</div><div class="kpi-sub">penetración &lt;20%</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Con competencia</div><div class="kpi-val" style="color:var(--amber);">4,793</div><div class="kpi-sub">hogares con otro proveedor</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Proyectos CERRADOS · sin competencia <span class="ctag">meta ≥50%</span></div>
+      <div style="overflow-x:auto;">
+        <table class="tbl" id="tbl-cerrados"></table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">Proyectos ABIERTOS · con competencia <span class="ctag">meta ≥30%</span></div>
+      <div style="overflow-x:auto;">
+        <table class="tbl" id="tbl-abiertos"></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:0;">
+    <div class="ct">Penetración por proyecto · comparativo visual</div>
+    <div style="position:relative;height:260px;"><canvas id="c-penetracion"></canvas></div>
+  </div>
+</div>
+
+<!-- ══════════ VENTAS · CORPORATIVO -->
+<div id="page-ventas-corp" class="page">
+  <div class="slbl">corporativo · pipeline y resultados · feb 2026</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Clientes activos</div><div class="kpi-val">56</div><div class="kpi-sub">recurrente $1,751/mes sin IVA</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">NRR dic→feb</div><div class="kpi-val" style="color:var(--red);">89%</div><div class="kpi-sub"><span class="dn">encogimiento</span> · meta 100%+</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Pipeline total</div><div class="kpi-val" style="color:var(--amber);">$10,521</div><div class="kpi-sub">negocia. $7,070 · cierre $3,451</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">KAM actual</div><div class="kpi-val" style="color:var(--green);">1</div><div class="kpi-sub">Contratando 2 vendedores corp.</div></div>
+  </div>
+
+  <div class="g32">
+    <div class="card">
+      <div class="ct">Funnel de ventas corporativo · feb 2026</div>
+      <div class="funnel">
+        <div class="funnel-row" style="background:#EEF2F8;"><div class="funnel-label">Propuesta / Factibilidad</div><div class="funnel-val" style="color:var(--brand);">4</div><div class="funnel-money">prospectos</div></div>
+        <div class="funnel-row" style="background:#E8F0FF;"><div class="funnel-label">Ofertas / Cotización</div><div class="funnel-val" style="color:var(--brand2);">2</div><div class="funnel-money">cotizando</div></div>
+        <div class="funnel-row" style="background:#DBEAFE;"><div class="funnel-label">Negociaciones activas</div><div class="funnel-val" style="color:var(--teal);">6</div><div class="funnel-money" style="color:var(--teal);">$7,070.31</div></div>
+        <div class="funnel-row" style="background:var(--green-l);"><div class="funnel-label">Cierre</div><div class="funnel-val" style="color:var(--green);">7</div><div class="funnel-money" style="color:var(--green);">$3,451.41</div></div>
+      </div>
+      <div class="div"></div>
+      <div class="ct" style="margin-bottom:8px;">Pipeline · prospectos activos</div>
+      <table class="tbl">
+        <thead><tr><th>Prospecto</th><th>Etapa</th><th>Valor est.</th><th>Seguimiento</th></tr></thead>
+        <tbody>
+          <tr><td>La Francesa · San Miguel</td><td><span class="pill pb">Propuesta</span></td><td>100Mb/24m</td><td>Activo</td></tr>
+          <tr><td>Multi-Inv. Alarcón S.A.</td><td><span class="pill pb">Propuesta</span></td><td>200Mb+16 cámaras</td><td>Activo</td></tr>
+          <tr><td>Jorge A. López</td><td><span class="pill pa">Seguimiento</span></td><td>300Mb/24m</td><td>Pendiente local</td></tr>
+        </tbody>
+      </table>
+      <div class="abox"><strong>Ingreso corporativo cayó −$3,068 en 2 meses.</strong> Con 1 KAM el pipeline no compensa las pérdidas. La contratación de 2 vendedores es urgente.</div>
+    </div>
+    <div class="card">
+      <div class="ct">Avance diario acumulado · marzo</div>
+      <div style="position:relative;height:160px;"><canvas id="c-corp-avance"></canvas></div>
+      <div class="div"></div>
+      <div class="ct" style="margin-bottom:8px;">Predicción cierre mes</div>
+      <div class="mstats">
+        <div class="mstat"><div class="mstat-l">Ritmo actual</div><div class="mstat-v" style="color:var(--amber);">0.4/día</div><div class="mstat-s">nuevos/día</div></div>
+        <div class="mstat"><div class="mstat-l">Proyección mes</div><div class="mstat-v" style="color:var(--amber);">~12</div><div class="mstat-s">cierres estimados</div></div>
+        <div class="mstat"><div class="mstat-l">Pipeline potencial</div><div class="mstat-v" style="color:var(--green);">$10,521</div><div class="mstat-s">si se cierran todos</div></div>
+        <div class="mstat"><div class="mstat-l">Ingreso recurrente</div><div class="mstat-v" style="color:var(--brand);">$1,751</div><div class="mstat-s">/mes sin IVA actual</div></div>
+      </div>
+      <div class="pending" style="margin-top:10px;"><strong>KAM vendedores pendientes de contratar</strong>3 vendedores pyme + 2 corporativos en proceso. Actualizar cuando estén activos para agregar sus metas y seguimiento individual.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ VENTAS · PYME -->
+<div id="page-ventas-pyme" class="page">
+  <div class="slbl">pyme · cartera y pipeline · datos reales feb 2026</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Activos facturando</div><div class="kpi-val" style="color:var(--green);">$169,254</div><div class="kpi-sub">clientes vigentes 73.6%</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Clientes vencidos</div><div class="kpi-val" style="color:var(--amber);">23%</div><div class="kpi-sub">de la cartera activa</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Suspendidos + incobrables</div><div class="kpi-val" style="color:var(--red);">$18,984</div><div class="kpi-sub">$9,492 cada estado</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Por renovar</div><div class="kpi-val">3.4%</div><div class="kpi-sub">de clientes vigentes</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Estado de cartera pyme</div>
+      <div style="position:relative;height:200px;"><canvas id="c-pyme-estado"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Pipeline pyme · prospectos activos</div>
+      <table class="tbl">
+        <thead><tr><th>Prospecto</th><th>Plan</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td>La Francesa · San Miguel</td><td>100Mb / 24m</td><td><span class="pill pb">Propuesta</span></td></tr>
+          <tr><td>Multi-Inv. Alarcón S.A.</td><td>200Mb + 16 cámaras</td><td><span class="pill pb">Propuesta</span></td></tr>
+          <tr><td>Jorge A. López</td><td>300Mb / 24m</td><td><span class="pill pa">Seguimiento</span></td></tr>
+        </tbody>
+      </table>
+      <div class="div"></div>
+      <div class="ct" style="margin-bottom:8px;">Avance diario acumulado · marzo</div>
+      <div style="position:relative;height:130px;"><canvas id="c-pyme-avance"></canvas></div>
+      <div class="pending" style="margin-top:10px;"><strong>3 vendedores pyme en contratación</strong>Cuando estén activos se agregan aquí sus metas y seguimiento diario con alarmas de rendimiento.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ VENTAS · PROYECCIÓN -->
+<div id="page-ventas-proy" class="page">
+  <div class="slbl">proyección ventas H1-2026 · residencial · 4 escenarios</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Piso orgánico jun</div><div class="kpi-val">$244K</div><div class="kpi-sub">sin Revamp activo</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Revamp moderado jun</div><div class="kpi-val" style="color:var(--green);">$268K</div><div class="kpi-sub">300 conexiones/mes</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--purple2);"></div><div class="kpi-lbl">Revamp pleno jun</div><div class="kpi-val" style="color:var(--purple);">$295K</div><div class="kpi-sub">600 conexiones/mes · riesgo alto</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Ritmo marzo día 12</div><div class="kpi-val" style="color:var(--amber);" id="kpi-cx-brutas2">135</div><div class="kpi-sub wn" id="pb-revamp-pct">22.5% de meta 600 · alarma</div></div>
+  </div>
+  <div class="card">
+    <div class="ct">Proyección H1-2026 · ingreso residencial sin IVA</div>
+    <div style="position:relative;height:260px;"><canvas id="c-proy-h1"></canvas></div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:10px;color:var(--text2);">
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:#0066FF;"></span>Real P&L</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:rgba(0,102,255,.3);"></span>Sin Revamp</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:rgba(16,185,129,.5);"></span>Revamp moderado ★</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:rgba(109,40,217,.4);"></span>Revamp pleno</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CXC · COBRANZA -->
+<div id="page-cxc-cobr" class="page">
+  <div class="slbl">cobranza diaria vs meta · marzo 2026 · sin IVA</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Cobrado acumulado</div><div class="kpi-val" style="color:var(--green);" id="kpi-cobr-acum">$112,779</div><div class="kpi-sub" id="kpi-cobr-sub">días 1–12 sin IVA</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Meta acumulada</div><div class="kpi-val" id="kpi-meta-acum">$103,622</div><div class="kpi-sub">días 1–12</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Superávit acumulado</div><div class="kpi-val" id="kpi-superavit">+$9,157</div><div class="kpi-sub" id="kpi-sup-sub"><span id="kpi-sup-pct">▲ 8.8%</span> sobre meta</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">Cobranza feb</div><div class="kpi-val" style="color:var(--teal);" id="kpi-pct-cobr-feb">95%</div><div class="kpi-sub">$284,183 / $299,234 meta</div></div>
+  </div>
+  <div class="g32">
+    <div class="card">
+      <div class="ct">Cobrado vs meta diario · marzo <span class="ctag">Azul=sobre · Rojo=bajo</span></div>
+      <div style="position:relative;height:230px;"><canvas id="c-cobr-diario"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Desviación diaria</div>
+      <div style="position:relative;height:130px;"><canvas id="c-cobr-desv"></canvas></div>
+      <div class="div"></div>
+      <div class="ct" style="margin-bottom:6px;">Proyección cierre mes</div>
+      <div style="position:relative;height:110px;"><canvas id="c-cobr-proy"></canvas></div>
+    </div>
+  </div>
+  <div class="slbl">cobranza por zona · feb 2026</div>
+  <div class="card">
+    <div class="ct">Meta vs alcanzado por zona · feb 2026</div>
+    <div style="position:relative;height:200px;"><canvas id="c-cobr-zona"></canvas></div>
+  </div>
+</div>
+
+<!-- ══════════ CXC · AGING -->
+<div id="page-cxc-aging" class="page">
+  <div class="slbl">aging de mora · al 02 marzo 2026 · factura conforme cobra</div>
+  <div class="g3">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Tasa de mora</div><div class="kpi-val" style="color:var(--amber);">11.9%</div><div class="kpi-sub">1,257 / 10,586 base ERP</div><div class="kpi-fx">Clientes mora / Base ERP total</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--coral2);"></div><div class="kpi-lbl">Ingreso no realizado</div><div class="kpi-val" style="color:var(--coral);">$33,372</div><div class="kpi-sub">por mes · extracontable</div><div class="kpi-fx">1,257 × $26.55 ARPU</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Recuperable 0–60d</div><div class="kpi-val" style="color:var(--green);">+$6,000</div><div class="kpi-sub">452 clientes · tasa 50%</div><div class="kpi-fx">Sin costo de adquisición</div></div>
+  </div>
+  <div class="g23">
+    <div class="card">
+      <div class="ct">Distribución aging</div>
+      <div style="position:relative;height:190px;"><canvas id="c-aging-donut"></canvas></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;">
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#10B981;flex-shrink:0;"></span><span style="font-size:10px;color:var(--text2);">0–30d</span><span style="font-size:11px;font-weight:700;margin-left:auto;font-family:var(--mono);">338</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#F59E0B;flex-shrink:0;"></span><span style="font-size:10px;color:var(--text2);">31–60d</span><span style="font-size:11px;font-weight:700;margin-left:auto;font-family:var(--mono);">114</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#F97316;flex-shrink:0;"></span><span style="font-size:10px;color:var(--text2);">61–90d</span><span style="font-size:11px;font-weight:700;margin-left:auto;font-family:var(--mono);">159</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#EF4444;flex-shrink:0;"></span><span style="font-size:10px;color:var(--text2);">91–150d</span><span style="font-size:11px;font-weight:700;margin-left:auto;font-family:var(--mono);">131</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#7F1D1D;flex-shrink:0;"></span><span style="font-size:10px;color:var(--text2);">+150d</span><span style="font-size:11px;font-weight:700;margin-left:auto;font-family:var(--mono);">515</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">Mora por zona <span class="ctag">prioridad gestión</span></div>
+      <table class="tbl">
+        <thead><tr><th>Zona</th><th>Total</th><th>0–60d</th><th>61–150d</th><th>+150d</th><th>% recup.</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>Marsella</td><td>653</td><td>192</td><td>142</td><td>319</td><td>51%</td><td><span class="pill pr">ALTA</span></td></tr>
+          <tr><td>Megápolis</td><td>201</td><td>75</td><td>44</td><td>82</td><td>58%</td><td><span class="pill pr">ALTA</span></td></tr>
+          <tr><td>Villa Panam.</td><td>147</td><td>73</td><td>37</td><td>37</td><td>75%</td><td><span class="pill pr">ALTA</span></td></tr>
+          <tr><td>Ecoterra</td><td>152</td><td>71</td><td>34</td><td>47</td><td>69%</td><td><span class="pill pa">MEDIA</span></td></tr>
+          <tr><td>Sonsonate</td><td>53</td><td>19</td><td>16</td><td>18</td><td>66%</td><td><span class="pill pa">MEDIA</span></td></tr>
+          <tr><td>Mediterráneo</td><td>51</td><td>22</td><td>17</td><td>12</td><td>76%</td><td><span class="pill pa">MEDIA</span></td></tr>
+        </tbody>
+        <tfoot><tr><td>TOTAL</td><td>1,257</td><td>452</td><td>290</td><td>515</td><td>—</td><td></td></tr></tfoot>
+      </table>
+      <div style="position:relative;height:160px;margin-top:10px;"><canvas id="c-aging-zona"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CXC · P&L -->
+<div id="page-cxc-pl" class="page">
+  <div class="slbl">P&L por segmento · sin IVA · dic 2025 – feb 2026</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Residencial feb</div><div class="kpi-val">$242,542</div><div class="kpi-sub"><span class="up">estable</span> · var &lt;0.4%</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Corporativo feb</div><div class="kpi-val" style="color:var(--red);">$24,897</div><div class="kpi-sub"><span class="dn">▼ −11%</span> vs dic</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Pyme feb</div><div class="kpi-val" style="color:var(--green);">$2,696</div><div class="kpi-sub"><span class="up">▲ +11%</span> vs dic</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">Ganancia neta feb</div><div class="kpi-val" style="color:var(--teal);">$132,617</div><div class="kpi-sub"><span class="up">▲ +6%</span> · margen 43.2%</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Evolución por segmento dic–feb</div>
+      <div style="position:relative;height:230px;"><canvas id="c-pl-seg"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">P&L detalle · sin IVA</div>
+      <table class="tbl">
+        <thead><tr><th>Concepto</th><th>Dic 2025</th><th>Ene 2026</th><th>Feb 2026</th><th>Var.</th></tr></thead>
+        <tbody>
+          <tr><td>Residencial</td><td>$242,464</td><td>$243,464</td><td>$242,542</td><td><span class="pill pg">estable</span></td></tr>
+          <tr><td>Corporativo</td><td>$27,965</td><td>$26,334</td><td>$24,897</td><td><span class="pill pr">−11%</span></td></tr>
+          <tr><td>Pyme</td><td>$2,425</td><td>$2,485</td><td>$2,696</td><td><span class="pill pg">+11%</span></td></tr>
+          <tr><td>Otros</td><td>—</td><td>$672</td><td>$1,461</td><td><span class="pill pb">var.</span></td></tr>
+        </tbody>
+        <tfoot><tr><td>Ing. operativo</td><td>$301,816</td><td>$306,501</td><td>$299,595</td><td><span class="pill pa">−0.7%</span></td></tr></tfoot>
+      </table>
+      <div class="abox"><strong>Caída corporativa −$3,068</strong> en 2 meses no fue capturada por el resumen ejecutivo original. Es el único segmento en deterioro activo.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CXC · PROYECCIÓN -->
+<div id="page-cxc-proy" class="page">
+  <div class="slbl">proyección ingresos H1-2026 · sin IVA</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Piso sin Revamp jun</div><div class="kpi-val">$244K</div><div class="kpi-sub">residencial orgánico</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Revamp moderado jun</div><div class="kpi-val" style="color:var(--green);">$268K</div><div class="kpi-sub">300 cx/mes · mayor ROI</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--purple2);"></div><div class="kpi-lbl">Revamp pleno jun</div><div class="kpi-val" style="color:var(--purple);">$295K</div><div class="kpi-sub">600 cx/mes</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">+ Reactivación mora</div><div class="kpi-val" style="color:var(--green);">+$6K</div><div class="kpi-sub">cualquier escenario</div></div>
+  </div>
+  <div class="card">
+    <div class="ct">Proyección residencial H1-2026 · 4 escenarios</div>
+    <div style="position:relative;height:270px;"><canvas id="c-cxc-proy"></canvas></div>
+  </div>
+</div>
+
+<!-- ══════════ RETENCIÓN -->
+<div id="page-retencion" class="page">
+  <div class="slbl">retención · indicadores clave · Q1 2026</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Churn Q1</div><div class="kpi-val" style="color:var(--green);">0.98%</div><div class="kpi-sub">83 bajas/mes · excelente</div><div class="kpi-fx">Bajas / Base inicio mes</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">En riesgo de baja</div><div class="kpi-val" style="color:var(--red);">290</div><div class="kpi-sub">mora 61–150d sin contacto</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Tasa reactivación</div><div class="kpi-val" style="color:var(--green);">50%</div><div class="kpi-sub">0–60 días · +$6,000/mes</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Brecha mes 1</div><div class="kpi-val" style="color:var(--amber);">281</div><div class="kpi-sub">altas sin primer cobro</div></div>
+  </div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Retenidos/mes prom.</div><div class="kpi-val">8,371</div><div class="kpi-sub">base − bajas promedio Q1</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--purple2);"></div><div class="kpi-lbl">LTV residencial</div><div class="kpi-val" style="color:var(--purple);">$2,928</div><div class="kpi-sub">$28.69 ARPU ÷ 0.98%</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Renovaciones feb</div><div class="kpi-val" style="color:var(--amber);">608</div><div class="kpi-sub">vs meta por zona</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">Reservas activas</div><div class="kpi-val" style="color:var(--teal);">337</div><div class="kpi-sub">Sonsonate 279 · Ecoterra 40</div></div>
+  </div>
+  <div class="g3">
+    <div class="card">
+      <div class="ct">Churn mensual vs benchmark</div>
+      <div style="position:relative;height:170px;"><canvas id="c-ret-churn"></canvas></div>
+      <div class="sbox"><strong>Excelente:</strong> churn 0.98% vs benchmark sector 1.5–2.5%. La base de clientes es muy estable.</div>
+    </div>
+    <div class="card">
+      <div class="ct">Retenidos vs bajas · evolución</div>
+      <div style="position:relative;height:170px;"><canvas id="c-ret-rvp"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Protocolo anti-churn mes 1</div>
+      <div class="prog"><div class="prog-h"><span class="prog-l">Día 1–3: llamada bienvenida</span><span class="prog-v wn">Pendiente activar</span></div><div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--green2);"></div></div></div>
+      <div class="prog"><div class="prog-h"><span class="prog-l">Tutorial Mini UPS</span><span class="prog-v wn">Pendiente activar</span></div><div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--green2);"></div></div></div>
+      <div class="prog"><div class="prog-h"><span class="prog-l">Confirmación tarifa mes 2</span><span class="prog-v wn">Pendiente activar</span></div><div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--green2);"></div></div></div>
+      <div class="mstats">
+        <div class="mstat"><div class="mstat-l">Churn mes 1 hoy</div><div class="mstat-v" style="color:var(--red);">45%</div></div>
+        <div class="mstat"><div class="mstat-l">Con protocolo</div><div class="mstat-v" style="color:var(--green);">25%</div></div>
+        <div class="mstat"><div class="mstat-l">Costo Mini UPS</div><div class="mstat-v">$15.11</div></div>
+        <div class="mstat"><div class="mstat-l">ROI 18m</div><div class="mstat-v" style="color:var(--green);">+$52K</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+Chart.defaults.color='#94A3B8';
+Chart.defaults.borderColor='rgba(0,0,0,0.06)';
+Chart.defaults.font.family="'Plus Jakarta Sans',sans-serif";
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CONEXIÓN GOOGLE SHEETS — REEMPLAZAR LA URL CUANDO SE PUBLIQUE
+// ══════════════════════════════════════════════════════════════════════════════
+const SHEETS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?gid=1080435328&single=true&output=csv";
+
+// Índices de filas en KPI_RESUMEN (fila 4 = índice 0 del CSV después del header)
+const KPI_IDX = {
+  fecha_cobr:       0,   // Fecha última actualización cobranza
+  cobr_acum:        1,   // Cobranza acumulada mes
+  meta_acum:        2,   // Meta acumulada mes
+  superavit:        3,   // Superávit / déficit acumulado
+  pct_cobr:         4,   // % Cumplimiento cobranza
+  total_mora:       5,   // Total mora (clientes)
+  mora_60d:         6,   // Mora 0–60 días
+  ing_no_realiz:    7,   // Ingreso no realizado mora
+  tasa_mora:        8,   // Tasa de mora %
+  cx_brutas:        9,   // Conexiones brutas acum.
+  meta_cx:          10,  // Meta conexiones mes
+  pct_revamp:       11,  // % Avance Revamp
+  ventas_feb:       12,  // Ventas brutas mes anterior
+  inst_feb:         13,  // Instalaciones mes anterior
+  bajas_feb:        14,  // Bajas mes anterior
+  pct_penetracion:  15,  // Penetración global %
+  universo:         16,  // Total hogares universo
+  con_digilife:     17,  // Hogares con DigiLife
+  ing_corp:         18,  // Ingreso corporativo
+  nrr_corp:         19,  // NRR corporativo
+  pipeline_corp:    20,  // Pipeline corporativo total
+  cartera_pyme:     21,  // Cartera activa pyme
+  ing_resid:        22,  // Ingreso residencial
+  ing_operativo:    23,  // Ingreso operativo
+  gan_neta:         24,  // Ganancia neta
+  margen_neto:      25,  // Margen neto % (nuevo)
+  churn:            26,  // Churn mensual %
+  renovaciones:     27,  // Renovaciones mes anterior
+  reservas:         28,  // Reservas activas
+  conciliacion:     29,  // Diferencia conciliación
+};
+
+// Estado de los datos — valores reales al 15 marzo 2026
+// Se sobreescriben con datos de Google Sheets al conectar
+let kpiData = {
+  fecha_cobr:      "15/03/2026",
+  cobr_acum:       123999,   // acum. cobrado día 15 sin IVA
+  meta_acum:       127058,   // acum. meta día 15
+  superavit:       -3060,    // déficit acumulado día 15
+  pct_cobr:        0.976,    // 97.6% cumplimiento acum.
+  total_mora:      1257,
+  mora_60d:        452,
+  ing_no_realiz:   33372,
+  tasa_mora:       0.119,
+  cx_brutas:       135,
+  meta_cx:         600,
+  pct_revamp:      0.225,
+  ventas_feb:      539,
+  inst_feb:        292,
+  bajas_feb:       87,
+  pct_penetracion: 0.265,
+  universo:        32314,
+  con_digilife:    8552,
+  ing_corp:        24897,
+  nrr_corp:        0.89,
+  pipeline_corp:   10521,
+  cartera_pyme:    169254,
+  ing_resid:       242542,
+  ing_operativo:   299595,
+  gan_neta:        132617,
+  churn:           0.0098,
+  renovaciones:    608,
+  reservas:        337,
+  conciliacion:    6591,
+};
+
+// ── CSV Parser ────────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  return text.trim().split('\n').map(row => {
+    const cells = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < row.length; i++) {
+      const ch = row[i];
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cells.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    cells.push(cur.trim());
+    return cells;
+  });
+}
+
+function parseNum(v) {
+  if (!v || v === '' || v === '—' || v === '-') return null;
+  let s = v.toString().trim();
+  const isPct = s.includes('%');
+  const isNeg = s.startsWith('-') || s.startsWith('(');
+  s = s.replace(/[$,%()\s]/g, '').trim();
+  if (isNeg && !s.startsWith('-')) s = '-' + s;
+  const n = parseFloat(s);
+  if (isNaN(n)) return null;
+  // Percentages: always return as decimal (0.976 not 97.6)
+  return isPct ? n / 100 : n;
+}
+
+// ── Fetch & update from Sheets ────────────────────────────────────────────────
+async function fetchSheets() {
+  if (!SHEETS_URL) {
+    updateUI();
+    return;
+  }
+
+  const statusEl = document.getElementById('data-status');
+  if (statusEl) { statusEl.textContent = 'Actualizando...'; statusEl.style.color = 'var(--amber)'; }
+
+  try {
+    const res = await fetch(SHEETS_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const rows = parseCSV(text);
+
+    // Find dataStart: look for the header row containing "KPI" and "Valor actual"
+    // then data starts on the next row
+    let dataStart = 3; // safe default
+    for (let i = 0; i < Math.min(rows.length, 8); i++) {
+      const c0 = (rows[i][0]||'').toString().toLowerCase().trim();
+      const c1 = (rows[i][1]||'').toString().toLowerCase().trim();
+      if (c0 === 'kpi' || c1 === 'valor actual') {
+        dataStart = i + 1; // data starts after the header row
+        break;
+      }
+    }
+
+    const dataRows = rows.slice(dataStart);
+
+    // Full debug — shows first 6 data rows so we can verify alignment
+    console.log('[DigiLife] ✓ CSV rows:', rows.length, '| dataStart:', dataStart);
+    for (let i = 0; i < Math.min(dataRows.length, 6); i++) {
+      console.log(`[DigiLife] dataRow[${i}]:`, dataRows[i][0], '→', dataRows[i][1]);
+    }
+
+    Object.entries(KPI_IDX).forEach(([key, idx]) => {
+      if (dataRows[idx] && dataRows[idx][1] !== undefined) {
+        const raw = dataRows[idx][1];
+        const n = parseNum(raw);
+        if (n !== null) kpiData[key] = n;
+        else if (raw && raw !== '') kpiData[key] = raw;
+      }
+    });
+
+    // Confirm parsed values
+    console.log('[DigiLife] ✓ kpiData after parse:');
+    console.log('  cobr_acum:', kpiData.cobr_acum);
+    console.log('  meta_acum:', kpiData.meta_acum);
+    console.log('  superavit:', kpiData.superavit);
+    console.log('  fecha_cobr:', kpiData.fecha_cobr);
+
+    const now = new Date();
+    const ts = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+    if (statusEl) { statusEl.textContent = `✓ Actualizado ${ts}`; statusEl.style.color = 'var(--green2)'; }
+
+    updateUI();
+
+  } catch (err) {
+    console.warn('Sheets fetch error:', err);
+    if (statusEl) { statusEl.textContent = '⚠ Sin conexión — datos semilla'; statusEl.style.color = 'var(--amber)'; }
+    updateUI(); // use seed data
+  }
+}
+
+// ── Update all UI elements with current kpiData ───────────────────────────────
+function updateUI() {
+  const fmt  = (v, prefix='$') => v == null ? '—' : prefix + Math.round(v).toLocaleString('en-US');
+  const fmtP = v => v == null ? '—' : (v * 100).toFixed(1) + '%';
+
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = val; }
+    else { console.warn('[DigiLife] ID not found:', id); }
+  };
+  const setC = (id, col) => { const el = document.getElementById(id); if (el) el.style.color = col; };
+
+  // Debug — confirm kpiData values after fetch
+  console.log('[DigiLife] updateUI called');
+  console.log('[DigiLife] cobr_acum:', kpiData.cobr_acum);
+  console.log('[DigiLife] superavit:', kpiData.superavit);
+  console.log('[DigiLife] fecha:', kpiData.fecha_cobr);
+
+  // Header date
+  set('hdr-date', kpiData.fecha_cobr || '15/03/2026');
+
+  // Alarm bar — rebuild dynamically
+  rebuildAlarms();
+
+  // ── Resumen page ──
+  set('kpi-cobr-acum',    fmt(kpiData.cobr_acum));
+  set('kpi-cx-brutas',    fmtN(kpiData.cx_brutas));
+  set('kpi-tasa-mora',    fmtP(kpiData.tasa_mora));
+  set('kpi-churn',        fmtP(kpiData.churn));
+  set('kpi-ing-corp',     fmt(kpiData.ing_corp));
+  set('kpi-pct-revamp',   fmtP(kpiData.pct_revamp));
+  set('kpi-ing-operativo',fmt(kpiData.ing_operativo));
+  set('kpi-gan-neta',     fmt(kpiData.gan_neta));
+  set('kpi-margen',       kpiData.ing_operativo ? ((kpiData.gan_neta/kpiData.ing_operativo)*100).toFixed(1)+'%' : '—');
+  set('kpi-base-erp',     fmtN(kpiData.universo));
+
+  // ── CXC · Cobranza ──
+  set('kpi-cobr-acum2',   fmt(kpiData.cobr_acum));
+  set('kpi-meta-acum',    fmt(kpiData.meta_acum));
+  const supVal = kpiData.superavit;
+  set('kpi-superavit', supVal == null ? '—' : (supVal >= 0 ? '+' : '') + fmt(supVal));
+  setC('kpi-superavit', (supVal||0) >= 0 ? 'var(--green)' : 'var(--red2)');
+  // Superávit % vs meta
+  const supPct = kpiData.meta_acum > 0 ? ((supVal||0) / kpiData.meta_acum * 100) : 0;
+  const supArrow = supPct >= 0 ? '▲' : '▼';
+  const supPctEl = document.getElementById('kpi-sup-pct');
+  if (supPctEl) {
+    supPctEl.textContent = `${supArrow} ${Math.abs(supPct).toFixed(1)}%`;
+    supPctEl.style.color = supPct >= 0 ? 'var(--green2)' : 'var(--red2)';
+  }
+  set('kpi-pct-cobr-feb', fmtP(kpiData.pct_cobr));
+  set('kpi-cobr-sub',     `${kpiData.fecha_cobr||'—'} · sin IVA`);
+
+  // ── CXC · Mora / Proyectos / Corp ──
+  set('kpi-mora-total',   fmtN(kpiData.total_mora));
+  set('kpi-mora-60',      fmtN(kpiData.mora_60d));
+  set('kpi-ing-mora',     fmt(kpiData.ing_no_realiz));
+  set('kpi-penetracion',  fmtP(kpiData.pct_penetracion));
+  set('kpi-universo',     fmtN(kpiData.universo));
+  set('kpi-con-digi',     fmtN(kpiData.con_digilife));
+  set('kpi-nrr',          fmtP(kpiData.nrr_corp));
+  set('kpi-pipeline',     fmt(kpiData.pipeline_corp));
+  set('kpi-ing-resid',    fmt(kpiData.ing_resid));
+
+  // ── Ventas ──
+  set('kpi-cx-brutas2',   fmtN(kpiData.cx_brutas));
+  set('kpi-ventas-feb',   fmtN(kpiData.ventas_feb));
+  set('kpi-inst-feb',     fmtN(kpiData.inst_feb));
+  set('kpi-bajas-feb',    fmtN(kpiData.bajas_feb));
+
+  // Progress bar Revamp
+  const pct = Math.min((kpiData.cx_brutas / kpiData.meta_cx) * 100, 100);
+  const pb = document.getElementById('pb-revamp');
+  if (pb) pb.style.width = pct.toFixed(1) + '%';
+  set('pb-revamp-pct', pct.toFixed(1) + '%');
+  set('pb-revamp-num', `${fmtN(kpiData.cx_brutas)} de ${fmtN(kpiData.meta_cx)}`);
+
+  // Color coding
+  const moraPct = (kpiData.tasa_mora||0) * 100;
+  setC('kpi-tasa-mora', moraPct >= 15 ? 'var(--red)' : moraPct >= 8 ? 'var(--amber2)' : 'var(--green)');
+  const nrrColor = (kpiData.nrr_corp||0) >= 1 ? 'var(--green)' : (kpiData.nrr_corp||0) >= 0.95 ? 'var(--amber)' : 'var(--red)';
+  setC('kpi-nrr', nrrColor);
+}
+
+// ── Dynamic alarm builder ─────────────────────────────────────────────────────
+function rebuildAlarms() {
+  const alarms = [];
+
+  const ritmoNecesario = kpiData.meta_cx > 0 && kpiData.cx_brutas > 0
+    ? ((kpiData.meta_cx - kpiData.cx_brutas) / 19).toFixed(1) : 24.5;
+  const ritmoActual = (kpiData.cx_brutas / 12).toFixed(1);
+  alarms.push(`Revamp: ritmo ${ritmoActual}/día — necesario ${ritmoNecesario}/día para meta ${fmtN(kpiData.meta_cx)}`);
+
+  if (kpiData.nrr_corp < 0.95)
+    alarms.push(`Corporativo: NRR ${(kpiData.nrr_corp*100).toFixed(0)}% — ingreso encogiendo · $${Math.round(kpiData.ing_corp).toLocaleString()}`);
+
+  if (kpiData.tasa_mora >= 0.08)
+    alarms.push(`Mora ${(kpiData.tasa_mora*100).toFixed(1)}% — ${Math.round(kpiData.total_mora).toLocaleString()} clientes · zona ${kpiData.tasa_mora>=0.15?'crítica':'alerta'}`);
+
+  alarms.push(`Marsella II penetración 14% — meta mínima 50% (proyecto cerrado)`);
+  alarms.push(`Versalles penetración 2% — crítico · 3,210 hogares con competencia`);
+
+  const pctRevamp = (kpiData.cx_brutas / kpiData.meta_cx * 100).toFixed(1);
+  if (kpiData.pct_revamp < 0.8)
+    alarms.push(`Proyección cierre mes: ~${Math.round(kpiData.cx_brutas/12*31)} brutas vs meta ${Math.round(kpiData.meta_cx)} (${pctRevamp}% avance)`);
+
+  if (kpiData.conciliacion > 0)
+    alarms.push(`Diferencia conciliación pendiente: $${Math.round(kpiData.conciliacion).toLocaleString()}`);
+
+  // Rebuild scroll content (doubled for seamless loop)
+  const scroll = document.getElementById('alarmScroll');
+  if (!scroll) return;
+  const items = [...alarms, ...alarms].map(a => `<div class="alarm">${a}</div>`).join('');
+  scroll.innerHTML = items;
+}
+
+// ── Auto-refresh every 5 minutes ─────────────────────────────────────────────
+// (called at bottom of script after all declarations)
+
+
+const fmtK=v=>'$'+(v/1000).toFixed(0)+'k';
+const fmtFull=v=>'$'+Math.round(v).toLocaleString('en-US');
+function fmtN(v){ return v == null ? '—' : Math.round(v).toLocaleString('en-US'); }
+const TODAY_DAY=12, DAYS_MES=31, DIAS_HAB=19;
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+const built={};
+function showMain(id,el){
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.subnav').forEach(s=>s.classList.add('hidden'));
+  const sn=document.getElementById('sub-'+id);
+  if(sn)sn.classList.remove('hidden');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  if(id==='inicio'||id==='retencion'){
+    document.getElementById('page-'+id).classList.add('active');
+    if(!built[id]){build(id);built[id]=true;}
+  } else {
+    const sub=document.getElementById('sub-'+id);
+    const first=sub?sub.querySelector('.stab'):null;
+    if(first){first.classList.add('active');}
+    const pages=document.querySelectorAll('[id^="page-'+id+'-"]');
+    if(pages.length){pages[0].classList.add('active');const k=pages[0].id.replace('page-','');if(!built[k]){build(k);built[k]=true;}}
+  }
+}
+function showSub(main,sub,el){
+  document.querySelectorAll('#sub-'+main+' .stab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('[id^="page-'+main+'-"]').forEach(p=>p.classList.remove('active'));
+  const pg=document.getElementById('page-'+main+'-'+sub);
+  if(pg)pg.classList.add('active');
+  const k=main+'-'+sub;
+  if(!built[k]){build(k);built[k]=true;}
+}
+
+// ── Vendor table helpers ──────────────────────────────────────────────────────
+function ritmo(meta,acum,dia){return Math.round(acum/(meta*(dia/DAYS_MES))*100);}
+function proyeccion(acum,dia){return Math.round(acum/dia*DAYS_MES);}
+function statusBadge(pct){
+  if(pct>=90)return `<span class="vs-green">✓ en meta</span>`;
+  if(pct>=70)return `<span class="vs-amber">⚠ riesgo</span>`;
+  return `<span class="vs-red">⚠ alarma</span>`;
+}
+function alarmBadge(pct){return pct<70?'<span class="alarm-pill">⚠ ALARMA</span>':'';}
+
+// ── Data ──────────────────────────────────────────────────────────────────────
+const zonas=['Ecoterra','Marsella','Mediterráneo','San Miguel','Sonsonate','Villa Pan.'];
+const ventasFeb=[88,150,33,24,10,29]; // ventas brutas feb por zona
+const instFeb=[53,148,16,25,9,31];
+const bajasFeb=[18,50,4,0,4,10];
+const cobranzaMeta=[48210,162830,15697,35124,14900,32493];
+const cobranzaReal=[46960,142537,15972,35914,13236,30143];
+
+const vendedoresCampo=[
+  {n:'Carlos Méndez',canal:'Campo',zona:'Marsella',meta:50,acum:22},
+  {n:'Ana Torres',canal:'Agencia',zona:'Sonsonate',meta:40,acum:12},
+  {n:'Luis Rivas',canal:'Campo',zona:'Ecoterra',meta:35,acum:18},
+  {n:'María Flores',canal:'Freelance',zona:'San Miguel',meta:25,acum:8},
+  {n:'Pedro Martínez',canal:'Digital',zona:'Mediterráneo',meta:20,acum:11},
+  {n:'José García',canal:'Campo',zona:'Villa Pan.',meta:30,acum:9},
+  {n:'Rosa Hernández',canal:'Referidos',zona:'Marsella',meta:20,acum:14},
+];
+
+const agentesTV=[
+  {n:'Andrea López',llamadas:180,contactos:42,cierres:13,meta:20},
+  {n:'Roberto Cruz',llamadas:210,contactos:38,cierres:16,meta:20},
+];
+
+const proyectos=[
+  {n:'Sitio Grande',tipo:'ABIERTO',total:596,habit:530,digilife:388,comp:49,susp:27,flex:44,deshabit:0,alquiler:0},
+  {n:'Villa Tzuchi',tipo:'ABIERTO',total:877,habit:350,digilife:138,comp:95,susp:45,flex:10,deshabit:50,alquiler:0},
+  {n:'Versalles',tipo:'ABIERTO',total:4220,habit:3523,digilife:102,comp:3210,susp:16,flex:1,deshabit:545,alquiler:422},
+  {n:'Marsella I',tipo:'ABIERTO',total:5310,habit:4283,digilife:3481,comp:350,susp:470,flex:44,deshabit:964,alquiler:401},
+  {n:'Marsella II',tipo:'CERRADO',total:7881,habit:1187,digilife:1097,comp:0,susp:56,flex:7,deshabit:6695,alquiler:205},
+  {n:'Pinares de Suiza',tipo:'ABIERTO',total:856,habit:0,digilife:14,comp:0,susp:0,flex:0,deshabit:0,alquiler:0},
+  {n:'Acrópolis',tipo:'CERRADO',total:737,habit:410,digilife:397,comp:0,susp:38,flex:20,deshabit:324,alquiler:3},
+  {n:'Lot. San Antonio',tipo:'ABIERTO',total:1197,habit:690,digilife:120,comp:560,susp:14,flex:2,deshabit:506,alquiler:1},
+  {n:'Mediterráneo',tipo:'CERRADO',total:1749,habit:615,digilife:504,comp:0,susp:55,flex:55,deshabit:930,alquiler:204},
+  {n:'El Cairo',tipo:'CERRADO',total:328,habit:114,digilife:94,comp:0,susp:7,flex:14,deshabit:172,alquiler:42},
+  {n:'Ecoterra',tipo:'CERRADO',total:3306,habit:1575,digilife:1568,comp:17,susp:127,flex:77,deshabit:1725,alquiler:13},
+  {n:'Montecristo',tipo:'CERRADO',total:714,habit:78,digilife:78,comp:0,susp:10,flex:1,deshabit:633,alquiler:3},
+  {n:'Portal la Estación',tipo:'CERRADO',total:250,habit:90,digilife:90,comp:0,susp:8,flex:12,deshabit:149,alquiler:11},
+  {n:'Megápolis',tipo:'ABIERTO',total:1328,habit:554,digilife:411,comp:140,susp:84,flex:8,deshabit:121,alquiler:20},
+  {n:'N.San Miguel cl.1',tipo:'ABIERTO',total:1287,habit:460,digilife:306,comp:65,susp:68,flex:10,deshabit:15,alquiler:70},
+  {n:'N.San Miguel cl.3',tipo:'ABIERTO',total:568,habit:230,digilife:306,comp:28,susp:12,flex:3,deshabit:10,alquiler:320},
+  {n:'Hac. de la Riviera',tipo:'ABIERTO',total:420,habit:235,digilife:86,comp:28,susp:31,flex:2,deshabit:28,alquiler:10},
+  {n:'Villas de la Costa',tipo:'ABIERTO',total:1780,habit:282,digilife:319,comp:101,susp:40,flex:5,deshabit:970,alquiler:63},
+  {n:'Villa Panamericana',tipo:'ABIERTO',total:2213,habit:388,digilife:619,comp:150,susp:106,flex:22,deshabit:877,alquiler:51},
+];
+
+const cobranzaDias=['D01','L02','M03','X04','J05','V06','S07','D08','L09','M10','X11','J12'];
+const cobIVA=[5266,14848,11819,9665,10633,9589,8423,3300,9896,10227,10035,9740];
+const metIVA=[3982,13441,13441,10660,9733,9733,8806,3982,9900,9900,10500,10515];
+const cob=cobIVA.map(v=>Math.round(v/1.13));
+const met=metIVA.map(v=>Math.round(v/1.13));
+
+// ── Build functions ───────────────────────────────────────────────────────────
+function build(id){
+  const fn={
+    'inicio':bInicio,'ventas-campo':bCampo,'ventas-televentas':bTV,
+    'ventas-proyectos':bProyectos,'ventas-corp':bCorp,'ventas-pyme':bPyme,
+    'ventas-proy':bProyH1,'cxc-cobr':bCobr,'cxc-aging':bAging,
+    'cxc-pl':bPL,'cxc-proy':bCxcProy,'retencion':bRetencion
+  };
+  if(fn[id])fn[id]();
+}
+
+function mkBar(id,labels,datasets,opts={}){
+  const el=document.getElementById(id);if(!el)return;
+  return new Chart(el,{type:'bar',data:{labels,datasets},options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},...(opts.plugins||{})},
+    scales:{
+      x:{ticks:{font:{size:9},...(opts.xTicks||{})},grid:{display:false},...(opts.xExtra||{})},
+      y:{ticks:{callback:opts.yFmt||fmtK,font:{size:9}},grid:{color:'rgba(0,0,0,0.04)'},...(opts.yExtra||{})}
+    },...(opts.extra||{})
+  }});
+}
+function mkLine(id,labels,datasets,opts={}){
+  const el=document.getElementById(id);if(!el)return;
+  return new Chart(el,{type:'line',data:{labels,datasets},options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},...(opts.plugins||{})},
+    scales:{
+      x:{ticks:{font:{size:9},...(opts.xTicks||{})},grid:{display:false}},
+      y:{ticks:{callback:opts.yFmt||fmtK,font:{size:9}},grid:{color:'rgba(0,0,0,0.04)'},...(opts.yExtra||{})}
+    }
+  }});
+}
+
+function bInicio(){
+  mkBar('c-ini-ventas',zonas,[
+    {label:'Ventas',data:ventasFeb,backgroundColor:'#0066FF',borderRadius:3},
+    {label:'Instalaciones',data:instFeb,backgroundColor:'#10B981',borderRadius:3},
+    {label:'Bajas',data:bajasFeb,backgroundColor:'rgba(239,68,68,.7)',borderRadius:3}
+  ],{yFmt:v=>v});
+}
+
+function bCampo(){
+  mkBar('c-campo-zona',zonas,[
+    {label:'Ventas',data:ventasFeb,backgroundColor:'#0066FF',borderRadius:3},
+    {label:'Instalaciones',data:instFeb,backgroundColor:'#10B981',borderRadius:3},
+    {label:'Bajas',data:bajasFeb,backgroundColor:'rgba(239,68,68,.7)',borderRadius:3}
+  ],{yFmt:v=>v});
+
+  const causas=['Retiro serv.','Comp.','Cobertura','Insatisfacción','Incumplimiento','Terminación','Otros'];
+  const vals=[52,7,6,1,1,7,13];
+  mkBar('c-campo-bajas',causas,[{label:'Bajas',data:vals,backgroundColor:vals.map(v=>v>=10?'rgba(239,68,68,.7)':'rgba(245,158,11,.7)'),borderRadius:3}],
+    {yFmt:v=>v,xTicks:{font:{size:9}}});
+
+  // Tabla vendedores campo
+  const tbody=document.getElementById('tbody-campo');
+  vendedoresCampo.forEach(v=>{
+    const esp=Math.round(v.meta*(TODAY_DAY/DAYS_MES));
+    const r=ritmo(v.meta,v.acum,TODAY_DAY);
+    const proy=proyeccion(v.acum,TODAY_DAY);
+    const pct_proy=Math.round(proy/v.meta*100);
+    tbody.innerHTML+=`<tr>
+      <td>${v.n}</td>
+      <td><span class="pill pb">${v.canal}</span></td>
+      <td>${v.zona}</td>
+      <td>${v.meta}</td>
+      <td>${v.acum}</td>
+      <td>${esp}</td>
+      <td style="color:${r>=90?'var(--green)':r>=70?'var(--amber)':'var(--red)'}"><b>${r}%</b> ${alarmBadge(r)}</td>
+      <td style="color:${pct_proy>=80?'var(--green)':pct_proy>=60?'var(--amber)':'var(--red)'}">~${proy} (${pct_proy}%)</td>
+      <td>${statusBadge(r)}</td>
+    </tr>`;
+  });
+
+  // Reservas
+  const rProy=['Ecoterra','Marsella II','Mediterráneo','Montecristo','N.San Miguel','N.Sonsonate','Portal Est.','Villas Costa'];
+  const rVals=[2,5,5,36,4,279,4,2];
+  mkBar('c-reservas',rProy,[{label:'Reservas',data:rVals,backgroundColor:'#0066FF',borderRadius:3}],
+    {yFmt:v=>v,xTicks:{font:{size:8},maxRotation:35}});
+
+  // Renovaciones
+  const renZonas=['Marsella','Ecoterra','Mediterráneo','Sonsonate','Villa Pan.','Megápolis'];
+  const renMeta=[789,196,50,78,293,305];
+  const renReal=[274,136,31,39,67,61];
+  mkBar('c-renovaciones',renZonas,[
+    {label:'Meta',data:renMeta,backgroundColor:'rgba(239,68,68,.4)',borderRadius:3},
+    {label:'Renovados',data:renReal,backgroundColor:'#0066FF',borderRadius:3}
+  ],{yFmt:v=>v});
+}
+
+function bTV(){
+  // Cierres por zona
+  const tvZonas=['Marsella','Ecoterra','Mediterráneo','Sonsonate','Megápolis','Villa Pan.'];
+  const tvDirect=[4,5,1,0,1,2];
+  const tvReserva=[14,0,0,0,1,1];
+  mkBar('c-tv-zona',tvZonas,[
+    {label:'Venta directa',data:tvDirect,backgroundColor:'#0066FF',borderRadius:3},
+    {label:'Reserva',data:tvReserva,backgroundColor:'rgba(0,102,255,.45)',borderRadius:3}
+  ],{yFmt:v=>v,extra:{scales:{x:{stacked:true,ticks:{font:{size:10}},grid:{display:false}},y:{stacked:true,ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,0.04)'}}}}});
+
+  // Planes
+  const tvPEl=document.getElementById('c-tv-planes');
+  if(tvPEl) new Chart(tvPEl,{type:'doughnut',data:{labels:['Plan 18 meses','Plan 12 meses'],datasets:[{data:[25,2],backgroundColor:['#0066FF','#3385FF'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}});
+
+  // Tabla agentes
+  const tbody=document.getElementById('tbody-tv');
+  agentesTV.forEach(a=>{
+    const tCont=Math.round(a.contactos/a.llamadas*100);
+    const tConv=Math.round(a.cierres/a.llamadas*100);
+    const esp=Math.round(a.meta*(TODAY_DAY/DAYS_MES));
+    const r=ritmo(a.meta,a.cierres,TODAY_DAY);
+    const proy=proyeccion(a.cierres,TODAY_DAY);
+    const convAlarm=tConv<5?'<span class="alarm-pill">⚠ conv. baja</span>':'';
+    tbody.innerHTML+=`<tr>
+      <td>${a.n}</td>
+      <td>${a.llamadas}</td>
+      <td>${a.contactos}</td>
+      <td>${tCont}%</td>
+      <td>${a.cierres}</td>
+      <td style="color:${tConv>=5?'var(--green)':'var(--red)'}"><b>${tConv}%</b> ${convAlarm}</td>
+      <td>${a.meta}</td>
+      <td style="color:${r>=90?'var(--green)':r>=70?'var(--amber)':'var(--red)'}"><b>${r}%</b></td>
+      <td>~${proy}</td>
+      <td>${statusBadge(r)}</td>
+    </tr>`;
+  });
+}
+
+function bProyectos(){
+  const cerrados=proyectos.filter(p=>p.tipo==='CERRADO');
+  const abiertos=proyectos.filter(p=>p.tipo==='ABIERTO');
+  const metaCerrado=50, metaAbierto=30;
+
+  function buildProjTable(el,data,meta){
+    let html=`<thead><tr><th>Proyecto</th><th>Universo</th><th>DigiLife</th><th>% Penet.</th><th>Meta ${meta}%</th><th>Brecha</th><th>Estado</th></tr></thead><tbody>`;
+    data.forEach(p=>{
+      const pct=Math.round(p.digilife/p.total*100);
+      const brecha=Math.round(p.total*meta/100)-p.digilife;
+      const ok=pct>=meta;
+      const warn=pct>=meta*0.6&&pct<meta;
+      html+=`<tr>
+        <td>${p.n}</td>
+        <td>${p.total.toLocaleString()}</td>
+        <td>${p.digilife.toLocaleString()}</td>
+        <td style="color:${ok?'var(--green)':warn?'var(--amber)':'var(--red)'}"><b>${pct}%</b></td>
+        <td>${meta}%</td>
+        <td style="color:${brecha<=0?'var(--green)':'var(--red)'}"><b>${brecha<=0?'✓ meta':'−'+brecha.toLocaleString()}</b></td>
+        <td>${ok?'<span class="pill pg">✓ en meta</span>':warn?'<span class="pill pa">⚠ cerca</span>':'<span class="pill pr">⚠ alerta</span>'}</td>
+      </tr>`;
+    });
+    html+='</tbody>';
+    el.innerHTML=html;
+  }
+
+  buildProjTable(document.getElementById('tbl-cerrados'),cerrados,metaCerrado);
+  buildProjTable(document.getElementById('tbl-abiertos'),abiertos,metaAbierto);
+
+  // Chart penetración
+  const sorted=[...proyectos].sort((a,b)=>b.digilife/b.total-a.digilife/a.total);
+  const pLabels=sorted.map(p=>p.n.substring(0,12));
+  const pPct=sorted.map(p=>Math.round(p.digilife/p.total*100));
+  const pColors=sorted.map(p=>{
+    const pct=p.digilife/p.total*100;
+    const meta=p.tipo==='CERRADO'?50:30;
+    return pct>=meta?'#10B981':pct>=meta*0.6?'#F59E0B':'#EF4444';
+  });
+  mkBar('c-penetracion',pLabels,[{label:'% Penetración',data:pPct,backgroundColor:pColors,borderRadius:3}],
+    {yFmt:v=>v+'%',xTicks:{font:{size:8},maxRotation:40}});
+}
+
+function bCorp(){
+  // Avance diario acumulado simulado
+  const dias=Array.from({length:TODAY_DAY},(_,i)=>i+1);
+  const acumCorp=dias.map(d=>Math.round(d*0.4));
+  const metaCorp=dias.map(d=>Math.round(d*(15/DAYS_MES)));
+  mkLine('c-corp-avance',dias,[
+    {label:'Real',data:acumCorp,borderColor:'#0066FF',borderWidth:2,pointRadius:3,fill:true,backgroundColor:'rgba(0,102,255,.06)',tension:.3},
+    {label:'Meta',data:metaCorp,borderColor:'rgba(239,68,68,.5)',borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false,tension:.3}
+  ],{yFmt:v=>v,yExtra:{min:0}});
+}
+
+function bPyme(){
+  const el=document.getElementById('c-pyme-estado');
+  if(el) new Chart(el,{type:'doughnut',data:{labels:['Vigentes 73.6%','Vencidos 23%','Por renovar 3.4%'],datasets:[{data:[73.6,23,3.4],backgroundColor:['#0066FF','#F97316','#F59E0B'],borderWidth:0,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false}}}});
+
+  const dias=Array.from({length:TODAY_DAY},(_,i)=>i+1);
+  mkLine('c-pyme-avance',dias,[
+    {label:'Ingresos acum.',data:dias.map(d=>Math.round(169254/DAYS_MES*d)),borderColor:'#0066FF',borderWidth:2,pointRadius:0,fill:true,backgroundColor:'rgba(0,102,255,.06)',tension:.3}
+  ],{yFmt:fmtK,yExtra:{min:0}});
+}
+
+function bProyH1(){
+  mkBar('c-proy-h1',['Dic 25','Ene 26','Feb 26','Mar 26','Abr 26','May 26','Jun 26'],[
+    {label:'Real',data:[242464,243464,242542,null,null,null,null],backgroundColor:'#0066FF',borderRadius:3},
+    {label:'Sin Revamp',data:[null,null,null,244000,244500,244000,244500],backgroundColor:'rgba(0,102,255,.25)',borderRadius:3},
+    {label:'Moderado',data:[null,null,null,null,255000,261000,268000],backgroundColor:'rgba(16,185,129,.45)',borderRadius:3},
+    {label:'Pleno',data:[null,null,null,null,265000,280000,295000],backgroundColor:'rgba(109,40,217,.4)',borderRadius:3}
+  ],{yFmt:fmtK,yExtra:{min:220000}});
+}
+
+function bCobr(){
+  const desv=cob.map((v,i)=>v-met[i]);
+  mkBar('c-cobr-diario',cobranzaDias,[
+    {label:'Cobrado',data:cob,backgroundColor:cob.map((v,i)=>v>=met[i]?'#0066FF':'rgba(239,68,68,.7)'),borderRadius:3,order:1},
+    {label:'Meta',data:met,type:'line',borderColor:'#94A3B8',borderWidth:1.5,pointRadius:2,fill:false,tension:0,order:0}
+  ],{yFmt:fmtK,xTicks:{autoSkip:false,maxRotation:0}});
+  mkBar('c-cobr-desv',cobranzaDias,[{data:desv,backgroundColor:desv.map(v=>v>=0?'rgba(16,185,129,.7)':'rgba(239,68,68,.7)'),borderRadius:3}],
+    {yFmt:v=>(v>=0?'+':'')+fmtK(v),xTicks:{autoSkip:false,maxRotation:0}});
+  const avg=Math.round(cob.reduce((a,b)=>a+b)/cob.length);
+  const acum=[];let s=0;cob.forEach(v=>{s+=v;acum.push(s);});
+  const proy=Array.from({length:31},(_,i)=>i<12?acum[i]:(acum[11]+(i-11)*avg));
+  mkLine('c-cobr-proy',Array.from({length:31},(_,i)=>i+1),[
+    {label:'Real',data:proy.map((v,i)=>i<12?v:null),borderColor:'#0066FF',borderWidth:2,pointRadius:0,fill:false,tension:.3},
+    {label:'Proy.',data:proy.map((v,i)=>i>=11?v:null),borderColor:'rgba(0,102,255,.4)',borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false,tension:.3}
+  ],{yFmt:fmtK});
+  // Cobranza por zona
+  mkBar('c-cobr-zona',zonas,[
+    {label:'Meta',data:cobranzaMeta,backgroundColor:'rgba(0,102,255,.3)',borderRadius:3},
+    {label:'Alcanzado',data:cobranzaReal,backgroundColor:cobranzaReal.map((v,i)=>v>=cobranzaMeta[i]?'#0066FF':'rgba(239,68,68,.7)'),borderRadius:3}
+  ],{yFmt:fmtK});
+}
+
+function bAging(){
+  const el=document.getElementById('c-aging-donut');
+  if(el) new Chart(el,{type:'doughnut',data:{labels:['0–30d','31–60d','61–90d','91–150d','+150d'],datasets:[{data:[338,114,159,131,515],backgroundColor:['#10B981','#F59E0B','#F97316','#EF4444','#7F1D1D'],borderWidth:0,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}});
+  mkBar('c-aging-zona',['Marsella','Megápolis','V.Panam','Ecoterra','Sonsonate','Medit.'],[
+    {label:'0–60d',data:[192,75,73,71,19,22],backgroundColor:'#10B981',borderRadius:2},
+    {label:'61–150d',data:[142,44,37,34,16,17],backgroundColor:'#F59E0B',borderRadius:2},
+    {label:'+150d',data:[319,82,37,47,18,12],backgroundColor:'#EF4444',borderRadius:2}
+  ],{yFmt:v=>v,extra:{scales:{x:{stacked:true,ticks:{font:{size:9}},grid:{display:false}},y:{stacked:true,ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}}}}});
+}
+
+function bPL(){
+  mkBar('c-pl-seg',['Dic 2025','Ene 2026','Feb 2026'],[
+    {label:'Residencial',data:[242464,243464,242542],backgroundColor:'#0066FF',borderRadius:3},
+    {label:'Corporativo',data:[27965,26334,24897],backgroundColor:'#F97316',borderRadius:3},
+    {label:'Pyme',data:[2425,2485,2696],backgroundColor:'#8B5CF6',borderRadius:3}
+  ],{yFmt:fmtK});
+}
+
+function bCxcProy(){
+  mkBar('c-cxc-proy',['Dic 25','Ene 26','Feb 26','Mar 26','Abr 26','May 26','Jun 26'],[
+    {label:'Real',data:[242464,243464,242542,null,null,null,null],backgroundColor:'#0066FF',borderRadius:3},
+    {label:'Sin Revamp',data:[null,null,null,244000,244500,244000,244500],backgroundColor:'rgba(0,102,255,.25)',borderRadius:3},
+    {label:'Moderado',data:[null,null,null,null,255000,261000,268000],backgroundColor:'rgba(16,185,129,.45)',borderRadius:3},
+    {label:'Pleno',data:[null,null,null,null,265000,280000,295000],backgroundColor:'rgba(109,40,217,.4)',borderRadius:3}
+  ],{yFmt:fmtK,yExtra:{min:220000}});
+}
+
+function bRetencion(){
+  mkLine('c-ret-churn',['Dic 2025','Ene 2026','Feb 2026'],[
+    {label:'Churn %',data:[0.98,0.97,0.98],borderColor:'#0066FF',borderWidth:2,pointRadius:5,pointBackgroundColor:'#0066FF',fill:true,backgroundColor:'rgba(0,102,255,.06)',tension:.3},
+    {label:'Benchmark',data:[1.8,1.8,1.8],borderColor:'rgba(239,68,68,.4)',borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false}
+  ],{yFmt:v=>v+'%',yExtra:{min:0,max:3}});
+  mkBar('c-ret-rvp',['Dic 2025','Ene 2026','Feb 2026'],[
+    {label:'Retenidos',data:[8184,8450,8367],backgroundColor:'rgba(0,102,255,.6)',borderRadius:3},
+    {label:'Bajas',data:[81,80,87],backgroundColor:'rgba(239,68,68,.6)',borderRadius:3}
+  ],{yFmt:v=>v.toLocaleString()});
+}
+
+// ── Iniciar — todas las declaraciones están listas ────────────────────────────
+fetchSheets();
+setInterval(fetchSheets, 5 * 60 * 1000);
+</script>
+</body>
+</html>
