@@ -1404,14 +1404,25 @@ function rebuildVendedorTable() {
   const tbody = document.getElementById('tbody-campo');
   if (!tbody) return;
   tbody.innerHTML = '';
-  vendedorData.vendedores.forEach(v => {
-    const r = v.ritmo;
-    const proy = v.proy;
+
+  // Use live data if available, otherwise seed data
+  const lista = vendedorData.vendedores.length > 0
+    ? vendedorData.vendedores
+    : vendedoresCampo.map(v => ({
+        nombre:v.n, canal:v.canal, zona:v.zona, meta:v.meta, acum:v.acum,
+        esp:Math.round(v.meta*(TODAY_DAY/DAYS_MES)),
+        ritmo:ritmo(v.meta,v.acum,TODAY_DAY),
+        proy:proyeccion(v.acum,TODAY_DAY), estado:''
+      }));
+
+  lista.forEach(v => {
+    const r = typeof v.ritmo === 'number' ? v.ritmo : 0;
+    const proy = v.proy || 0;
     const proyPct = v.meta>0?Math.round(proy/v.meta*100):0;
     const color = r>=90?'var(--green)':r>=70?'var(--amber)':'var(--red)';
-    const badge = r<70?'<span class="alarm-pill">\u26a0 ALARMA</span>':'';
-    const estado = r>=90?'<span class="vs-green">\u2713 en meta</span>':r>=70?'<span class="vs-amber">\u26a0 riesgo</span>':'<span class="vs-red">\u26a0 alarma</span>';
-    tbody.innerHTML += `<tr><td>${v.nombre}</td><td><span class="pill pb">${v.canal}</span></td><td>${v.zona}</td><td>${v.meta}</td><td>${v.acum}</td><td>${v.esp}</td><td style="color:${color}"><b>${r.toFixed(0)}%</b> ${badge}</td><td style="color:${proyPct>=80?'var(--green)':proyPct>=60?'var(--amber)':'var(--red)'}">~${proy} (${proyPct}%)</td><td>${estado}</td></tr>`;
+    const badge = r<70?'<span class="alarm-pill">⚠ ALARMA</span>':'';
+    const estado = r>=90?'<span class="vs-green">✓ en meta</span>':r>=70?'<span class="vs-amber">⚠ riesgo</span>':'<span class="vs-red">⚠ alarma</span>';
+    tbody.innerHTML += `<tr><td>${v.nombre}</td><td><span class="pill pb">${v.canal||'—'}</span></td><td>${v.zona||'—'}</td><td>${v.meta}</td><td>${v.acum}</td><td>${v.esp||0}</td><td style="color:${color}"><b>${Math.round(r)}%</b> ${badge}</td><td style="color:${proyPct>=80?'var(--green)':proyPct>=60?'var(--amber)':'var(--red)'}">~${proy} (${proyPct}%)</td><td>${estado}</td></tr>`;
   });
 }
 
@@ -1729,25 +1740,8 @@ function bCampo(){
   mkBar('c-campo-bajas',causas,[{label:'Bajas',data:vals,backgroundColor:vals.map(v=>v>=10?'rgba(239,68,68,.7)':'rgba(245,158,11,.7)'),borderRadius:3}],
     {yFmt:v=>v,xTicks:{font:{size:9}}});
 
-  // Tabla vendedores campo
-  const tbody=document.getElementById('tbody-campo');
-  vendedoresCampo.forEach(v=>{
-    const esp=Math.round(v.meta*(TODAY_DAY/DAYS_MES));
-    const r=ritmo(v.meta,v.acum,TODAY_DAY);
-    const proy=proyeccion(v.acum,TODAY_DAY);
-    const pct_proy=Math.round(proy/v.meta*100);
-    tbody.innerHTML+=`<tr>
-      <td>${v.n}</td>
-      <td><span class="pill pb">${v.canal}</span></td>
-      <td>${v.zona}</td>
-      <td>${v.meta}</td>
-      <td>${v.acum}</td>
-      <td>${esp}</td>
-      <td style="color:${r>=90?'var(--green)':r>=70?'var(--amber)':'var(--red)'}"><b>${r}%</b> ${alarmBadge(r)}</td>
-      <td style="color:${pct_proy>=80?'var(--green)':pct_proy>=60?'var(--amber)':'var(--red)'}">~${proy} (${pct_proy}%)</td>
-      <td>${statusBadge(r)}</td>
-    </tr>`;
-  });
+  // Tabla vendedores — usar datos live si disponibles, sino semilla
+  rebuildVendedorTable();
 
   // Reservas
   const rProy=['Ecoterra','Marsella II','Mediterráneo','Montecristo','N.San Miguel','N.Sonsonate','Portal Est.','Villas Costa'];
