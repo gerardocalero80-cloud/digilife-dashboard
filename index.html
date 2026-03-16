@@ -562,7 +562,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Cobrado acumulado</div><div class="kpi-val" style="color:var(--green);" id="kpi-cobr-acum">$112,779</div><div class="kpi-sub" id="kpi-cobr-sub">días 1–12 sin IVA</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Meta acumulada</div><div class="kpi-val" id="kpi-meta-acum">$103,622</div><div class="kpi-sub">días 1–12</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Superávit acumulado</div><div class="kpi-val" id="kpi-superavit">+$9,157</div><div class="kpi-sub" id="kpi-sup-sub"><span id="kpi-sup-pct">▲ 8.8%</span> sobre meta</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">Cobranza feb</div><div class="kpi-val" style="color:var(--teal);" id="kpi-pct-cobr-feb">95%</div><div class="kpi-sub">$284,183 / $299,234 meta</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">Proyección cierre marzo</div><div class="kpi-val" style="color:var(--teal);" id="kpi-proy-marzo">—</div><div class="kpi-sub" id="kpi-proy-sub">vs feb $284,183 · <span id="kpi-proy-var">—</span></div></div>
   </div>
   <div class="g32">
     <div class="card">
@@ -625,31 +625,31 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 
 <!-- ══════════ CXC · P&L -->
 <div id="page-cxc-pl" class="page">
-  <div class="slbl">P&L por segmento · sin IVA · dic 2025 – feb 2026</div>
+  <div class="slbl">P&L por segmento · sin IVA · comparativo vs mes anterior</div>
   <div class="g4">
-    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Residencial feb</div><div class="kpi-val">$242,542</div><div class="kpi-sub"><span class="up">estable</span> · var &lt;0.4%</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Corporativo feb</div><div class="kpi-val" style="color:var(--red);">$24,897</div><div class="kpi-sub"><span class="dn">▼ −11%</span> vs dic</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Pyme feb</div><div class="kpi-val" style="color:var(--green);">$2,696</div><div class="kpi-sub"><span class="up">▲ +11%</span> vs dic</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">Ganancia neta feb</div><div class="kpi-val" style="color:var(--teal);">$132,617</div><div class="kpi-sub"><span class="up">▲ +6%</span> · margen 43.2%</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Residencial mes actual</div><div class="kpi-val" id="pl-resid-actual">$242,542</div><div class="kpi-sub">vs anterior: <span id="pl-resid-var" class="up">—</span></div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Corporativo mes actual</div><div class="kpi-val" style="color:var(--red);" id="pl-corp-actual">$24,897</div><div class="kpi-sub">vs anterior: <span id="pl-corp-var" class="dn">—</span></div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Pyme mes actual</div><div class="kpi-val" style="color:var(--green);" id="pl-pyme-actual">$2,696</div><div class="kpi-sub">vs anterior: <span id="pl-pyme-var" class="up">—</span></div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">Ganancia neta</div><div class="kpi-val" style="color:var(--teal);" id="kpi-gan-neta2">$132,617</div><div class="kpi-sub">margen: <span id="kpi-margen2">43.2%</span></div></div>
   </div>
   <div class="g2">
     <div class="card">
-      <div class="ct">Evolución por segmento dic–feb</div>
+      <div class="ct">Evolución por segmento</div>
       <div style="position:relative;height:230px;"><canvas id="c-pl-seg"></canvas></div>
     </div>
     <div class="card">
-      <div class="ct">P&L detalle · sin IVA</div>
-      <table class="tbl">
-        <thead><tr><th>Concepto</th><th>Dic 2025</th><th>Ene 2026</th><th>Feb 2026</th><th>Var.</th></tr></thead>
+      <div class="ct">P&L detalle · sin IVA <span class="ctag" id="pl-periodo">dic 2025 – feb 2026</span></div>
+      <table class="tbl" id="tbl-pl-detalle">
+        <thead><tr><th>Concepto</th><th id="pl-col-prev2">Dic 2025</th><th id="pl-col-prev1">Ene 2026</th><th id="pl-col-curr">Feb 2026</th><th>Var. mes</th><th>% Var.</th></tr></thead>
         <tbody>
-          <tr><td>Residencial</td><td>$242,464</td><td>$243,464</td><td>$242,542</td><td><span class="pill pg">estable</span></td></tr>
-          <tr><td>Corporativo</td><td>$27,965</td><td>$26,334</td><td>$24,897</td><td><span class="pill pr">−11%</span></td></tr>
-          <tr><td>Pyme</td><td>$2,425</td><td>$2,485</td><td>$2,696</td><td><span class="pill pg">+11%</span></td></tr>
-          <tr><td>Otros</td><td>—</td><td>$672</td><td>$1,461</td><td><span class="pill pb">var.</span></td></tr>
+          <tr><td>Residencial</td><td id="pl-r-prev2">$242,464</td><td id="pl-r-prev1">$243,464</td><td id="pl-r-curr">$242,542</td><td id="pl-r-vard">—</td><td id="pl-r-varp"><span class="pill pg">estable</span></td></tr>
+          <tr><td>Corporativo</td><td id="pl-c-prev2">$27,965</td><td id="pl-c-prev1">$26,334</td><td id="pl-c-curr">$24,897</td><td id="pl-c-vard">−$1,437</td><td id="pl-c-varp"><span class="pill pr">−5.5%</span></td></tr>
+          <tr><td>Pyme</td><td id="pl-p-prev2">$2,425</td><td id="pl-p-prev1">$2,485</td><td id="pl-p-curr">$2,696</td><td id="pl-p-vard">+$211</td><td id="pl-p-varp"><span class="pill pg">+8.5%</span></td></tr>
+          <tr><td>Otros</td><td>—</td><td>$672</td><td>$1,461</td><td>—</td><td>—</td></tr>
         </tbody>
-        <tfoot><tr><td>Ing. operativo</td><td>$301,816</td><td>$306,501</td><td>$299,595</td><td><span class="pill pa">−0.7%</span></td></tr></tfoot>
+        <tfoot><tr><td>Ing. operativo</td><td>$301,816</td><td>$306,501</td><td id="pl-op-curr">$299,595</td><td id="pl-op-vard">—</td><td id="pl-op-varp"><span class="pill pa">−0.7%</span></td></tr></tfoot>
       </table>
-      <div class="abox"><strong>Caída corporativa −$3,068</strong> en 2 meses no fue capturada por el resumen ejecutivo original. Es el único segmento en deterioro activo.</div>
+      <div class="abox" id="pl-alert-text"><strong>Caída corporativa −$3,068</strong> en 2 meses. Es el único segmento en deterioro activo. Requiere diagnóstico urgente.</div>
     </div>
   </div>
 </div>
@@ -719,8 +719,15 @@ Chart.defaults.font.family="'Plus Jakarta Sans',sans-serif";
 // ══════════════════════════════════════════════════════════════════════════════
 // CONEXIÓN GOOGLE SHEETS — REEMPLAZAR LA URL CUANDO SE PUBLIQUE
 // ══════════════════════════════════════════════════════════════════════════════
-const SHEETS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?gid=1080435328&single=true&output=csv";
-const VENTAS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?gid=1033049400&single=true&output=csv";
+const SHEETS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?gid=1080435328&single=true&output=csv";
+const VENTAS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?gid=1033049400&single=true&output=csv";
+const COBR_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?single=true&output=csv&gid=1823573446";
+const RENOV_URL    = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?single=true&output=csv&gid=2008159252";
+const MORA_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?single=true&output=csv&gid=1749020073";
+const PROYECT_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?single=true&output=csv&gid=1864181856";
+const VDIARIO_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?single=true&output=csv&gid=1303795907";
+const VENDEDOR_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?single=true&output=csv&gid=783820962";
+const TV_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?single=true&output=csv&gid=1644020951";
 
 // Ventas data — updated from VENTAS_URL, fallback to feb seed
 let ventasData = {
@@ -971,8 +978,46 @@ function updateUI() {
   set('pb-revamp-pct', pct.toFixed(1) + '%');
   set('pb-revamp-num', `${fmtN(kpiData.cx_brutas)} de ${fmtN(kpiData.meta_cx)}`);
 
-  // Color coding
-  const moraPct = (kpiData.tasa_mora||0) * 100;
+  // ── Proyección cierre marzo (4to card CXC) ──
+  const cobAcum = kpiData.cobr_acum || 0;
+  const diaActual = 16; // actualizar dinámicamente si se puede
+  const proyMes = cobAcum > 0 && diaActual > 0 ? Math.round(cobAcum / diaActual * 31) : null;
+  const feb284 = 284183;
+  const varVsFeb = proyMes ? ((proyMes - feb284) / feb284 * 100) : null;
+  set('kpi-proy-marzo', proyMes ? fmt(proyMes) : '—');
+  const proyVarEl = document.getElementById('kpi-proy-var');
+  if (proyVarEl && varVsFeb != null) {
+    proyVarEl.textContent = (varVsFeb >= 0 ? '▲ +' : '▼ ') + Math.abs(varVsFeb).toFixed(1) + '% vs feb';
+    proyVarEl.style.color = varVsFeb >= 0 ? 'var(--green2)' : 'var(--red2)';
+  }
+
+  // ── P&L variaciones vs mes anterior ──
+  const resid = kpiData.ing_resid || 242542;
+  const residPrev = 243464; // ene 2026
+  const corp = kpiData.ing_corp || 24897;
+  const corpPrev = 26334;
+  const pyme = 2696; // usar kpiData cuando esté disponible
+  const pymePrev = 2485;
+
+  const setVar = (idActual, idVar, curr, prev) => {
+    const el = document.getElementById(idActual);
+    if (el) el.textContent = fmt(curr);
+    const varEl = document.getElementById(idVar);
+    if (!varEl) return;
+    const diff = curr - prev;
+    const pct = prev > 0 ? (diff/prev*100) : 0;
+    varEl.textContent = (diff >= 0 ? '▲ +' : '▼ ') + Math.abs(pct).toFixed(1) + '%';
+    varEl.style.color = diff >= 0 ? 'var(--green2)' : 'var(--red2)';
+    varEl.className = diff >= 0 ? 'up' : 'dn';
+  };
+
+  setVar('pl-resid-actual', 'pl-resid-var', resid, residPrev);
+  setVar('pl-corp-actual',  'pl-corp-var',  corp,  corpPrev);
+  setVar('pl-pyme-actual',  'pl-pyme-var',  pyme,  pymePrev);
+
+  // Sync gan-neta and margen to P&L page duplicate IDs
+  set('kpi-gan-neta2', fmt(kpiData.gan_neta));
+  set('kpi-margen2', kpiData.ing_operativo ? ((kpiData.gan_neta/kpiData.ing_operativo)*100).toFixed(1)+'%' : '—');
   setC('kpi-tasa-mora', moraPct >= 15 ? 'var(--red)' : moraPct >= 8 ? 'var(--amber2)' : 'var(--green)');
   const nrrColor = (kpiData.nrr_corp||0) >= 1 ? 'var(--green)' : (kpiData.nrr_corp||0) >= 0.95 ? 'var(--amber)' : 'var(--red)';
   setC('kpi-nrr', nrrColor);
@@ -1010,7 +1055,358 @@ function rebuildAlarms() {
   scroll.innerHTML = items;
 }
 
-// ── Fetch ventas campo por zona ───────────────────────────────────────────────
+// ── Live data stores ──────────────────────────────────────────────────────────
+let cobrData = { dias:[], cob:[], met:[] };
+let renovData = { zonas:[], reservas:[], renovaciones:[], metas:[] };
+let moraData  = { zonas:[], rangos:[], values:{} };
+let proyData  = { proyectos:[] };
+let vdiarioData = { dias:[], cx:[], meta:[], acum:[] };
+let vendedorData = { vendedores:[] };
+let tvData = { agentes:[] };
+
+// ── Fetch cobranza diaria ─────────────────────────────────────────────────────
+async function fetchCobr() {
+  try {
+    const res = await fetch(COBR_URL);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
+    // Structure: row0=title, row1=subtitle, row2=note, row3=headers, row4+=data
+    // Cols: A=#, B=Fecha, C=DiaSemana, D=Meta, E=Cobrado
+    let ds = 4;
+    for (let i = 0; i < Math.min(rows.length,8); i++) {
+      const c0 = (rows[i][0]||'').toLowerCase();
+      if (c0 === '#' || c0 === 'numero' || c0.trim() === '#') { ds = i+1; break; }
+    }
+    const dias=[], cob=[], met=[];
+    rows.slice(ds).forEach(r => {
+      const fecha = (r[1]||'').toString().trim();
+      const metaV = parseNum(r[3]);
+      const cobV  = parseNum(r[4]);
+      if (!fecha || (!metaV && !cobV)) return;
+      if (fecha.toLowerCase().includes('total')) return;
+      // Short day label from fecha
+      const d = fecha.split('/')[0] || fecha.split('-')[2] || fecha;
+      dias.push(d.padStart(2,'0'));
+      met.push(metaV || 0);
+      cob.push(cobV  || 0);
+    });
+    if (dias.length > 0) {
+      cobrData = { dias, cob, met };
+      console.log('[DigiLife] Cobr loaded:', dias.length, 'days');
+      rebuildCobrCharts();
+    }
+  } catch(e) { console.warn('[DigiLife] fetchCobr error:', e); }
+}
+
+// ── Fetch renovaciones ────────────────────────────────────────────────────────
+async function fetchRenov() {
+  try {
+    const res = await fetch(RENOV_URL);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
+    // Structure: title, subtitle, headers, data
+    // Cols: A=Zona, B=Reservas, C=Renovaciones, D=Meta, E=%Cumplim, F=Faltantes
+    let ds = 3;
+    for (let i = 0; i < Math.min(rows.length,6); i++) {
+      const c0 = (rows[i][0]||'').toLowerCase();
+      if (c0 === 'zona') { ds = i+1; break; }
+    }
+    const zonas=[], reservas=[], renovaciones=[], metas=[];
+    rows.slice(ds).forEach(r => {
+      const zona = (r[0]||'').toString().trim();
+      if (!zona || zona.includes('TOTAL') || zona.includes('Nueva') || zona.includes('↑')) return;
+      const resV = parseNum(r[1]) || 0;
+      const renV = parseNum(r[2]) || 0;
+      const metV = parseNum(r[3]) || 0;
+      zonas.push(zona.length > 10 ? zona.substring(0,10)+'.' : zona);
+      reservas.push(resV);
+      renovaciones.push(renV);
+      metas.push(metV);
+    });
+    if (zonas.length > 0) {
+      renovData = { zonas, reservas, renovaciones, metas };
+      console.log('[DigiLife] Renov loaded:', zonas.length, 'zonas');
+      rebuildRenovCharts();
+    }
+  } catch(e) { console.warn('[DigiLife] fetchRenov error:', e); }
+}
+
+// ── Fetch mora aging ──────────────────────────────────────────────────────────
+async function fetchMora() {
+  try {
+    const res = await fetch(MORA_URL);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
+    // Structure: title, date, note, note, headers(rangos), data rows
+    // Col A=Zona, B..T=rangos, last=Total
+    let ds = 5;
+    for (let i = 0; i < Math.min(rows.length,8); i++) {
+      const c0 = (rows[i][0]||'').toLowerCase();
+      if (c0 === 'zona') { ds = i+1; break; }
+    }
+    const headerRow = rows[ds-1] || [];
+    const rangos = headerRow.slice(1).map(r => r.toString().trim()).filter(r => r && r !== 'Total general');
+    const zonas=[], values={};
+    rows.slice(ds).forEach(r => {
+      const zona = (r[0]||'').toString().trim();
+      if (!zona || zona.includes('Total') || zona.includes('Nueva') || zona.includes('↑') || zona.includes('ARPU')) return;
+      zonas.push(zona);
+      values[zona] = r.slice(1).map(v => parseNum(v) || 0);
+    });
+    if (zonas.length > 0) {
+      moraData = { zonas, rangos, values };
+      console.log('[DigiLife] Mora loaded:', zonas.length, 'zonas,', rangos.length, 'rangos');
+      rebuildMoraCharts();
+    }
+  } catch(e) { console.warn('[DigiLife] fetchMora error:', e); }
+}
+
+// ── Fetch proyectos penetración ───────────────────────────────────────────────
+async function fetchProyectos() {
+  try {
+    const res = await fetch(PROYECT_URL);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
+    // Cols: A=Proyecto, B=Tipo, C=Total, D=Habitadas, E=DigiLife, F=Competencia, K=% Penetración, L=Meta%
+    let ds = 4;
+    for (let i = 0; i < Math.min(rows.length,8); i++) {
+      const c0 = (rows[i][0]||'').toLowerCase();
+      if (c0 === 'proyecto') { ds = i+1; break; }
+    }
+    const proyectos = [];
+    rows.slice(ds).forEach(r => {
+      const n = (r[0]||'').toString().trim();
+      if (!n || n.includes('TOTAL') || n.includes('Nueva') || n.includes('↑')) return;
+      const tipo  = (r[1]||'').toString().trim();
+      const total = parseNum(r[2]) || 0;
+      const digi  = parseNum(r[4]) || 0;
+      const pct   = total > 0 ? digi/total : 0;
+      const meta  = parseNum(r[11]) || (tipo.toUpperCase().includes('CERRADO') ? 0.5 : 0.3);
+      proyectos.push({ n, tipo, total, digi, pct, meta });
+    });
+    if (proyectos.length > 0) {
+      proyData = { proyectos };
+      console.log('[DigiLife] Proyectos loaded:', proyectos.length);
+      rebuildProyCharts();
+    }
+  } catch(e) { console.warn('[DigiLife] fetchProyectos error:', e); }
+}
+
+// ── Chart rebuild functions ───────────────────────────────────────────────────
+function rebuildCobrCharts() {
+  const {dias, cob, met} = cobrData;
+  if (!dias.length) return;
+  ['c-cobr-diario','c-cobr-diario2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const ex = Chart.getChart(el); if (ex) ex.destroy();
+    mkBar(id, dias, [
+      {label:'Cobrado', data:cob, backgroundColor:cob.map((v,i)=>v>=met[i]?'#0066FF':'rgba(239,68,68,.7)'), borderRadius:3, order:1},
+      {label:'Meta',    data:met, type:'line', borderColor:'#94A3B8', borderWidth:1.5, pointRadius:2, fill:false, tension:0, order:0}
+    ],{yFmt:fmtK, xTicks:{autoSkip:false, maxRotation:0}});
+  });
+  // Deviation chart
+  const desv = cob.map((v,i) => v - met[i]);
+  const el2 = document.getElementById('c-cobr-desv');
+  if (el2) { const ex=Chart.getChart(el2); if(ex) ex.destroy();
+    mkBar('c-cobr-desv', dias, [{data:desv, backgroundColor:desv.map(v=>v>=0?'rgba(16,185,129,.7)':'rgba(239,68,68,.7)'), borderRadius:3}],
+      {yFmt:v=>(v>=0?'+':'')+fmtK(v), xTicks:{autoSkip:false,maxRotation:0}});
+  }
+}
+
+function rebuildRenovCharts() {
+  const {zonas, reservas, renovaciones, metas} = renovData;
+  if (!zonas.length) return;
+  // Reservas chart
+  const el1 = document.getElementById('c-reservas');
+  if (el1) { const ex=Chart.getChart(el1); if(ex) ex.destroy();
+    mkBar('c-reservas', zonas, [{label:'Reservas', data:reservas, backgroundColor:'#0066FF', borderRadius:3}], {yFmt:v=>v, xTicks:{font:{size:8},maxRotation:35}});
+  }
+  // Renovaciones chart
+  const el2 = document.getElementById('c-renovaciones');
+  if (el2) { const ex=Chart.getChart(el2); if(ex) ex.destroy();
+    mkBar('c-renovaciones', zonas, [
+      {label:'Meta',       data:metas,       backgroundColor:'rgba(239,68,68,.4)', borderRadius:3},
+      {label:'Renovados',  data:renovaciones, backgroundColor:'#0066FF',           borderRadius:3}
+    ], {yFmt:v=>v});
+  }
+}
+
+function rebuildMoraCharts() {
+  const {zonas, values} = moraData;
+  if (!zonas.length) return;
+  const el = document.getElementById('c-aging-zona');
+  if (!el) return;
+  const ex = Chart.getChart(el); if (ex) ex.destroy();
+  // Group into 0-60d, 61-150d, +150d
+  const g1=[],g2=[],g3=[];
+  zonas.forEach(z => {
+    const v = values[z] || [];
+    g1.push((v[0]||0)+(v[1]||0)+(v[2]||0)+(v[3]||0)); // 0-60d (cols 0-3)
+    g2.push((v[4]||0)+(v[5]||0)+(v[6]||0));             // 61-150d (cols 4-6)
+    g3.push(v.slice(7,-1).reduce((a,b)=>a+b,0));         // +150d
+  });
+  mkBar('c-aging-zona', zonas, [
+    {label:'0–60d',   data:g1, backgroundColor:'#10B981', borderRadius:2},
+    {label:'61–150d', data:g2, backgroundColor:'#F59E0B', borderRadius:2},
+    {label:'+150d',   data:g3, backgroundColor:'#EF4444', borderRadius:2}
+  ],{yFmt:v=>v, extra:{scales:{x:{stacked:true,ticks:{font:{size:9}},grid:{display:false}},y:{stacked:true,ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}}}}});
+}
+
+function rebuildProyCharts() {
+  const {proyectos} = proyData;
+  if (!proyectos.length) return;
+  const sorted = [...proyectos].sort((a,b) => b.pct - a.pct);
+  const el = document.getElementById('c-penetracion');
+  if (!el) return;
+  const ex = Chart.getChart(el); if (ex) ex.destroy();
+  mkBar('c-penetracion',
+    sorted.map(p => p.n.substring(0,12)),
+    [{label:'% Penetración', data:sorted.map(p=>Math.round(p.pct*100)),
+      backgroundColor:sorted.map(p=>p.pct>=p.meta?'#10B981':p.pct>=p.meta*0.6?'#F59E0B':'#EF4444'),
+      borderRadius:3}],
+    {yFmt:v=>v+'%', xTicks:{font:{size:8},maxRotation:40}});
+}
+// ── Fetch ventas diario (Revamp) ──────────────────────────────────────────────
+async function fetchVDiario() {
+  try {
+    const res = await fetch(VDIARIO_URL);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
+    let ds = 3;
+    for (let i = 0; i < Math.min(rows.length,8); i++) {
+      if ((rows[i][0]||'').toString().trim() === '#') { ds = i+1; break; }
+    }
+    const dias=[], cx=[], meta=[], acum=[];
+    let acumSum = 0;
+    rows.slice(ds).forEach(r => {
+      const fecha = (r[1]||'').toString().trim();
+      if (!fecha || fecha.toLowerCase().includes('total')) return;
+      const cxV = parseNum(r[3]);
+      const metV = parseNum(r[4]);
+      if (cxV == null && metV == null) return;
+      const d = fecha.split('/')[0] || (dias.length+1).toString();
+      dias.push(d.toString().padStart(2,'0'));
+      cx.push(cxV || 0);
+      meta.push(metV || 0);
+      if (cxV != null) acumSum += (cxV || 0);
+      acum.push(cxV != null ? acumSum : null);
+    });
+    if (dias.length > 0) {
+      vdiarioData = { dias, cx, meta, acum };
+      kpiData.cx_brutas = acumSum;
+      console.log('[DigiLife] VDiario loaded:', dias.length, 'days acum:', acumSum);
+      const pct = Math.min(acumSum/600*100,100);
+      const pb = document.getElementById('pb-revamp');
+      if (pb) pb.style.width = pct.toFixed(1)+'%';
+      const pbEl = document.getElementById('pb-revamp-pct');
+      if (pbEl) pbEl.textContent = pct.toFixed(1)+'% de meta 600';
+      const cxEl = document.getElementById('kpi-cx-brutas');
+      if (cxEl) cxEl.textContent = acumSum;
+      const cxEl2 = document.getElementById('kpi-cx-brutas2');
+      if (cxEl2) cxEl2.textContent = acumSum;
+    }
+  } catch(e) { console.warn('[DigiLife] fetchVDiario error:', e); }
+}
+
+// ── Fetch vendedores ──────────────────────────────────────────────────────────
+async function fetchVendedores() {
+  try {
+    const res = await fetch(VENDEDOR_URL);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
+    let ds = 4;
+    for (let i = 0; i < Math.min(rows.length,8); i++) {
+      if ((rows[i][0]||'').toLowerCase() === 'vendedor') { ds = i+1; break; }
+    }
+    const vendedores = [];
+    rows.slice(ds).forEach(r => {
+      const nombre = (r[0]||'').toString().trim();
+      if (!nombre || nombre.includes('Nueva') || nombre.includes('TOTAL') || nombre.includes('\u2192')) return;
+      const ritmoRaw = parseNum(r[6]) || 0;
+      const ritmoPct = Math.abs(ritmoRaw) > 1 ? ritmoRaw : ritmoRaw * 100;
+      vendedores.push({
+        nombre, canal:(r[1]||'').trim(), zona:(r[2]||'').trim(),
+        meta:parseNum(r[3])||0, acum:parseNum(r[4])||0,
+        esp:parseNum(r[5])||0, ritmo:ritmoPct,
+        proy:parseNum(r[7])||0, estado:(r[9]||'').trim(),
+      });
+    });
+    if (vendedores.length > 0) {
+      vendedorData = { vendedores };
+      console.log('[DigiLife] Vendedores loaded:', vendedores.length);
+      rebuildVendedorTable();
+    }
+  } catch(e) { console.warn('[DigiLife] fetchVendedores error:', e); }
+}
+
+// ── Fetch televentas ──────────────────────────────────────────────────────────
+async function fetchTV() {
+  try {
+    const res = await fetch(TV_URL);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
+    let ds = 3;
+    for (let i = 0; i < Math.min(rows.length,8); i++) {
+      if ((rows[i][2]||'').toLowerCase() === 'agente') { ds = i+1; break; }
+    }
+    const agg = {};
+    rows.slice(ds).forEach(r => {
+      const agente = (r[2]||'').toString().trim();
+      const fecha  = (r[1]||'').toString().trim();
+      if (!agente || !fecha || agente.includes('Nueva')) return;
+      if (!agg[agente]) agg[agente] = {llamadas:0,contactos:0,directos:0,reservas:0,meta:0};
+      agg[agente].llamadas  += parseNum(r[3])||0;
+      agg[agente].contactos += parseNum(r[4])||0;
+      agg[agente].directos  += parseNum(r[5])||0;
+      agg[agente].reservas  += parseNum(r[6])||0;
+      agg[agente].meta = Math.max(agg[agente].meta, parseNum(r[11])||0);
+    });
+    const agentes = Object.entries(agg).map(([nombre,v]) => ({
+      nombre, llamadas:v.llamadas, contactos:v.contactos,
+      cierres:v.directos+v.reservas,
+      tConv:v.llamadas>0?(v.directos+v.reservas)/v.llamadas:0,
+      meta:v.meta,
+    }));
+    if (agentes.length > 0) {
+      tvData = { agentes };
+      console.log('[DigiLife] TV loaded:', agentes.length, 'agentes');
+      rebuildTVTable();
+    }
+  } catch(e) { console.warn('[DigiLife] fetchTV error:', e); }
+}
+
+// ── Rebuild vendedores table ──────────────────────────────────────────────────
+function rebuildVendedorTable() {
+  const tbody = document.getElementById('tbody-campo');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  vendedorData.vendedores.forEach(v => {
+    const r = v.ritmo;
+    const proy = v.proy;
+    const proyPct = v.meta>0?Math.round(proy/v.meta*100):0;
+    const color = r>=90?'var(--green)':r>=70?'var(--amber)':'var(--red)';
+    const badge = r<70?'<span class="alarm-pill">\u26a0 ALARMA</span>':'';
+    const estado = r>=90?'<span class="vs-green">\u2713 en meta</span>':r>=70?'<span class="vs-amber">\u26a0 riesgo</span>':'<span class="vs-red">\u26a0 alarma</span>';
+    tbody.innerHTML += `<tr><td>${v.nombre}</td><td><span class="pill pb">${v.canal}</span></td><td>${v.zona}</td><td>${v.meta}</td><td>${v.acum}</td><td>${v.esp}</td><td style="color:${color}"><b>${r.toFixed(0)}%</b> ${badge}</td><td style="color:${proyPct>=80?'var(--green)':proyPct>=60?'var(--amber)':'var(--red)'}">~${proy} (${proyPct}%)</td><td>${estado}</td></tr>`;
+  });
+}
+
+// ── Rebuild televentas table ──────────────────────────────────────────────────
+function rebuildTVTable() {
+  const tbody = document.getElementById('tbody-tv');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  tvData.agentes.forEach(a => {
+    const tConvPct = (a.tConv*100).toFixed(1);
+    const convAlarm = a.tConv<0.05?'<span class="alarm-pill">\u26a0 conv. baja</span>':'';
+    const metaPct = a.meta>0?Math.round(a.cierres/a.meta*100):0;
+    const tCont = a.llamadas>0?(a.contactos/a.llamadas*100).toFixed(1):'0.0';
+    tbody.innerHTML += `<tr><td>${a.nombre}</td><td>${a.llamadas}</td><td>${a.contactos}</td><td>${tCont}%</td><td>${a.cierres}</td><td style="color:${a.tConv>=0.05?'var(--green)':'var(--red)'}"><b>${tConvPct}%</b> ${convAlarm}</td><td>${a.meta}</td><td style="color:${metaPct>=90?'var(--green)':metaPct>=70?'var(--amber)':'var(--red)'}"><b>${metaPct}%</b></td><td>~${a.meta>0?Math.round(a.cierres/12*31):0}</td><td>${metaPct>=90?'<span class="vs-green">\u2713 en meta</span>':metaPct>=70?'<span class="vs-amber">\u26a0 riesgo</span>':'<span class="vs-red">\u26a0 alarma</span>'}</td></tr>`;
+  });
+}
+
+
 async function fetchVentas() {
   console.log('[DigiLife] fetchVentas START — URL:', VENTAS_URL ? 'set' : 'null');
   if (!VENTAS_URL) { console.warn('[DigiLife] VENTAS_URL not set'); return; }
@@ -1182,8 +1578,11 @@ function showSub(main,sub,el){
   if(pg)pg.classList.add('active');
   const k=main+'-'+sub;
   if(!built[k]){build(k);built[k]=true;}
-  // Always rebuild ventas charts with latest data when opening ventas-campo or inicio
-  if(k==='ventas-campo'||k==='inicio') rebuildVentasCharts();
+  if(k==='ventas-campo'||k==='inicio') { rebuildVentasCharts(); rebuildRenovCharts(); }
+  if(k==='ventas-televentas') rebuildTVTable();
+  if(k==='ventas-proyectos') rebuildProyCharts();
+  if(k==='cxc-cobr')   rebuildCobrCharts();
+  if(k==='cxc-aging')  rebuildMoraCharts();
 }
 
 // ── Vendor table helpers ──────────────────────────────────────────────────────
@@ -1513,8 +1912,14 @@ function bRetencion(){
 // ── Iniciar — todas las declaraciones están listas ────────────────────────────
 fetchSheets();
 fetchVentas();
-setInterval(fetchSheets, 5 * 60 * 1000);
-setInterval(fetchVentas, 5 * 60 * 1000);
+fetchCobr();
+fetchRenov();
+fetchMora();
+fetchProyectos();
+fetchVDiario();
+fetchVendedores();
+fetchTV();
+setInterval(()=>{ fetchSheets(); fetchVentas(); fetchCobr(); fetchRenov(); fetchMora(); fetchProyectos(); fetchVDiario(); fetchVendedores(); fetchTV(); }, 5 * 60 * 1000);
 </script>
 </body>
 </html>
