@@ -818,13 +818,14 @@ function parseCSV(text) {
 function parseNum(v) {
   if (!v || v === '' || v === '—' || v === '-') return null;
   let s = v.toString().trim();
+  // Protect date strings — don't parse as numbers
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s) || /^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
   const isPct = s.includes('%');
   const isNeg = s.startsWith('-') || s.startsWith('(');
-  s = s.replace(/[$,%()\s]/g, '').trim();
+  s = s.replace(/[$,%()\s]/g, '').replace(/,/g,'').trim();
   if (isNeg && !s.startsWith('-')) s = '-' + s;
   const n = parseFloat(s);
   if (isNaN(n)) return null;
-  // Percentages: always return as decimal (0.976 not 97.6)
   return isPct ? n / 100 : n;
 }
 
@@ -1011,10 +1012,12 @@ function rebuildAlarms() {
 
 // ── Fetch ventas campo por zona ───────────────────────────────────────────────
 async function fetchVentas() {
-  if (!VENTAS_URL) return;
+  console.log('[DigiLife] fetchVentas START — URL:', VENTAS_URL ? 'set' : 'null');
+  if (!VENTAS_URL) { console.warn('[DigiLife] VENTAS_URL not set'); return; }
   try {
     const res = await fetch(VENTAS_URL);
-    if (!res.ok) return;
+    console.log('[DigiLife] fetchVentas response status:', res.status);
+    if (!res.ok) { console.warn('[DigiLife] fetchVentas HTTP error:', res.status); return; }
     const text = await res.text();
     const rows = parseCSV(text);
 
