@@ -897,6 +897,7 @@ async function fetchSheets() {
   } catch (err) {
     console.warn('Sheets fetch error:', err);
     if (statusEl) { statusEl.textContent = '⚠ Sin conexión — datos semilla'; statusEl.style.color = 'var(--amber)'; }
+    console.error('[DigiLife] fetchSheets error:', err.message || err);
     updateUI(); // use seed data
   }
 }
@@ -1315,26 +1316,48 @@ async function fetchVendedores() {
     const res = await fetch(VENDEDOR_URL);
     if (!res.ok) return;
     const rows = parseCSV(await res.text());
+
+    // Find header row: has "Vendedor" in col A
     let ds = 4;
-    for (let i = 0; i < Math.min(rows.length,8); i++) {
-      if ((rows[i][0]||'').toLowerCase() === 'vendedor') { ds = i+1; break; }
+    for (let i = 0; i < Math.min(rows.length,10); i++) {
+      if ((rows[i][0]||'').toString().trim().toLowerCase() === 'vendedor') { ds = i+1; break; }
     }
+
     const vendedores = [];
     rows.slice(ds).forEach(r => {
       const nombre = (r[0]||'').toString().trim();
-      if (!nombre || nombre.includes('Nueva') || nombre.includes('TOTAL') || nombre.includes('\u2192')) return;
+      // Skip empty, buffer, total, header fragment rows, and summary rows
+      if (!nombre) return;
+      if (nombre.includes('Nueva') || nombre.includes('TOTAL') || nombre.includes('→') ||
+          nombre.includes('RESUMEN') || nombre.includes('vendedores') ||
+          nombre.toLowerCase().includes('hoy') || nombre.toLowerCase().includes('cierre') ||
+          nombre.toLowerCase().includes('vs meta') || nombre.toLowerCase().includes('ritmo')) return;
+      // Skip rows with no meta (likely header/summary rows)
+      const meta = parseNum(r[3]) || 0;
+      const acum = parseNum(r[4]) || 0;
+      if (meta === 0 && acum === 0 && !(r[1]||'').toString().trim()) return;
+
+      // Ritmo: comes as percentage string e.g. "80%" → parsed as 0.8 by parseNum
+      // Display as percentage points
       const ritmoRaw = parseNum(r[6]) || 0;
-      const ritmoPct = Math.abs(ritmoRaw) > 1 ? ritmoRaw : ritmoRaw * 100;
+      const ritmoPct = ritmoRaw <= 1 ? Math.round(ritmoRaw * 100) : Math.round(ritmoRaw);
+
       vendedores.push({
-        nombre, canal:(r[1]||'').trim(), zona:(r[2]||'').trim(),
-        meta:parseNum(r[3])||0, acum:parseNum(r[4])||0,
-        esp:parseNum(r[5])||0, ritmo:ritmoPct,
-        proy:parseNum(r[7])||0, estado:(r[9]||'').trim(),
+        nombre,
+        canal:  (r[1]||'').toString().trim(),
+        zona:   (r[2]||'').toString().trim(),
+        meta,
+        acum,
+        esp:    parseNum(r[5]) || 0,
+        ritmo:  ritmoPct,
+        proy:   parseNum(r[7]) || 0,
+        estado: (r[9]||'').toString().trim(),
       });
     });
+
     if (vendedores.length > 0) {
       vendedorData = { vendedores };
-      console.log('[DigiLife] Vendedores loaded:', vendedores.length);
+      console.log('[DigiLife] Vendedores loaded:', vendedores.length, vendedores.map(v=>v.nombre));
       rebuildVendedorTable();
     }
   } catch(e) { console.warn('[DigiLife] fetchVendedores error:', e); }
@@ -1659,6 +1682,7 @@ function build(id){
 
 function mkBar(id,labels,datasets,opts={}){
   const el=document.getElementById(id);if(!el)return;
+  const ex=Chart.getChart(el);if(ex)ex.destroy(); // always destroy first
   return new Chart(el,{type:'bar',data:{labels,datasets},options:{
     responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:false},...(opts.plugins||{})},
@@ -1670,6 +1694,7 @@ function mkBar(id,labels,datasets,opts={}){
 }
 function mkLine(id,labels,datasets,opts={}){
   const el=document.getElementById(id);if(!el)return;
+  const ex=Chart.getChart(el);if(ex)ex.destroy(); // always destroy first
   return new Chart(el,{type:'line',data:{labels,datasets},options:{
     responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:false},...(opts.plugins||{})},
@@ -1681,6 +1706,8 @@ function mkLine(id,labels,datasets,opts={}){
 }
 
 function bInicio(){
+  const el=document.getElementById('c-ini-ventas');
+  if(el){const ex=Chart.getChart(el);if(ex)ex.destroy();}
   mkBar('c-ini-ventas',ventasData.zonas,[
     {label:'Ventas',data:ventasData.ventas,backgroundColor:'#0066FF',borderRadius:3},
     {label:'Instalaciones',data:ventasData.inst,backgroundColor:'#10B981',borderRadius:3},
@@ -1689,6 +1716,8 @@ function bInicio(){
 }
 
 function bCampo(){
+  const el=document.getElementById('c-campo-zona');
+  if(el){const ex=Chart.getChart(el);if(ex)ex.destroy();}
   mkBar('c-campo-zona',ventasData.zonas,[
     {label:'Ventas',data:ventasData.ventas,backgroundColor:'#0066FF',borderRadius:3},
     {label:'Instalaciones',data:ventasData.inst,backgroundColor:'#10B981',borderRadius:3},
