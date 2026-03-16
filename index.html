@@ -1030,11 +1030,25 @@ async function fetchVentas() {
 
     // Get the most recent month's data
     // Find last non-empty, non-buffer, non-total row
+    console.log('[DigiLife] Ventas CSV total rows:', rows.length);
+    console.log('[DigiLife] Ventas row 0:', rows[0]);
+    console.log('[DigiLife] Ventas row 1:', rows[1]);
+    console.log('[DigiLife] Ventas row 2:', rows[2]);
+    console.log('[DigiLife] Ventas row 3:', rows[3]);
+    console.log('[DigiLife] Ventas row 4:', rows[4]);
+    console.log('[DigiLife] Ventas dataStart:', dataStart);
+
     const dataRows = rows.slice(dataStart).filter(r => {
       const zona = (r[1]||'').toString().trim();
       const mes  = (r[0]||'').toString().trim();
       return zona && mes && !zona.includes('Nueva fila') && !zona.includes('TOTAL') && !mes.includes('TOTAL');
     });
+
+    console.log('[DigiLife] Ventas dataRows after filter:', dataRows.length);
+    if (dataRows.length > 0) {
+      console.log('[DigiLife] First dataRow:', dataRows[0]);
+      console.log('[DigiLife] Last dataRow:', dataRows[dataRows.length-1]);
+    }
 
     if (dataRows.length === 0) return;
 
