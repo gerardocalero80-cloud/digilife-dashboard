@@ -1024,11 +1024,13 @@ async function fetchVentas() {
     // Structure: row 0=title, row 1=subtitle, row 2=headers, row 3+=data
     // Cols: A=Mes, B=Zona, C=Ventas brutas, D=Reservas, E=Total ventas, F=Instalaciones, G=Bajas, H=Netos
     // Find header row
+    // Find header row: look for row with "Mes" in col A AND "Zona" in col B
     let dataStart = 3;
-    for (let i = 0; i < Math.min(rows.length, 6); i++) {
-      const c0 = (rows[i][0]||'').toLowerCase();
-      const c1 = (rows[i][1]||'').toLowerCase();
-      if (c0.includes('mes') || c1.includes('zona')) { dataStart = i + 1; break; }
+    for (let i = 0; i < Math.min(rows.length, 8); i++) {
+      const c0 = (rows[i][0]||'').toLowerCase().trim();
+      const c1 = (rows[i][1]||'').toLowerCase().trim();
+      // Header row has both "mes" and "zona"
+      if (c0.includes('mes') && c1.includes('zona')) { dataStart = i + 1; break; }
     }
 
     // Get the most recent month's data
@@ -1042,9 +1044,13 @@ async function fetchVentas() {
     console.log('[DigiLife] Ventas dataStart:', dataStart);
 
     const dataRows = rows.slice(dataStart).filter(r => {
-      const zona = (r[1]||'').toString().trim();
       const mes  = (r[0]||'').toString().trim();
-      return zona && mes && !zona.includes('Nueva fila') && !zona.includes('TOTAL') && !mes.includes('TOTAL');
+      const zona = (r[1]||'').toString().trim();
+      // Skip empty rows, buffer rows, total rows
+      if (!mes || !zona) return false;
+      if (mes.includes('Nueva') || mes.includes('TOTAL') || mes.includes('fila')) return false;
+      if (zona.includes('Nueva') || zona.includes('TOTAL')) return false;
+      return true;
     });
 
     console.log('[DigiLife] Ventas dataRows after filter:', dataRows.length);
