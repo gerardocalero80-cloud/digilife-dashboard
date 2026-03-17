@@ -315,12 +315,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 
 <!-- ══════════ VENTAS · CAMPO -->
 <div id="page-ventas-campo" class="page">
-  <div class="slbl">ventas campo · agencias · freelance · digital · referidos · feb 2026</div>
+  <div class="slbl" id="slbl-ventas-campo">ventas campo · agencias · freelance · digital · referidos · <span id="ventas-mes-label">cargando...</span></div>
   <div class="g4">
-    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Ventas brutas feb</div><div class="kpi-val">539</div><div class="kpi-sub">Ventas + Reservas por zona</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Instalaciones feb</div><div class="kpi-val" style="color:var(--green);">292</div><div class="kpi-sub">Activaciones reserva 94 · Directas 205 <span class="wn">⚠ gap 247</span></div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Bajas feb</div><div class="kpi-val" style="color:var(--red);">87</div><div class="kpi-sub">Retiro servicio 52 · Competencia 7 · Cobertura 6</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Netos reales</div><div class="kpi-val" style="color:var(--amber);">205</div><div class="kpi-sub">292 inst. − 87 bajas</div><div class="kpi-fx">Factor conv. a pagante: 77%</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Ventas brutas <span id="ventas-mes-s1">mes</span></div><div class="kpi-val" id="vc-ventas">—</div><div class="kpi-sub">Ventas + Reservas por zona</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Instalaciones <span id="ventas-mes-s2">mes</span></div><div class="kpi-val" style="color:var(--green);" id="vc-inst">—</div><div class="kpi-sub" id="vc-inst-sub">—</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Bajas <span id="ventas-mes-s3">mes</span></div><div class="kpi-val" style="color:var(--red);" id="vc-bajas">—</div><div class="kpi-sub" id="vc-bajas-sub">—</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Netos reales</div><div class="kpi-val" style="color:var(--amber);" id="vc-netos">—</div><div class="kpi-sub" id="vc-netos-sub">inst. − bajas</div><div class="kpi-fx">Factor conv. a pagante: 77%</div></div>
   </div>
 
   <div class="g32">
@@ -1084,15 +1084,19 @@ async function fetchCobr() {
     const dias=[], cob=[], met=[];
     rows.slice(ds).forEach(r => {
       const fecha = (r[1]||'').toString().trim();
+      if (!fecha || fecha.toLowerCase().includes('total') || fecha.toLowerCase().includes('sábado') || fecha.toLowerCase().includes('domingo')) return;
+      // Skip rows that are clearly not data (no date format)
+      if (!/\d/.test(fecha)) return;
       const metaV = parseNum(r[3]);
-      const cobV  = parseNum(r[4]);
-      if (!fecha || (!metaV && !cobV)) return;
-      if (fecha.toLowerCase().includes('total')) return;
-      // Short day label from fecha
-      const d = fecha.split('/')[0] || fecha.split('-')[2] || fecha;
-      dias.push(d.padStart(2,'0'));
+      const cobV  = parseNum(r[4]); // null if empty (day not yet filled)
+      if (!metaV && cobV == null) return; // skip truly empty rows
+      // Short day label: "D01", "L02" etc from col C, or just day number
+      const diaSem = (r[2]||'').toString().trim().substring(0,1).toUpperCase();
+      const dNum = fecha.split('/')[0] || fecha.split('-')[2] || (dias.length+1).toString();
+      const label = diaSem + dNum.padStart(2,'0');
+      dias.push(label);
       met.push(metaV || 0);
-      cob.push(cobV  || 0);
+      cob.push(cobV != null ? cobV : null); // null = not yet collected
     });
     if (dias.length > 0) {
       cobrData = { dias, cob, met };
@@ -1200,21 +1204,24 @@ async function fetchProyectos() {
 function rebuildCobrCharts() {
   const {dias, cob, met} = cobrData;
   if (!dias.length) return;
+  // Colors: blue if over meta, red if under, transparent if no data yet
+  const cobColors = cob.map((v,i) => v == null ? 'transparent' : v >= met[i] ? '#0066FF' : 'rgba(239,68,68,.7)');
+  const cobDisplay = cob.map(v => v == null ? 0 : v); // null → 0 for chart
   ['c-cobr-diario','c-cobr-diario2'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const ex = Chart.getChart(el); if (ex) ex.destroy();
     mkBar(id, dias, [
-      {label:'Cobrado', data:cob, backgroundColor:cob.map((v,i)=>v>=met[i]?'#0066FF':'rgba(239,68,68,.7)'), borderRadius:3, order:1},
+      {label:'Cobrado', data:cobDisplay, backgroundColor:cobColors, borderRadius:3, order:1},
       {label:'Meta',    data:met, type:'line', borderColor:'#94A3B8', borderWidth:1.5, pointRadius:2, fill:false, tension:0, order:0}
     ],{yFmt:fmtK, xTicks:{autoSkip:false, maxRotation:0}});
   });
-  // Deviation chart
-  const desv = cob.map((v,i) => v - met[i]);
+  // Deviation chart — only for days with cobrado
+  const desv = cob.map((v,i) => v == null ? null : v - met[i]);
   const el2 = document.getElementById('c-cobr-desv');
-  if (el2) { const ex=Chart.getChart(el2); if(ex) ex.destroy();
-    mkBar('c-cobr-desv', dias, [{data:desv, backgroundColor:desv.map(v=>v>=0?'rgba(16,185,129,.7)':'rgba(239,68,68,.7)'), borderRadius:3}],
-      {yFmt:v=>(v>=0?'+':'')+fmtK(v), xTicks:{autoSkip:false,maxRotation:0}});
+  if (el2) {
+    mkBar('c-cobr-desv', dias, [{
+      data: desv,
+      backgroundColor: desv.map(v => v == null ? 'transparent' : v>=0 ? 'rgba(16,185,129,.7)' : 'rgba(239,68,68,.7)'),
+      borderRadius:3
+    }],{yFmt:v=>v==null?'':((v>=0?'+':'')+fmtK(v)), xTicks:{autoSkip:false,maxRotation:0}});
   }
 }
 
@@ -1553,32 +1560,51 @@ async function fetchVentas() {
 
 // Rebuild ventas charts with fresh data
 function rebuildVentasCharts() {
-  // Destroy and rebuild c-ini-ventas
-  const el1 = document.getElementById('c-ini-ventas');
-  if (el1) {
-    const ex = Chart.getChart(el1);
-    if (ex) ex.destroy();
-    mkBar('c-ini-ventas', ventasData.zonas, [
-      {label:'Ventas',data:ventasData.ventas,backgroundColor:'#0066FF',borderRadius:3},
-      {label:'Instalaciones',data:ventasData.inst,backgroundColor:'#10B981',borderRadius:3},
-      {label:'Bajas',data:ventasData.bajas,backgroundColor:'rgba(239,68,68,.7)',borderRadius:3}
+  const {zonas, ventas, inst, bajas, mes} = ventasData;
+  if (!zonas.length) return; // no data yet
+
+  const totalVentas = ventas.reduce((a,b)=>a+b,0);
+  const totalInst   = inst.reduce((a,b)=>a+b,0);
+  const totalBajas  = bajas.reduce((a,b)=>a+b,0);
+  const netos       = totalInst - totalBajas;
+  const mesLabel    = mes || 'mes actual';
+
+  const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+
+  // Update labels and KPI cards
+  ['ventas-mes-label','ventas-mes-s1','ventas-mes-s2','ventas-mes-s3'].forEach(id => setEl(id, mesLabel));
+  setEl('vc-ventas',    totalVentas > 0 ? totalVentas : '—');
+  setEl('vc-inst',      totalInst   > 0 ? totalInst   : '—');
+  setEl('vc-bajas',     totalBajas  > 0 ? totalBajas  : '—');
+  setEl('vc-netos',     netos);
+  setEl('vc-inst-sub',  `Instaladas ${mesLabel}`);
+  setEl('vc-bajas-sub', `Bajas ${mesLabel}`);
+  setEl('vc-netos-sub', `${totalInst} inst. − ${totalBajas} bajas`);
+  setEl('kpi-ventas-feb', totalVentas);
+  setEl('kpi-inst-feb',   totalInst);
+  setEl('kpi-bajas-feb',  totalBajas);
+
+  // Update chart title
+  const titleEl = document.querySelector('#page-ventas-campo .ct');
+  if (titleEl && titleEl.childNodes[0]) titleEl.childNodes[0].textContent = `Ventas e instalaciones por zona · ${mesLabel}`;
+
+  // Rebuild charts only if canvas exists in DOM
+  if (document.getElementById('c-campo-zona')) {
+    mkBar('c-campo-zona', zonas, [
+      {label:'Ventas',data:ventas,backgroundColor:'#0066FF',borderRadius:3},
+      {label:'Instalaciones',data:inst,backgroundColor:'#10B981',borderRadius:3},
+      {label:'Bajas',data:bajas,backgroundColor:'rgba(239,68,68,.7)',borderRadius:3}
     ],{yFmt:v=>v});
   }
-  // Destroy and rebuild c-campo-zona
-  const el2 = document.getElementById('c-campo-zona');
-  if (el2) {
-    const ex = Chart.getChart(el2);
-    if (ex) ex.destroy();
-    mkBar('c-campo-zona', ventasData.zonas, [
-      {label:'Ventas',data:ventasData.ventas,backgroundColor:'#0066FF',borderRadius:3},
-      {label:'Instalaciones',data:ventasData.inst,backgroundColor:'#10B981',borderRadius:3},
-      {label:'Bajas',data:ventasData.bajas,backgroundColor:'rgba(239,68,68,.7)',borderRadius:3}
+  if (document.getElementById('c-ini-ventas')) {
+    mkBar('c-ini-ventas', zonas, [
+      {label:'Ventas',data:ventas,backgroundColor:'#0066FF',borderRadius:3},
+      {label:'Instalaciones',data:inst,backgroundColor:'#10B981',borderRadius:3},
+      {label:'Bajas',data:bajas,backgroundColor:'rgba(239,68,68,.7)',borderRadius:3}
     ],{yFmt:v=>v});
-    // Update chart title
-    const titleEl = document.querySelector('#page-ventas-campo .ct');
-    if (titleEl) titleEl.childNodes[0].textContent = `Ventas e instalaciones por zona · ${ventasData.mes}`;
   }
 }
+
 
 
 const fmtK=v=>'$'+(v/1000).toFixed(0)+'k';
@@ -1604,7 +1630,14 @@ function showMain(id,el){
     const first=sub?sub.querySelector('.stab'):null;
     if(first){first.classList.add('active');}
     const pages=document.querySelectorAll('[id^="page-'+id+'-"]');
-    if(pages.length){pages[0].classList.add('active');const k=pages[0].id.replace('page-','');if(!built[k]){build(k);built[k]=true;}}
+    if(pages.length){
+      pages[0].classList.add('active');
+      const k=pages[0].id.replace('page-','');
+      if(!built[k]){build(k);built[k]=true;}
+      // Rebuild charts for first visible sub-page
+      if(k==='ventas-campo') { rebuildVentasCharts(); rebuildRenovCharts(); rebuildVendedorTable(); }
+      if(k==='cxc-cobr') rebuildCobrCharts();
+    }
   }
 }
 function showSub(main,sub,el){
@@ -1875,19 +1908,29 @@ function bProyH1(){
 }
 
 function bCobr(){
-  const desv=cob.map((v,i)=>v-met[i]);
-  mkBar('c-cobr-diario',cobranzaDias,[
-    {label:'Cobrado',data:cob,backgroundColor:cob.map((v,i)=>v>=met[i]?'#0066FF':'rgba(239,68,68,.7)'),borderRadius:3,order:1},
-    {label:'Meta',data:met,type:'line',borderColor:'#94A3B8',borderWidth:1.5,pointRadius:2,fill:false,tension:0,order:0}
-  ],{yFmt:fmtK,xTicks:{autoSkip:false,maxRotation:0}});
-  mkBar('c-cobr-desv',cobranzaDias,[{data:desv,backgroundColor:desv.map(v=>v>=0?'rgba(16,185,129,.7)':'rgba(239,68,68,.7)'),borderRadius:3}],
-    {yFmt:v=>(v>=0?'+':'')+fmtK(v),xTicks:{autoSkip:false,maxRotation:0}});
-  const avg=Math.round(cob.reduce((a,b)=>a+b)/cob.length);
-  const acum=[];let s=0;cob.forEach(v=>{s+=v;acum.push(s);});
-  const proy=Array.from({length:31},(_,i)=>i<12?acum[i]:(acum[11]+(i-11)*avg));
+  // Use live data if available, otherwise seed data
+  if (cobrData.dias.length > 0) {
+    rebuildCobrCharts();
+  } else {
+    // Seed fallback
+    const desv=cob.map((v,i)=>v-met[i]);
+    mkBar('c-cobr-diario',cobranzaDias,[
+      {label:'Cobrado',data:cob,backgroundColor:cob.map((v,i)=>v>=met[i]?'#0066FF':'rgba(239,68,68,.7)'),borderRadius:3,order:1},
+      {label:'Meta',data:met,type:'line',borderColor:'#94A3B8',borderWidth:1.5,pointRadius:2,fill:false,tension:0,order:0}
+    ],{yFmt:fmtK,xTicks:{autoSkip:false,maxRotation:0}});
+    mkBar('c-cobr-desv',cobranzaDias,[{data:desv,backgroundColor:desv.map(v=>v>=0?'rgba(16,185,129,.7)':'rgba(239,68,68,.7)'),borderRadius:3}],
+      {yFmt:v=>(v>=0?'+':'')+fmtK(v),xTicks:{autoSkip:false,maxRotation:0}});
+  }
+  // Projection chart — built from live or seed data
+  const cobArr = cobrData.cob.length > 0 ? cobrData.cob.map(v=>v||0) : cob;
+  const avg = cobArr.length > 0 ? Math.round(cobArr.filter(v=>v>0).reduce((a,b)=>a+b,0)/cobArr.filter(v=>v>0).length) : 9000;
+  const acum=[]; let s=0;
+  cobArr.forEach(v=>{s+=v;acum.push(s);});
+  const nDays = cobArr.length;
+  const proy=Array.from({length:31},(_,i)=>i<nDays?acum[i]:(acum[nDays-1]+(i-nDays+1)*avg));
   mkLine('c-cobr-proy',Array.from({length:31},(_,i)=>i+1),[
-    {label:'Real',data:proy.map((v,i)=>i<12?v:null),borderColor:'#0066FF',borderWidth:2,pointRadius:0,fill:false,tension:.3},
-    {label:'Proy.',data:proy.map((v,i)=>i>=11?v:null),borderColor:'rgba(0,102,255,.4)',borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false,tension:.3}
+    {label:'Real',data:proy.map((v,i)=>i<nDays?v:null),borderColor:'#0066FF',borderWidth:2,pointRadius:0,fill:false,tension:.3},
+    {label:'Proy.',data:proy.map((v,i)=>i>=nDays-1?v:null),borderColor:'rgba(0,102,255,.4)',borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false,tension:.3}
   ],{yFmt:fmtK});
   // Cobranza por zona
   mkBar('c-cobr-zona',zonas,[
