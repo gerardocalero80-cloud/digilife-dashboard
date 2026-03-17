@@ -1059,6 +1059,7 @@ function updateUI() {
   set('kpi-base-erp',     fmtN(kpiData.universo));
 
   // ── CXC · Cobranza ──
+  set('kpi-cobr-acum',    fmt(kpiData.cobr_acum));
   set('kpi-cobr-acum2',   fmt(kpiData.cobr_acum));
   set('kpi-meta-acum',    fmt(kpiData.meta_acum));
   const supVal = kpiData.superavit;
@@ -1101,7 +1102,12 @@ function updateUI() {
 
   // ── Proyección cierre marzo (4to card CXC) ──
   const cobAcum = kpiData.cobr_acum || 0;
-  const diaActual = 16; // actualizar dinámicamente si se puede
+  // Extract day from fecha_cobr (format DD/MM/YYYY or D/M/YYYY)
+  let diaActual = 16;
+  if (kpiData.fecha_cobr) {
+    const parts = kpiData.fecha_cobr.toString().split('/');
+    if (parts.length >= 1) diaActual = parseInt(parts[0]) || 16;
+  }
   const proyMes = cobAcum > 0 && diaActual > 0 ? Math.round(cobAcum / diaActual * 31) : null;
   const feb284 = 284183;
   const varVsFeb = proyMes ? ((proyMes - feb284) / feb284 * 100) : null;
