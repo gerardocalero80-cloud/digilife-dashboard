@@ -795,6 +795,7 @@ const PROYECT_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR18XqAhb
 const VDIARIO_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR18XqAhbSAWTMfmqTA1zNRGspg2lNc-ubBMZspO3Wkxtxi6Jv2q4GFbNnj4NNOQ/pub?single=true&output=csv&gid=517485339";
 const VENDEDOR_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR18XqAhbSAWTMfmqTA1zNRGspg2lNc-ubBMZspO3Wkxtxi6Jv2q4GFbNnj4NNOQ/pub?single=true&output=csv&gid=1742583716";
 const TV_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR18XqAhbSAWTMfmqTA1zNRGspg2lNc-ubBMZspO3Wkxtxi6Jv2q4GFbNnj4NNOQ/pub?single=true&output=csv&gid=2139196842";
+const PL_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR18XqAhbSAWTMfmqTA1zNRGspg2lNc-ubBMZspO3Wkxtxi6Jv2q4GFbNnj4NNOQ/pub?single=true&output=csv&gid=61031450";
 
 // Ventas data — updated from VENTAS_URL, fallback to feb seed
 let ventasData = {
@@ -1100,23 +1101,8 @@ function updateUI() {
   set('pb-revamp-pct', pct.toFixed(1) + '%');
   set('pb-revamp-num', `${fmtN(kpiData.cx_brutas)} de ${fmtN(kpiData.meta_cx)}`);
 
-  // ── Proyección cierre marzo (4to card CXC) ──
-  const cobAcum = kpiData.cobr_acum || 0;
-  // Extract day from fecha_cobr (format DD/MM/YYYY or D/M/YYYY)
-  let diaActual = 16;
-  if (kpiData.fecha_cobr) {
-    const parts = kpiData.fecha_cobr.toString().split('/');
-    if (parts.length >= 1) diaActual = parseInt(parts[0]) || 16;
-  }
-  const proyMes = cobAcum > 0 && diaActual > 0 ? Math.round(cobAcum / diaActual * 31) : null;
-  const feb284 = 284183;
-  const varVsFeb = proyMes ? ((proyMes - feb284) / feb284 * 100) : null;
-  set('kpi-proy-marzo', proyMes ? fmt(proyMes) : '—');
-  const proyVarEl = document.getElementById('kpi-proy-var');
-  if (proyVarEl && varVsFeb != null) {
-    proyVarEl.textContent = (varVsFeb >= 0 ? '▲ +' : '▼ ') + Math.abs(varVsFeb).toFixed(1) + '% vs feb';
-    proyVarEl.style.color = varVsFeb >= 0 ? 'var(--green2)' : 'var(--red2)';
-  }
+  // ── Proyección cierre — usa datos reales de PL_SEGMENTOS ──
+  updateProyCard();
 
   // ── P&L variaciones vs mes anterior ──
   const resid = kpiData.ing_resid || 242542;
@@ -1584,6 +1570,71 @@ function rebuildTVTable() {
     const tCont = a.llamadas>0?(a.contactos/a.llamadas*100).toFixed(1):'0.0';
     tbody.innerHTML += `<tr><td>${a.nombre}</td><td>${a.llamadas}</td><td>${a.contactos}</td><td>${tCont}%</td><td>${a.cierres}</td><td style="color:${a.tConv>=0.05?'var(--green)':'var(--red)'}"><b>${tConvPct}%</b> ${convAlarm}</td><td>${a.meta}</td><td style="color:${metaPct>=90?'var(--green)':metaPct>=70?'var(--amber)':'var(--red)'}"><b>${metaPct}%</b></td><td>~${a.meta>0?Math.round(a.cierres/12*31):0}</td><td>${metaPct>=90?'<span class="vs-green">\u2713 en meta</span>':metaPct>=70?'<span class="vs-amber">\u26a0 riesgo</span>':'<span class="vs-red">\u26a0 alarma</span>'}</td></tr>`;
   });
+}
+
+
+// ── Fetch P&L segmentos — ingreso mes anterior ────────────────────────────────
+let plData = { mesAnterior: 'Feb 2026', cobrMesAnt: 284183, ingOperMesAnt: 299595 };
+
+async function fetchPL() {
+  try {
+    const res = await fetch(PL_URL);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
+    let ds = 3;
+    for (let i = 0; i < Math.min(rows.length, 6); i++) {
+      if ((rows[i][0]||'').toString().toLowerCase() === 'segmento') { ds = i+1; break; }
+    }
+    const headerRow = rows[ds-1] || [];
+    const meses = headerRow.slice(1).map(h => h.toString().trim()).filter(h => h);
+    // Find ingreso operativo total row
+    let totRow = null;
+    for (let i = ds; i < rows.length; i++) {
+      const c0 = (rows[i][0]||'').toString().toLowerCase();
+      if (c0.includes('ingreso operativo') || c0.includes('total')) { totRow = rows[i]; break; }
+    }
+    if (!totRow) return;
+    // Find last month with data
+    let lastMesIdx = -1;
+    for (let c = meses.length; c >= 1; c--) {
+      const val = parseNum(totRow[c]);
+      if (val && val > 0) { lastMesIdx = c; break; }
+    }
+    if (lastMesIdx < 0) return;
+    // Previous month
+    const prevMesIdx = lastMesIdx > 1 ? lastMesIdx - 1 : lastMesIdx;
+    const mesAntLabel = meses[prevMesIdx-1] || 'mes anterior';
+    const ingOperMesAnt = parseNum(totRow[prevMesIdx]) || 284183;
+    // Residencial row for cobranza reference
+    let residRow = null;
+    for (let i = ds; i < rows.length; i++) {
+      if ((rows[i][0]||'').toString().toLowerCase().includes('residencial')) { residRow = rows[i]; break; }
+    }
+    const cobrMesAnt = residRow ? (parseNum(residRow[prevMesIdx]) || 284183) : 284183;
+    plData = { mesAnterior: mesAntLabel, cobrMesAnt, ingOperMesAnt };
+    console.log('[DigiLife] PL loaded:', plData);
+    updateProyCard();
+  } catch(e) { console.warn('[DigiLife] fetchPL error:', e); }
+}
+
+function updateProyCard() {
+  const cobAcum = kpiData.cobr_acum || 0;
+  let diaActual = 16;
+  if (kpiData.fecha_cobr) {
+    const parts = kpiData.fecha_cobr.toString().split('/');
+    if (parts.length >= 1) diaActual = parseInt(parts[0]) || 16;
+  }
+  const proyMes = cobAcum > 0 && diaActual > 0 ? Math.round(cobAcum / diaActual * 31) : null;
+  const feb = plData.cobrMesAnt;
+  const varVsFeb = proyMes ? ((proyMes - feb) / feb * 100) : null;
+  const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+  setEl('kpi-proy-marzo', proyMes ? '$' + Math.round(proyMes).toLocaleString('en-US') : '—');
+  setEl('kpi-proy-sub', `vs ${plData.mesAnterior} $${Math.round(feb).toLocaleString('en-US')}`);
+  const proyVarEl = document.getElementById('kpi-proy-var');
+  if (proyVarEl && varVsFeb != null) {
+    proyVarEl.textContent = (varVsFeb >= 0 ? '▲ +' : '▼ ') + Math.abs(varVsFeb).toFixed(1) + `% vs ${plData.mesAnterior}`;
+    proyVarEl.style.color = varVsFeb >= 0 ? 'var(--green2)' : 'var(--red2)';
+  }
 }
 
 
@@ -2124,7 +2175,8 @@ fetchProyectos();
 fetchVDiario();
 fetchVendedores();
 fetchTV();
-setInterval(()=>{ fetchSheets(); fetchVentas(); fetchCobr(); fetchRenov(); fetchMora(); fetchProyectos(); fetchVDiario(); fetchVendedores(); fetchTV(); }, 5 * 60 * 1000);
+fetchPL();
+setInterval(()=>{ fetchSheets(); fetchVentas(); fetchCobr(); fetchRenov(); fetchMora(); fetchProyectos(); fetchVDiario(); fetchVendedores(); fetchTV(); fetchPL(); }, 5 * 60 * 1000);
 </script>
 </body>
 </html>
