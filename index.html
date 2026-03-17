@@ -268,22 +268,51 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 
 <!-- ══════════ INICIO -->
 <div id="page-inicio" class="page active">
-  <div class="slbl">resumen ejecutivo · 12 marzo 2026 · cierre febrero 2026</div>
+  <div class="slbl" id="slbl-resumen">resumen ejecutivo · <span id="resumen-fecha">15/03/2026</span> · mes actual: <span id="resumen-mes">marzo 2026</span></div>
+
+  <!-- KPIs MES ACTUAL -->
   <div class="g5">
-    <div class="skpi g"><div class="skpi-area">Ventas campo</div><div class="skpi-lbl">Ventas brutas feb</div><div class="skpi-val" id="kpi-ventas-feb">539</div><div class="skpi-d wn">Instalaciones: <span id="kpi-inst-feb">292</span> · Bajas: <span id="kpi-bajas-feb">87</span></div></div>
-    <div class="skpi"><div class="skpi-area">Televentas</div><div class="skpi-lbl">Cierres feb</div><div class="skpi-val">29</div><div class="skpi-d">13 directa · 16 reserva · +$929/mes</div></div>
-    <div class="skpi a"><div class="skpi-area">Penetración</div><div class="skpi-lbl">Penetración global</div><div class="skpi-val" id="kpi-penetracion">26%</div><div class="skpi-d wn"><span id="kpi-con-digi">8,552</span> / <span id="kpi-universo">32,314</span> hogares</div></div>
-    <div class="skpi r"><div class="skpi-area">Corporativo</div><div class="skpi-lbl">Pipeline + NRR</div><div class="skpi-val" id="kpi-pipeline">$10,521</div><div class="skpi-d dn">NRR: <span id="kpi-nrr">89%</span> · Ing: <span id="kpi-ing-corp">$24,897</span></div></div>
-    <div class="skpi p"><div class="skpi-area">Pyme</div><div class="skpi-lbl">Activos facturando</div><div class="skpi-val" id="kpi-cartera-pyme">$169K</div><div class="skpi-d">Vigentes 73.6% · Vencidos 23%</div></div>
+    <div class="skpi g">
+      <div class="skpi-area">Ventas campo</div>
+      <div class="skpi-lbl">Ventas brutas <span id="res-mes-label">mes</span></div>
+      <div class="skpi-val" id="kpi-ventas-feb">—</div>
+      <div class="skpi-d wn">Inst: <span id="kpi-inst-feb">—</span> · Bajas: <span id="kpi-bajas-feb">—</span></div>
+    </div>
+    <div class="skpi">
+      <div class="skpi-area">Revamp marzo</div>
+      <div class="skpi-lbl">Conexiones acum.</div>
+      <div class="skpi-val" id="kpi-cx-brutas2">—</div>
+      <div class="skpi-d wn" id="pb-revamp-pct">—% de meta 600</div>
+    </div>
+    <div class="skpi a">
+      <div class="skpi-area">Penetración</div>
+      <div class="skpi-lbl">Penetración global</div>
+      <div class="skpi-val" id="kpi-penetracion">28.4%</div>
+      <div class="skpi-d wn"><span id="kpi-con-digi">10,118</span> / <span id="kpi-universo">35,617</span> hogares</div>
+    </div>
+    <div class="skpi r">
+      <div class="skpi-area">Corporativo</div>
+      <div class="skpi-lbl">Pipeline + NRR</div>
+      <div class="skpi-val" id="kpi-pipeline">$10,521</div>
+      <div class="skpi-d dn">NRR: <span id="kpi-nrr">89%</span> · Ing: <span id="kpi-ing-corp">$24,897</span></div>
+    </div>
+    <div class="skpi p">
+      <div class="skpi-area">Pyme</div>
+      <div class="skpi-lbl">Activos facturando</div>
+      <div class="skpi-val" id="kpi-cartera-pyme">$169K</div>
+      <div class="skpi-d">Vigentes 73.6% · Vencidos 23%</div>
+    </div>
   </div>
+
+  <!-- COBRANZA ACTUAL + COMPARATIVA -->
   <div class="g3">
     <div class="card">
-      <div class="ct">Ventas feb · por zona</div>
+      <div class="ct">Ventas <span id="res-mes-chart">mes actual</span> · por zona</div>
       <div style="position:relative;height:200px;"><canvas id="c-ini-ventas"></canvas></div>
     </div>
     <div class="card">
       <div class="ct">Penetración proyectos · top/bottom</div>
-      <table class="tbl">
+      <table class="tbl" id="tbl-penetracion-resumen">
         <thead><tr><th>Proyecto</th><th>Tipo</th><th>Hogares</th><th>DigiLife</th><th>%</th><th></th></tr></thead>
         <tbody>
           <tr><td>Marsella I</td><td><span class="pill pa">Abierto</span></td><td>5,310</td><td>3,481</td><td>66%</td><td><span class="pill pg">✓ bueno</span></td></tr>
@@ -295,21 +324,59 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
       </table>
     </div>
     <div class="card">
-      <div class="ct">Cobranza y retención</div>
+      <div class="ct">Cobranza y retención · mes actual</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div style="background:var(--green-l);border-radius:6px;padding:10px;text-align:center;"><div style="font-size:9px;color:var(--green);font-family:var(--mono);margin-bottom:2px;">COBRANZA FEB</div><div style="font-size:22px;font-weight:800;color:var(--green);">95%</div><div style="font-size:9px;color:var(--green);">$284,183 / $299,234</div></div>
-        <div style="background:var(--green-l);border-radius:6px;padding:10px;text-align:center;"><div style="font-size:9px;color:var(--green);font-family:var(--mono);margin-bottom:2px;">CHURN Q1</div><div style="font-size:22px;font-weight:800;color:var(--green);">0.98%</div><div style="font-size:9px;color:var(--green);">83 bajas/mes</div></div>
-        <div style="background:var(--amber-l);border-radius:6px;padding:10px;text-align:center;"><div style="font-size:9px;color:var(--amber);font-family:var(--mono);margin-bottom:2px;">MORA</div><div style="font-size:22px;font-weight:800;color:var(--amber);">11.9%</div><div style="font-size:9px;color:var(--amber);">1,257 clientes</div></div>
-        <div style="background:var(--brand-l);border-radius:6px;padding:10px;text-align:center;"><div style="font-size:9px;color:var(--brand);font-family:var(--mono);margin-bottom:2px;">RENOVACIONES</div><div style="font-size:22px;font-weight:800;color:var(--brand);">608</div><div style="font-size:9px;color:var(--brand);">feb · vs meta</div></div>
+        <div style="background:var(--green-l);border-radius:6px;padding:10px;text-align:center;">
+          <div style="font-size:9px;color:var(--green);font-family:var(--mono);margin-bottom:2px;">COBRADO ACUM.</div>
+          <div style="font-size:20px;font-weight:800;color:var(--green);" id="res-cobr-acum">—</div>
+          <div style="font-size:9px;color:var(--green);" id="res-cobr-pct">—% de meta</div>
+        </div>
+        <div style="background:var(--green-l);border-radius:6px;padding:10px;text-align:center;">
+          <div style="font-size:9px;color:var(--green);font-family:var(--mono);margin-bottom:2px;">CHURN</div>
+          <div style="font-size:20px;font-weight:800;color:var(--green);" id="res-churn">0.98%</div>
+          <div style="font-size:9px;color:var(--green);">83 bajas/mes</div>
+        </div>
+        <div style="background:var(--amber-l);border-radius:6px;padding:10px;text-align:center;">
+          <div style="font-size:9px;color:var(--amber);font-family:var(--mono);margin-bottom:2px;">MORA</div>
+          <div style="font-size:20px;font-weight:800;color:var(--amber);" id="res-mora">11.9%</div>
+          <div style="font-size:9px;color:var(--amber);" id="res-mora-sub">1,257 clientes</div>
+        </div>
+        <div style="background:var(--brand-l);border-radius:6px;padding:10px;text-align:center;">
+          <div style="font-size:9px;color:var(--brand);font-family:var(--mono);margin-bottom:2px;">SUPERÁVIT ACUM.</div>
+          <div style="font-size:20px;font-weight:800;" id="res-superavit" style="color:var(--green);">—</div>
+          <div style="font-size:9px;color:var(--text2);" id="res-superavit-sub">vs meta acum.</div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="slbl">indicadores financieros · P&L feb 2026</div>
+
+  <!-- COMPARATIVA MES ANTERIOR -->
+  <div class="slbl">comparativa vs mes anterior · feb 2026</div>
   <div class="g4">
-    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Ingreso operativo</div><div class="kpi-val" id="kpi-ing-operativo">$299,595</div><div class="kpi-sub"><span class="dn">▼ −2.3%</span> vs dic 2025</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Ganancia neta</div><div class="kpi-val" style="color:var(--green);" id="kpi-gan-neta">$132,617</div><div class="kpi-sub"><span class="up">▲ +6.0%</span> vs ene 2026</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">Margen neto</div><div class="kpi-val" style="color:var(--teal);" id="kpi-margen">43.2%</div><div class="kpi-sub"><span class="up">▲ +3.3pp</span> vs dic 2025</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Corporativo</div><div class="kpi-val" style="color:var(--red);">$24,897</div><div class="kpi-sub"><span class="dn">▼ −11%</span> en 2 meses · alerta</div></div>
+    <div class="kpi">
+      <div class="kpi-bar" style="background:var(--brand2);"></div>
+      <div class="kpi-lbl">Ingreso operativo</div>
+      <div class="kpi-val" id="kpi-ing-operativo">$299,595</div>
+      <div class="kpi-sub" id="res-ing-var"><span class="dn">▼ −2.3%</span> vs mes anterior</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-bar" style="background:var(--green2);"></div>
+      <div class="kpi-lbl">Ganancia neta</div>
+      <div class="kpi-val" style="color:var(--green);" id="kpi-gan-neta">$132,617</div>
+      <div class="kpi-sub"><span class="up">▲ +6.0%</span> vs mes anterior</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-bar" style="background:var(--teal2);"></div>
+      <div class="kpi-lbl">Margen neto</div>
+      <div class="kpi-val" style="color:var(--teal);" id="kpi-margen">43.2%</div>
+      <div class="kpi-sub"><span class="up">▲ +3.3pp</span> vs mes anterior</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-bar" style="background:var(--red2);"></div>
+      <div class="kpi-lbl">Corporativo feb</div>
+      <div class="kpi-val" style="color:var(--red);" id="res-corp-feb">$24,897</div>
+      <div class="kpi-sub"><span class="dn">▼ −11%</span> en 2 meses · alerta</div>
+    </div>
   </div>
 </div>
 
@@ -719,15 +786,15 @@ Chart.defaults.font.family="'Plus Jakarta Sans',sans-serif";
 // ══════════════════════════════════════════════════════════════════════════════
 // CONEXIÓN GOOGLE SHEETS — REEMPLAZAR LA URL CUANDO SE PUBLIQUE
 // ══════════════════════════════════════════════════════════════════════════════
-const SHEETS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?gid=1080435328&single=true&output=csv";
-const VENTAS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?gid=1033049400&single=true&output=csv";
-const COBR_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?single=true&output=csv&gid=1823573446";
-const RENOV_URL    = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?single=true&output=csv&gid=2008159252";
-const MORA_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?single=true&output=csv&gid=1749020073";
-const PROYECT_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?single=true&output=csv&gid=1864181856";
-const VDIARIO_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?single=true&output=csv&gid=1303795907";
-const VENDEDOR_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?single=true&output=csv&gid=783820962";
-const TV_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOS881v-VZDGkkOOT1Q1A7c3FCgmByldF-TOyzf4tUbZAleBKeCVIKjzvBQHcKmQ/pub?single=true&output=csv&gid=1644020951";
+const SHEETS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEs0NSRqZfbZj5xTYJwSO9iXwp2RYYxX7c67eVW7qcm6P_8fcax-HEwO4Axi0bng/pub?single=true&output=csv&gid=1145743816";
+const VENTAS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEs0NSRqZfbZj5xTYJwSO9iXwp2RYYxX7c67eVW7qcm6P_8fcax-HEwO4Axi0bng/pub?single=true&output=csv&gid=1142552338";
+const COBR_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEs0NSRqZfbZj5xTYJwSO9iXwp2RYYxX7c67eVW7qcm6P_8fcax-HEwO4Axi0bng/pub?single=true&output=csv&gid=748469019";
+const RENOV_URL    = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEs0NSRqZfbZj5xTYJwSO9iXwp2RYYxX7c67eVW7qcm6P_8fcax-HEwO4Axi0bng/pub?single=true&output=csv&gid=1286499555";
+const MORA_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEs0NSRqZfbZj5xTYJwSO9iXwp2RYYxX7c67eVW7qcm6P_8fcax-HEwO4Axi0bng/pub?single=true&output=csv&gid=606608214";
+const PROYECT_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEs0NSRqZfbZj5xTYJwSO9iXwp2RYYxX7c67eVW7qcm6P_8fcax-HEwO4Axi0bng/pub?single=true&output=csv&gid=1979933597";
+const VDIARIO_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEs0NSRqZfbZj5xTYJwSO9iXwp2RYYxX7c67eVW7qcm6P_8fcax-HEwO4Axi0bng/pub?single=true&output=csv&gid=854952183";
+const VENDEDOR_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEs0NSRqZfbZj5xTYJwSO9iXwp2RYYxX7c67eVW7qcm6P_8fcax-HEwO4Axi0bng/pub?single=true&output=csv&gid=1665355465";
+const TV_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEs0NSRqZfbZj5xTYJwSO9iXwp2RYYxX7c67eVW7qcm6P_8fcax-HEwO4Axi0bng/pub?single=true&output=csv&gid=226575589";
 
 // Ventas data — updated from VENTAS_URL, fallback to feb seed
 let ventasData = {
@@ -926,8 +993,36 @@ function updateUI() {
   // Alarm bar — rebuild dynamically
   rebuildAlarms();
 
-  // ── Resumen page ──
-  set('kpi-cobr-acum',    fmt(kpiData.cobr_acum));
+  // ── Resumen page — mes actual ──
+  set('resumen-fecha', kpiData.fecha_cobr || '15/03/2026');
+  set('resumen-mes',   'marzo 2026');
+  set('res-mes-label', 'marzo');
+  set('res-mes-chart', 'marzo 2026');
+
+  // Cobranza actual
+  set('res-cobr-acum', fmt(kpiData.cobr_acum));
+  const pctCobr = kpiData.cobr_acum && kpiData.meta_acum ? (kpiData.cobr_acum/kpiData.meta_acum*100).toFixed(1) : '—';
+  set('res-cobr-pct', `${pctCobr}% de meta`);
+
+  // Superávit
+  const supResumen = kpiData.superavit || 0;
+  const supResEl = document.getElementById('res-superavit');
+  if (supResEl) {
+    supResEl.textContent = (supResumen >= 0 ? '+' : '') + fmt(supResumen);
+    supResEl.style.color = supResumen >= 0 ? 'var(--green)' : 'var(--red2)';
+  }
+  set('res-superavit-sub', supResumen >= 0 ? '▲ sobre meta acum.' : '▼ bajo meta acum.');
+
+  // Mora
+  const moraResEl = document.getElementById('res-mora');
+  if (moraResEl) moraResEl.textContent = fmtP(kpiData.tasa_mora);
+  set('res-mora-sub', `${fmtN(kpiData.total_mora)} clientes`);
+
+  // Churn
+  set('res-churn', fmtP(kpiData.churn));
+
+  // Revamp progress
+  set('kpi-cx-brutas2', fmtN(kpiData.cx_brutas));
   set('kpi-cx-brutas',    fmtN(kpiData.cx_brutas));
   set('kpi-tasa-mora',    fmtP(kpiData.tasa_mora));
   set('kpi-churn',        fmtP(kpiData.churn));
@@ -1112,28 +1207,38 @@ async function fetchRenov() {
     const res = await fetch(RENOV_URL);
     if (!res.ok) return;
     const rows = parseCSV(await res.text());
-    // Structure: title, subtitle, headers, data
-    // Cols: A=Zona, B=Reservas, C=Renovaciones, D=Meta, E=%Cumplim, F=Faltantes
+
+    // Structure: row0=title, row1=subtitle, row2=headers (Zona, Reservas activas, Renovaciones...), row3+=data
+    // Find header row: has "zona" in col A AND "reservas" in col B
     let ds = 3;
-    for (let i = 0; i < Math.min(rows.length,6); i++) {
-      const c0 = (rows[i][0]||'').toLowerCase();
+    for (let i = 0; i < Math.min(rows.length, 8); i++) {
+      const c0 = (rows[i][0]||'').toLowerCase().trim();
+      const c1 = (rows[i][1]||'').toLowerCase().trim();
+      if (c0 === 'zona' && c1.includes('reserva')) { ds = i+1; break; }
       if (c0 === 'zona') { ds = i+1; break; }
     }
+
+    console.log('[DigiLife] Renov dataStart:', ds, '| row:', rows[ds]);
+
     const zonas=[], reservas=[], renovaciones=[], metas=[];
     rows.slice(ds).forEach(r => {
       const zona = (r[0]||'').toString().trim();
-      if (!zona || zona.includes('TOTAL') || zona.includes('Nueva') || zona.includes('↑')) return;
+      if (!zona || zona.includes('TOTAL') || zona.includes('Nueva') ||
+          zona.includes('↑') || zona.includes('→') || zona.includes('↓')) return;
       const resV = parseNum(r[1]) || 0;
       const renV = parseNum(r[2]) || 0;
       const metV = parseNum(r[3]) || 0;
+      if (resV === 0 && renV === 0 && metV === 0) return; // skip empty rows
       zonas.push(zona.length > 10 ? zona.substring(0,10)+'.' : zona);
       reservas.push(resV);
       renovaciones.push(renV);
       metas.push(metV);
     });
+
+    console.log('[DigiLife] Renov loaded:', zonas.length, 'zonas', zonas);
+
     if (zonas.length > 0) {
       renovData = { zonas, reservas, renovaciones, metas };
-      console.log('[DigiLife] Renov loaded:', zonas.length, 'zonas');
       rebuildRenovCharts();
     }
   } catch(e) { console.warn('[DigiLife] fetchRenov error:', e); }
@@ -1572,7 +1677,7 @@ function rebuildVentasCharts() {
   const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
 
   // Update labels and KPI cards
-  ['ventas-mes-label','ventas-mes-s1','ventas-mes-s2','ventas-mes-s3'].forEach(id => setEl(id, mesLabel));
+  ['ventas-mes-label','ventas-mes-s1','ventas-mes-s2','ventas-mes-s3','res-mes-label','res-mes-chart'].forEach(id => setEl(id, mesLabel));
   setEl('vc-ventas',    totalVentas > 0 ? totalVentas : '—');
   setEl('vc-inst',      totalInst   > 0 ? totalInst   : '—');
   setEl('vc-bajas',     totalBajas  > 0 ? totalBajas  : '—');
