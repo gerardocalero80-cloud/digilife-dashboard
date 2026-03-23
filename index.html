@@ -1215,7 +1215,15 @@ async function fetchCobr() {
       if (!metaV && cobV == null) return; // skip truly empty rows
       // Short day label: "D01", "L02" etc from col C, or just day number
       const diaSem = (r[2]||'').toString().trim().substring(0,1).toUpperCase();
-      const dNum = fecha.split('/')[0] || fecha.split('-')[2] || (dias.length+1).toString();
+      // Handle both DD/MM/YYYY and YYYY-MM-DD formats
+      let dNum;
+      if (fecha.includes('-')) {
+        // YYYY-MM-DD → take last part
+        dNum = fecha.split('-')[2] || (dias.length+1).toString();
+      } else {
+        // DD/MM/YYYY → take first part
+        dNum = fecha.split('/')[0] || (dias.length+1).toString();
+      }
       const label = diaSem + dNum.padStart(2,'0');
       dias.push(label);
       met.push(metaV || 0);
