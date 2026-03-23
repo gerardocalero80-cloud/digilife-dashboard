@@ -351,7 +351,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
   </div>
 
   <!-- COMPARATIVA MES ANTERIOR -->
-  <div class="slbl">comparativa vs mes anterior · feb 2026</div>
+  <div class="slbl">comparativa vs mes anterior · <span class="mes-ant-label">feb 2026</span></div>
   <div class="g4">
     <div class="kpi">
       <div class="kpi-bar" style="background:var(--brand2);"></div>
@@ -392,7 +392,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 
   <div class="g32">
     <div class="card">
-      <div class="ct">Ventas e instalaciones por zona · feb 2026</div>
+      <div class="ct">Ventas e instalaciones por zona · <span class="mes-ant-label">feb 2026</span></div>
       <div style="position:relative;height:220px;"><canvas id="c-campo-zona"></canvas></div>
       <div style="display:flex;gap:12px;margin-top:8px;font-size:10px;color:var(--text2);">
         <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:#0066FF;"></span>Ventas</span>
@@ -401,7 +401,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
       </div>
     </div>
     <div class="card">
-      <div class="ct">Causas de baja · feb 2026</div>
+      <div class="ct">Causas de baja · <span class="mes-ant-label">feb 2026</span></div>
       <div style="position:relative;height:180px;"><canvas id="c-campo-bajas"></canvas></div>
       <div class="abox"><strong>52 retiros de servicio residencial</strong> dominan las bajas (60%). Requiere análisis de causa raíz — puede indicar problema de calidad de servicio en campo.</div>
     </div>
@@ -427,7 +427,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     <div class="wbox" style="margin-top:10px;"><strong>Nota:</strong> Los datos de vendedores de campo no están atribuidos en el ERP. Esta tabla requiere carga manual en la plantilla Google Sheets. Las celdas en amarillo indican vendedores con ritmo entre 70–89% del esperado; rojo indica &lt;70%.</div>
   </div>
 
-  <div class="slbl">renovaciones · feb 2026</div>
+  <div class="slbl">renovaciones · <span class="mes-ant-label">feb 2026</span></div>
   <div class="g2">
     <div class="card">
       <div class="ct">Reservas activas por proyecto</div>
@@ -443,60 +443,87 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 
 <!-- ══════════ VENTAS · TELEVENTAS -->
 <div id="page-ventas-televentas" class="page">
-  <div class="slbl">televentas · feb 2026 · datos reales</div>
+  <div class="slbl">televentas · <span id="tv-mes-label">mes actual</span> · por canal</div>
   <div class="g4">
-    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Cierres totales feb</div><div class="kpi-val">29</div><div class="kpi-sub">13 directa · 16 reserva</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Facturación incremental</div><div class="kpi-val" style="color:var(--green);">+$929</div><div class="kpi-sub">mensual recurrente feb</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Leads trabajados</div><div class="kpi-val" style="color:var(--amber);">5+3</div><div class="kpi-sub">5 en proceso · 3 cerrados</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--purple2);"></div><div class="kpi-lbl">Facturación total período</div><div class="kpi-val" style="color:var(--purple);">$16,163</div><div class="kpi-sub">Plan 18m: 25 · Plan 12m: 2</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Cierres totales</div><div class="kpi-val" id="tv-tot-cierres">—</div><div class="kpi-sub" id="tv-tot-sub">— canales activos</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Alcance total</div><div class="kpi-val" style="color:var(--green);" id="tv-tot-alcance">—</div><div class="kpi-sub" id="tv-alcance-sub">contactos realizados</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Leads generados</div><div class="kpi-val" style="color:var(--amber);" id="tv-tot-leads">—</div><div class="kpi-sub" id="tv-conv-sub">— tasa conversión global</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--purple2);"></div><div class="kpi-lbl">Costo total canales</div><div class="kpi-val" style="color:var(--purple);" id="tv-tot-costo">—</div><div class="kpi-sub" id="tv-costo-sub">— costo por cierre</div></div>
   </div>
 
-  <div class="g32">
-    <div class="card">
-      <div class="ct">Cierres por zona · feb 2026</div>
-      <div style="position:relative;height:200px;"><canvas id="c-tv-zona"></canvas></div>
-      <div style="display:flex;gap:12px;margin-top:8px;font-size:10px;color:var(--text2);">
-        <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:#0066FF;"></span>Venta directa</span>
-        <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:#3385FF;opacity:.6;"></span>Reserva</span>
+  <!-- Resumen por canal -->
+  <div class="g4" style="margin-top:12px;">
+    <div class="card" style="border-top:3px solid #0047CC;">
+      <div class="ct">📞 Llamadas</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
+        <div>Alcance<br><strong id="tv-ll-alcance">—</strong></div>
+        <div>Cierres<br><strong id="tv-ll-cierres">—</strong></div>
+        <div>Leads<br><strong id="tv-ll-leads">—</strong></div>
+        <div>Conv.<br><strong id="tv-ll-conv">—</strong></div>
       </div>
-      <div class="sbox"><strong>Marsella domina con 18 cierres</strong> (62% del total televentas). Sonsonate 0 — canal sin ventas en zona, alarma activa.</div>
     </div>
-    <div class="card">
-      <div class="ct">Mix de planes · período acumulado</div>
-      <div style="position:relative;height:140px;"><canvas id="c-tv-planes"></canvas></div>
-      <div class="div"></div>
-      <div class="ct" style="margin-bottom:8px;">Funnel leads</div>
-      <div style="display:flex;flex-direction:column;gap:5px;">
-        <div style="background:var(--brand-l);border-radius:5px;padding:8px 12px;display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--text2);">Leads entrantes</span><span style="font-size:16px;font-weight:800;color:var(--brand);">5</span></div>
-        <div style="background:var(--teal-l);border-radius:5px;padding:8px 12px;display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--text2);">En gestión activa</span><span style="font-size:16px;font-weight:800;color:var(--teal);">3</span></div>
-        <div style="background:var(--green-l);border-radius:5px;padding:8px 12px;display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--text2);">Cierres feb</span><span style="font-size:16px;font-weight:800;color:var(--green);">29</span></div>
+    <div class="card" style="border-top:3px solid #D97706;">
+      <div class="ct">📨 SMS</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
+        <div>Alcance<br><strong id="tv-sms-alcance">—</strong></div>
+        <div>Cierres<br><strong id="tv-sms-cierres">—</strong></div>
+        <div>Leads<br><strong id="tv-sms-leads">—</strong></div>
+        <div>Conv.<br><strong id="tv-sms-conv">—</strong></div>
+      </div>
+    </div>
+    <div class="card" style="border-top:3px solid #059669;">
+      <div class="ct">💬 WhatsApp</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
+        <div>Alcance<br><strong id="tv-wa-alcance">—</strong></div>
+        <div>Cierres<br><strong id="tv-wa-cierres">—</strong></div>
+        <div>Leads<br><strong id="tv-wa-leads">—</strong></div>
+        <div>Conv.<br><strong id="tv-wa-conv">—</strong></div>
+      </div>
+    </div>
+    <div class="card" style="border-top:3px solid #DC2626;">
+      <div class="ct">📱 Redes Sociales</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
+        <div>Alcance<br><strong id="tv-rr-alcance">—</strong></div>
+        <div>Cierres<br><strong id="tv-rr-cierres">—</strong></div>
+        <div>Leads<br><strong id="tv-rr-leads">—</strong></div>
+        <div>Conv.<br><strong id="tv-rr-conv">—</strong></div>
       </div>
     </div>
   </div>
 
-  <div class="slbl">rendimiento agentes televentas · marzo 2026 (día <span id="dia-label-tv">12</span>)</div>
+  <div class="g32" style="margin-top:12px;">
+    <div class="card">
+      <div class="ct">Cierres por canal · <span id="tv-chart-label">mes actual</span></div>
+      <div style="position:relative;height:200px;"><canvas id="c-tv-canal"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">Tasa de conversión por canal</div>
+      <div style="position:relative;height:200px;"><canvas id="c-tv-conv"></canvas></div>
+    </div>
+  </div>
+
+  <div class="slbl">detalle agentes · <span id="dia-label-tv">día 16</span></div>
   <div class="card">
-    <div class="ct">Detalle agentes televentas
-      <span class="ctag">Alarma conv. &lt;5% · Sin ventas 3+ días</span>
+    <div class="ct">Rendimiento por agente y canal
+      <span class="ctag">Alarma conv. &lt;5% llamadas · &lt;1% SMS · &lt;8% WhatsApp</span>
     </div>
     <div style="overflow-x:auto;">
       <table class="tbl" id="tbl-tv">
         <thead>
-          <tr><th>Agente</th><th>Llamadas mes</th><th>Contactos ef.</th><th>Tasa contacto</th><th>Cierres</th><th>Tasa conv.</th><th>Meta mes</th><th>% meta</th><th>Proyección</th><th>Estado</th></tr>
+          <tr><th>Fecha</th><th>Agente</th><th>Canal</th><th>Alcance</th><th>Respuestas</th><th>Leads</th><th>Cierres</th><th>Costo</th><th>T. resp.</th><th>T. conv.</th><th>Estado</th></tr>
         </thead>
         <tbody id="tbody-tv"></tbody>
       </table>
     </div>
-    <div class="wbox" style="margin-top:8px;"><strong>Dato ERP disponible para televentas.</strong> Actualizar diariamente en la plantilla Google Sheets para que las alarmas de conversión &lt;5% se activen automáticamente.</div>
   </div>
 </div>
 
 <!-- ══════════ VENTAS · PROYECTOS -->
 <div id="page-ventas-proyectos" class="page">
-  <div class="slbl">penetración de mercado por proyecto · datos reales feb 2026</div>
+  <div class="slbl">penetración de mercado por proyecto · <span class="mes-ant-label">feb 2026</span></div>
   <div class="g4">
-    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Universo total</div><div class="kpi-val">32,314</div><div class="kpi-sub">hogares en todos los proyectos</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Con DigiLife</div><div class="kpi-val" style="color:var(--green);">8,552</div><div class="kpi-sub">penetración global 26%</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Universo total</div><div class="kpi-val" id="kpi-universo-proy">32,314</div><div class="kpi-sub">hogares en todos los proyectos</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Con DigiLife</div><div class="kpi-val" style="color:var(--green);" id="kpi-con-digi-proy">8,552</div><div class="kpi-sub">penetración global 26%</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Proyectos en alerta</div><div class="kpi-val" style="color:var(--red);">4</div><div class="kpi-sub">penetración &lt;20%</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Con competencia</div><div class="kpi-val" style="color:var(--amber);">4,793</div><div class="kpi-sub">hogares con otro proveedor</div></div>
   </div>
@@ -524,7 +551,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 
 <!-- ══════════ VENTAS · CORPORATIVO -->
 <div id="page-ventas-corp" class="page">
-  <div class="slbl">corporativo · pipeline y resultados · feb 2026</div>
+  <div class="slbl">corporativo · pipeline y resultados · <span class="mes-ant-label">feb 2026</span></div>
   <div class="g4">
     <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Clientes activos</div><div class="kpi-val">56</div><div class="kpi-sub">recurrente $1,751/mes sin IVA</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">NRR dic→feb</div><div class="kpi-val" style="color:var(--red);">89%</div><div class="kpi-sub"><span class="dn">encogimiento</span> · meta 100%+</div></div>
@@ -534,7 +561,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 
   <div class="g32">
     <div class="card">
-      <div class="ct">Funnel de ventas corporativo · feb 2026</div>
+      <div class="ct">Funnel de ventas corporativo · <span class="mes-ant-label">feb 2026</span></div>
       <div class="funnel">
         <div class="funnel-row" style="background:#EEF2F8;"><div class="funnel-label">Propuesta / Factibilidad</div><div class="funnel-val" style="color:var(--brand);">4</div><div class="funnel-money">prospectos</div></div>
         <div class="funnel-row" style="background:#E8F0FF;"><div class="funnel-label">Ofertas / Cotización</div><div class="funnel-val" style="color:var(--brand2);">2</div><div class="funnel-money">cotizando</div></div>
@@ -571,7 +598,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 
 <!-- ══════════ VENTAS · PYME -->
 <div id="page-ventas-pyme" class="page">
-  <div class="slbl">pyme · cartera y pipeline · datos reales feb 2026</div>
+  <div class="slbl">pyme · cartera y pipeline · <span class="mes-ant-label">feb 2026</span></div>
   <div class="g4">
     <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Activos facturando</div><div class="kpi-val" style="color:var(--green);">$169,254</div><div class="kpi-sub">clientes vigentes 73.6%</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Clientes vencidos</div><div class="kpi-val" style="color:var(--amber);">23%</div><div class="kpi-sub">de la cartera activa</div></div>
@@ -624,7 +651,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 
 <!-- ══════════ CXC · COBRANZA -->
 <div id="page-cxc-cobr" class="page">
-  <div class="slbl">cobranza diaria vs meta · marzo 2026 · sin IVA</div>
+  <div class="slbl">cobranza diaria vs meta · <span id="cobr-mes-label">marzo 2026</span> · sin IVA</div>
   <div class="g4">
     <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Cobrado acumulado</div><div class="kpi-val" style="color:var(--green);" id="kpi-cobr-acum">$112,779</div><div class="kpi-sub" id="kpi-cobr-sub">días 1–12 sin IVA</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Meta acumulada</div><div class="kpi-val" id="kpi-meta-acum">$103,622</div><div class="kpi-sub">días 1–12</div></div>
@@ -644,9 +671,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
       <div style="position:relative;height:110px;"><canvas id="c-cobr-proy"></canvas></div>
     </div>
   </div>
-  <div class="slbl">cobranza por zona · feb 2026</div>
+  <div class="slbl">cobranza por zona · <span class="mes-ant-label">feb 2026</span></div>
   <div class="card">
-    <div class="ct">Meta vs alcanzado por zona · feb 2026</div>
+    <div class="ct">Meta vs alcanzado por zona · <span class="mes-ant-label">feb 2026</span></div>
     <div style="position:relative;height:200px;"><canvas id="c-cobr-zona"></canvas></div>
   </div>
 </div>
@@ -731,7 +758,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 
 <!-- ══════════ RETENCIÓN -->
 <div id="page-retencion" class="page">
-  <div class="slbl">retención · indicadores clave · Q1 2026</div>
+  <div class="slbl">retención · indicadores clave · <span id="ret-periodo-label">Q1 2026</span></div>
   <div class="g4">
     <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Churn Q1</div><div class="kpi-val" style="color:var(--green);">0.98%</div><div class="kpi-sub">83 bajas/mes · excelente</div><div class="kpi-fx">Bajas / Base inicio mes</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">En riesgo de baja</div><div class="kpi-val" style="color:var(--red);">290</div><div class="kpi-sub">mora 61–150d sin contacto</div></div>
@@ -1699,9 +1726,42 @@ async function fetchTV() {
       meta: v.meta,
     }));
 
+    // Collect raw rows for detail table
+    const rawRows = [];
+    rows.slice(ds).forEach(r => {
+      const fecha  = (r[1]||'').toString().trim();
+      const agente = (r[2]||'').toString().trim();
+      const canal  = (r[3]||'').toString().trim().toUpperCase();
+      if (!agente || !fecha) return;
+      const fParts = fecha.includes('-')
+        ? [fecha.split('-')[2], fecha.split('-')[1], fecha.split('-')[0]]
+        : fecha.split('/');
+      const fMes  = parseInt(fParts[1] || 0).toString();
+      if (fMes !== parseInt(mesActual).toString()) return;
+      rawRows.push({
+        fecha:   fecha.includes('-') ? `${fParts[0]}/${fParts[1]}/${fParts[2]}` : fecha,
+        agente, canal,
+        alcance:  parseNum(r[4]) || 0,
+        resp:     parseNum(r[5]) || 0,
+        leads:    parseNum(r[6]) || 0,
+        cierres:  parseNum(r[7]) || 0,
+        costo:    parseNum(r[8]) || 0,
+      });
+    });
+
+    // Determine mes label from first raw row date
+    let mesLabel = 'mes actual';
+    if (rawRows.length > 0) {
+      const parts = rawRows[0].fecha.split('/');
+      if (parts.length >= 3) {
+        const meses = ['','enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+        mesLabel = meses[parseInt(parts[1])] + ' ' + parts[2];
+      }
+    }
+
     if (agentes.length > 0 || totalCierres > 0) {
-      tvData = { agentes, byCanal, totalCierres, totalAlcance, totalLeads, totalCosto };
-      console.log('[DigiLife] TV loaded:', agentes.length, 'agentes,', totalCierres, 'cierres mes');
+      tvData = { agentes, byCanal, totalCierres, totalAlcance, totalLeads, totalCosto, rawRows, mesLabel };
+      console.log('[DigiLife] TV loaded:', agentes.length, 'agentes,', totalCierres, 'cierres,', rawRows.length, 'filas');
       rebuildTVTable();
     }
   } catch(e) { console.warn('[DigiLife] fetchTV error:', e); }
@@ -1736,16 +1796,127 @@ function rebuildVendedorTable() {
 
 // ── Rebuild televentas table ──────────────────────────────────────────────────
 function rebuildTVTable() {
+  const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+
+  const { agentes, byCanal, totalCierres, totalAlcance, totalLeads, totalCosto, rawRows, mesLabel } = tvData;
+
+  // Update header labels
+  setEl('tv-mes-label', mesLabel || 'mes actual');
+  setEl('tv-chart-label', mesLabel || 'mes actual');
+
+  // KPI cards totales
+  setEl('tv-tot-cierres', fmtN(totalCierres));
+  const canalesActivos = Object.values(byCanal).filter(c=>c.cierres>0).length;
+  setEl('tv-tot-sub', canalesActivos + ' canales activos');
+  setEl('tv-tot-alcance', fmtN(totalAlcance));
+  setEl('tv-tot-leads', fmtN(totalLeads));
+  const convGlobal = totalLeads > 0 ? (totalCierres/totalLeads*100).toFixed(1) : '—';
+  setEl('tv-conv-sub', convGlobal + '% tasa conversión global');
+  setEl('tv-tot-costo', fmt(totalCosto));
+  const costoPorCierre = totalCierres > 0 ? fmt(totalCosto/totalCierres) : '—';
+  setEl('tv-costo-sub', costoPorCierre + ' por cierre');
+
+  // Canal cards
+  const canalMap = {
+    LLAMADAS: 'll', SMS: 'sms', WHATSAPP: 'wa', RRSS: 'rr'
+  };
+  Object.entries(byCanal).forEach(([canal, d]) => {
+    const pfx = canalMap[canal];
+    if (!pfx) return;
+    setEl(`tv-${pfx}-alcance`,  fmtN(d.alcance));
+    setEl(`tv-${pfx}-cierres`,  fmtN(d.cierres));
+    setEl(`tv-${pfx}-leads`,    fmtN(d.leads));
+    const conv = d.leads > 0 ? (d.cierres/d.leads*100).toFixed(1)+'%'
+               : d.alcance > 0 ? (d.cierres/d.alcance*100).toFixed(1)+'%' : '—';
+    setEl(`tv-${pfx}-conv`, conv);
+  });
+
+  // Canal charts
+  const canales = ['LLAMADAS','SMS','WHATSAPP','RRSS'];
+  const canalLabels = ['Llamadas','SMS','WhatsApp','RRSS'];
+  const canalColors = ['#0047CC','#D97706','#059669','#DC2626'];
+
+  const elCanal = document.getElementById('c-tv-canal');
+  if (elCanal) {
+    const ex = Chart.getChart(elCanal); if(ex) ex.destroy();
+    new Chart(elCanal, {
+      type:'bar',
+      data:{
+        labels: canalLabels,
+        datasets:[{
+          label:'Cierres',
+          data: canales.map(c => byCanal[c]?.cierres || 0),
+          backgroundColor: canalColors,
+          borderRadius: 4
+        }]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}},
+                x:{ticks:{font:{size:10}},grid:{display:false}}}}
+    });
+  }
+
+  const elConv = document.getElementById('c-tv-conv');
+  if (elConv) {
+    const ex = Chart.getChart(elConv); if(ex) ex.destroy();
+    const convData = canales.map(c => {
+      const d = byCanal[c];
+      if (!d || d.alcance === 0) return 0;
+      return parseFloat((d.cierres/d.alcance*100).toFixed(2));
+    });
+    new Chart(elConv, {
+      type:'bar',
+      data:{
+        labels: canalLabels,
+        datasets:[{
+          label:'Conv. %',
+          data: convData,
+          backgroundColor: canalColors.map(c => c+'99'),
+          borderColor: canalColors,
+          borderWidth: 2,
+          borderRadius: 4
+        }]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{ticks:{font:{size:9},callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.04)'}},
+                x:{ticks:{font:{size:10}},grid:{display:false}}}}
+    });
+  }
+
+  // Detail table — raw rows
   const tbody = document.getElementById('tbody-tv');
   if (!tbody) return;
   tbody.innerHTML = '';
-  tvData.agentes.forEach(a => {
-    const tConvPct = (a.tConv*100).toFixed(1);
-    const convAlarm = a.tConv<0.05?'<span class="alarm-pill">\u26a0 conv. baja</span>':'';
-    const metaPct = a.meta>0?Math.round(a.cierres/a.meta*100):0;
-    const tCont = a.llamadas>0?(a.contactos/a.llamadas*100).toFixed(1):'0.0';
-    tbody.innerHTML += `<tr><td>${a.nombre}</td><td>${a.llamadas}</td><td>${a.contactos}</td><td>${tCont}%</td><td>${a.cierres}</td><td style="color:${a.tConv>=0.05?'var(--green)':'var(--red)'}"><b>${tConvPct}%</b> ${convAlarm}</td><td>${a.meta}</td><td style="color:${metaPct>=90?'var(--green)':metaPct>=70?'var(--amber)':'var(--red)'}"><b>${metaPct}%</b></td><td>~${a.meta>0?Math.round(a.cierres/12*31):0}</td><td>${metaPct>=90?'<span class="vs-green">\u2713 en meta</span>':metaPct>=70?'<span class="vs-amber">\u26a0 riesgo</span>':'<span class="vs-red">\u26a0 alarma</span>'}</td></tr>`;
-  });
+
+  if (rawRows && rawRows.length > 0) {
+    rawRows.forEach(row => {
+      const canal  = (row.canal||'').toUpperCase();
+      const umbral = {LLAMADAS:5,SMS:1,WHATSAPP:8,RRSS:2}[canal] || 5;
+      const tResp  = row.alcance > 0 ? (row.resp/row.alcance*100).toFixed(1)+'%' : '—';
+      const tConv  = row.leads > 0 ? (row.cierres/row.leads*100).toFixed(1)+'%'
+                   : row.alcance > 0 ? (row.cierres/row.alcance*100).toFixed(1)+'%' : '—';
+      const convNum = row.leads > 0 ? row.cierres/row.leads*100
+                    : row.alcance > 0 ? row.cierres/row.alcance*100 : 0;
+      const alarm  = convNum < umbral && row.alcance > 0
+        ? '<span class="alarm-pill">⚠ baja</span>' : '✓';
+      const canalColor = {LLAMADAS:'#DBEAFE',SMS:'#FEF3C7',WHATSAPP:'#D1FAE5',RRSS:'#FEE2E2'}[canal]||'';
+      tbody.innerHTML += `<tr>
+        <td>${row.fecha}</td>
+        <td><b>${row.agente}</b></td>
+        <td style="background:${canalColor};font-weight:700;text-align:center;">${canal}</td>
+        <td>${fmtN(row.alcance)}</td>
+        <td>${fmtN(row.resp)}</td>
+        <td>${fmtN(row.leads)}</td>
+        <td><b>${fmtN(row.cierres)}</b></td>
+        <td>${fmt(row.costo)}</td>
+        <td>${tResp}</td>
+        <td style="color:${convNum>=umbral?'var(--green)':'var(--red)'}">${tConv} ${alarm}</td>
+        <td></td>
+      </tr>`;
+    });
+  } else {
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--text2);">Sin datos del mes actual</td></tr>';
+  }
 }
 
 
@@ -1787,9 +1958,39 @@ async function fetchPL() {
       if ((rows[i][0]||'').toString().toLowerCase().includes('residencial')) { residRow = rows[i]; break; }
     }
     const cobrMesAnt = residRow ? (parseNum(residRow[prevMesIdx]) || 284183) : 284183;
-    plData = { mesAnterior: mesAntLabel, cobrMesAnt, ingOperMesAnt };
-    console.log('[DigiLife] PL loaded:', plData);
+
+    // Extract segment data for chart — find residencial, corporativo, pyme rows
+    const segRows = {};
+    const segNames = ['residencial','corporativo','pyme'];
+    for (let i = ds; i < rows.length; i++) {
+      const c0 = (rows[i][0]||'').toString().toLowerCase();
+      for (const seg of segNames) {
+        if (c0.includes(seg) && !segRows[seg]) segRows[seg] = rows[i];
+      }
+    }
+
+    // Build arrays for all months with data (up to lastMesIdx)
+    const mesesChart = meses.slice(0, lastMesIdx);
+    const residencial = mesesChart.map((_,i) => parseNum((segRows.residencial||[])[i+1]) || 0);
+    const corporativo = mesesChart.map((_,i) => parseNum((segRows.corporativo||[])[i+1]) || 0);
+    const pyme        = mesesChart.map((_,i) => parseNum((segRows.pyme||[])[i+1])        || 0);
+
+    // Update P&L table headers
+    const setElPL = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+    if (mesesChart.length >= 3) {
+      setElPL('pl-col-prev2', mesesChart[mesesChart.length-3] || 'Dic 2025');
+      setElPL('pl-col-prev1', mesesChart[mesesChart.length-2] || 'Ene 2026');
+      setElPL('pl-col-curr',  mesesChart[mesesChart.length-1] || 'Feb 2026');
+      setElPL('pl-periodo',   mesesChart[0] + ' – ' + mesesChart[mesesChart.length-1]);
+    }
+
+    plData = { mesAnterior: mesAntLabel, cobrMesAnt, ingOperMesAnt,
+               meses: mesesChart, residencial, corporativo, pyme };
+    console.log('[DigiLife] PL loaded:', mesAntLabel, '| meses:', mesesChart.join(','));
     updateProyCard();
+    // Rebuild PL chart if page is open
+    const plEl = document.getElementById('c-pl-seg');
+    if (plEl) bPL();
   } catch(e) { console.warn('[DigiLife] fetchPL error:', e); }
 }
 
@@ -1800,10 +2001,28 @@ function updateProyCard() {
     const parts = kpiData.fecha_cobr.toString().split('/');
     if (parts.length >= 1) diaActual = parseInt(parts[0]) || 16;
   }
+
+  // Update all hardcoded month labels
+  const mesAnt = plData.mesAnterior || 'mes anterior';
+  document.querySelectorAll('.mes-ant-label').forEach(el => { el.textContent = mesAnt; });
+
+  // Update proyectos KPIs from kpiData
+  const setEl = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  setEl('kpi-universo-proy',  fmtN(kpiData.universo));
+  setEl('kpi-con-digi-proy',  fmtN(kpiData.con_digilife));
+
+  // Update cobranza mes label from fecha_cobr
+  if (kpiData.fecha_cobr) {
+    const parts = kpiData.fecha_cobr.toString().split('/');
+    if (parts.length >= 3) {
+      const meses = ['','enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      const mesLabel = meses[parseInt(parts[1])] + ' ' + parts[2];
+      setEl('cobr-mes-label', mesLabel);
+    }
+  }
   const proyMes = cobAcum > 0 && diaActual > 0 ? Math.round(cobAcum / diaActual * 31) : null;
   const feb = plData.cobrMesAnt;
   const varVsFeb = proyMes ? ((proyMes - feb) / feb * 100) : null;
-  const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
   setEl('kpi-proy-marzo', proyMes ? '$' + Math.round(proyMes).toLocaleString('en-US') : '—');
   setEl('kpi-proy-sub', `vs ${plData.mesAnterior} $${Math.round(feb).toLocaleString('en-US')}`);
   const proyVarEl = document.getElementById('kpi-proy-var');
@@ -2314,11 +2533,35 @@ function bAging(){
 }
 
 function bPL(){
-  mkBar('c-pl-seg',['Dic 2025','Ene 2026','Feb 2026'],[
-    {label:'Residencial',data:[242464,243464,242542],backgroundColor:'#0066FF',borderRadius:3},
-    {label:'Corporativo',data:[27965,26334,24897],backgroundColor:'#F97316',borderRadius:3},
-    {label:'Pyme',data:[2425,2485,2696],backgroundColor:'#8B5CF6',borderRadius:3}
-  ],{yFmt:fmtK});
+  // Use live PL data if available, otherwise seed
+  if (plData && plData.meses && plData.meses.length > 0) {
+    const { meses, residencial, corporativo, pyme } = plData;
+    mkBar('c-pl-seg', meses, [
+      {label:'Residencial', data:residencial, backgroundColor:'#0066FF', borderRadius:3},
+      {label:'Corporativo', data:corporativo, backgroundColor:'#F97316', borderRadius:3},
+      {label:'Pyme',        data:pyme,        backgroundColor:'#8B5CF6', borderRadius:3}
+    ],{yFmt:fmtK});
+  } else {
+    mkBar('c-pl-seg',['Dic 2025','Ene 2026','Feb 2026'],[
+      {label:'Residencial',data:[242464,243464,242542],backgroundColor:'#0066FF',borderRadius:3},
+      {label:'Corporativo',data:[27965,26334,24897],backgroundColor:'#F97316',borderRadius:3},
+      {label:'Pyme',data:[2425,2485,2696],backgroundColor:'#8B5CF6',borderRadius:3}
+    ],{yFmt:fmtK});
+  }
+}
+
+function bRetencion(){
+  // Use live data from KPI if available
+  const churnVal = kpiData.churn || 0.0098;
+  const churnPct = churnVal <= 1 ? (churnVal*100).toFixed(2) : churnVal.toFixed(2);
+  mkLine('c-ret-churn',['Dic 2025','Ene 2026','Feb 2026'],[
+    {label:'Churn %',data:[0.98,0.97,parseFloat(churnPct)],borderColor:'#0066FF',borderWidth:2,pointRadius:5,pointBackgroundColor:'#0066FF',fill:true,backgroundColor:'rgba(0,102,255,.06)',tension:.3},
+    {label:'Benchmark',data:[1.8,1.8,1.8],borderColor:'rgba(239,68,68,.4)',borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false}
+  ],{yFmt:v=>v+'%',yExtra:{min:0,max:3}});
+  mkBar('c-ret-rvp',['Dic 2025','Ene 2026','Feb 2026'],[
+    {label:'Retenidos',data:[8184,8450,8367],backgroundColor:'rgba(0,102,255,.6)',borderRadius:3},
+    {label:'Bajas',data:[81,80,parseFloat(kpiData.bajas_ant||87)],backgroundColor:'rgba(239,68,68,.6)',borderRadius:3}
+  ],{yFmt:v=>v.toLocaleString()});
 }
 
 function bCxcProy(){
