@@ -2101,23 +2101,40 @@ async function fetchVentas() {
     // ── Read Tabla A for zone breakdown ──
     const agg = {};
     if (dsA > 0) {
-      let lastMes = '';
+      // First pass: find all unique months with actual data
+      const mesesEncontrados = {};
       for (let i = dsA; i < rows.length; i++) {
         const zona = (rows[i][1]||'').toString().trim();
         const mes  = (rows[i][2]||'').toString().trim();
-        if (!zona || zona.includes('TOTAL') || zona.includes('Nueva fila') || zona.includes('→')) continue;
-        if (mes) lastMes = mes;
-        if (!lastMes) continue;
-        if (lastMes !== mesLabel && mesLabel === '') mesLabel = lastMes;
-        if (lastMes !== mesLabel) continue; // only latest month
+        const vtas = parseNum(rows[i][3]);
+        if (!zona || !mes) continue;
+        if (zona.includes('TOTAL') || zona.includes('Nueva') || zona.includes('→')) continue;
+        if (mes.toLowerCase().includes('mes') || mes.toLowerCase().includes('año')) continue; // skip header
+        if (vtas !== null) mesesEncontrados[mes] = (mesesEncontrados[mes]||0) + 1;
+      }
 
-        const vtas  = parseNum(rows[i][3]) || 0;
-        const inst  = parseNum(rows[i][4]) || 0;
-        const bajas = parseNum(rows[i][5]) || 0;
-        if (!agg[zona]) agg[zona] = { vtas:0, inst:0, bajas:0 };
-        agg[zona].vtas  += vtas;
-        agg[zona].inst  += inst;
-        agg[zona].bajas += bajas;
+      // Get the month with most data rows (latest/most complete)
+      const mesEntries = Object.entries(mesesEncontrados);
+      if (mesEntries.length === 0) { console.warn('[DigiLife] No months found in Tabla A'); }
+      else {
+        mesLabel = mesEntries.sort((a,b) => b[1]-a[1])[0][0];
+        console.log('[DigiLife] Latest mes from Tabla A:', mesLabel, '| options:', Object.keys(mesesEncontrados));
+
+        // Second pass: aggregate data for latest month only
+        for (let i = dsA; i < rows.length; i++) {
+          const zona = (rows[i][1]||'').toString().trim();
+          const mes  = (rows[i][2]||'').toString().trim();
+          if (!zona || !mes || mes !== mesLabel) continue;
+          if (zona.includes('TOTAL') || zona.includes('Nueva') || zona.includes('→')) continue;
+
+          const vtas  = parseNum(rows[i][3]) || 0;
+          const inst  = parseNum(rows[i][4]) || 0;
+          const bajas = parseNum(rows[i][5]) || 0;
+          if (!agg[zona]) agg[zona] = { vtas:0, inst:0, bajas:0 };
+          agg[zona].vtas  += vtas;
+          agg[zona].inst  += inst;
+          agg[zona].bajas += bajas;
+        }
       }
     }
 
