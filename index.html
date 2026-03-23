@@ -407,17 +407,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     </div>
   </div>
 
-  <div class="slbl">rendimiento por vendedor · campo + canales · marzo 2026 (día 12)</div>
+  <div class="slbl">rendimiento por vendedor · campo + canales · marzo 2026 (día <span id="dia-label-vendedor">12</span>)</div>
   <div class="card">
     <div class="ct">Detalle vendedores — meta mensual vs avance actual
-      <span class="ctag">Alarma si ritmo &lt;70% del esperado al día 12</span>
+      <span class="ctag">Alarma si ritmo &lt;70% del esperado al día <span id="dia-label-alarm">12</span></span>
     </div>
     <div style="overflow-x:auto;">
       <table class="tbl" id="tbl-vendedores-campo">
         <thead>
           <tr>
             <th>Vendedor</th><th>Canal</th><th>Zona</th>
-            <th>Meta mes</th><th>Acum. día 12</th><th>Esperado día 12</th>
+            <th>Meta mes</th><th>Acum. día <span id="dia-label-tabla">12</span></th><th>Esperado día <span id="dia-label-tabla2">12</span></th>
             <th>% ritmo</th><th>Proyección cierre</th><th>Estado</th>
           </tr>
         </thead>
@@ -474,7 +474,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     </div>
   </div>
 
-  <div class="slbl">rendimiento agentes televentas · marzo 2026 (día 12)</div>
+  <div class="slbl">rendimiento agentes televentas · marzo 2026 (día <span id="dia-label-tv">12</span>)</div>
   <div class="card">
     <div class="ct">Detalle agentes televentas
       <span class="ctag">Alarma conv. &lt;5% · Sin ventas 3+ días</span>
@@ -608,7 +608,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Piso orgánico jun</div><div class="kpi-val">$244K</div><div class="kpi-sub">sin Revamp activo</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Revamp moderado jun</div><div class="kpi-val" style="color:var(--green);">$268K</div><div class="kpi-sub">300 conexiones/mes</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--purple2);"></div><div class="kpi-lbl">Revamp pleno jun</div><div class="kpi-val" style="color:var(--purple);">$295K</div><div class="kpi-sub">600 conexiones/mes · riesgo alto</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Ritmo marzo día 12</div><div class="kpi-val" style="color:var(--amber);" id="kpi-cx-brutas2">135</div><div class="kpi-sub wn" id="pb-revamp-pct">22.5% de meta 600 · alarma</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Ritmo marzo · <span id="ritmo-dia-label">día 12</span></div><div class="kpi-val" style="color:var(--amber);" id="kpi-cx-brutas2">135</div><div class="kpi-sub wn" id="pb-revamp-pct">22.5% de meta 600 · alarma</div></div>
   </div>
   <div class="card">
     <div class="ct">Proyección H1-2026 · ingreso residencial sin IVA</div>
@@ -786,16 +786,16 @@ Chart.defaults.font.family="'Plus Jakarta Sans',sans-serif";
 // ══════════════════════════════════════════════════════════════════════════════
 // CONEXIÓN GOOGLE SHEETS — REEMPLAZAR LA URL CUANDO SE PUBLIQUE
 // ══════════════════════════════════════════════════════════════════════════════
-const SHEETS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR18XqAhbSAWTMfmqTA1zNRGspg2lNc-ubBMZspO3Wkxtxi6Jv2q4GFbNnj4NNOQ/pub?single=true&output=csv&gid=162080711";
-const VENTAS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR18XqAhbSAWTMfmqTA1zNRGspg2lNc-ubBMZspO3Wkxtxi6Jv2q4GFbNnj4NNOQ/pub?single=true&output=csv&gid=2079793700";
-const COBR_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR18XqAhbSAWTMfmqTA1zNRGspg2lNc-ubBMZspO3Wkxtxi6Jv2q4GFbNnj4NNOQ/pub?single=true&output=csv&gid=1048070244";
-const RENOV_URL    = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR18XqAhbSAWTMfmqTA1zNRGspg2lNc-ubBMZspO3Wkxtxi6Jv2q4GFbNnj4NNOQ/pub?single=true&output=csv&gid=2060632367";
-const MORA_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR18XqAhbSAWTMfmqTA1zNRGspg2lNc-ubBMZspO3Wkxtxi6Jv2q4GFbNnj4NNOQ/pub?single=true&output=csv&gid=169414457";
-const PROYECT_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR18XqAhbSAWTMfmqTA1zNRGspg2lNc-ubBMZspO3Wkxtxi6Jv2q4GFbNnj4NNOQ/pub?single=true&output=csv&gid=796319144";
-const VDIARIO_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR18XqAhbSAWTMfmqTA1zNRGspg2lNc-ubBMZspO3Wkxtxi6Jv2q4GFbNnj4NNOQ/pub?single=true&output=csv&gid=517485339";
-const VENDEDOR_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR18XqAhbSAWTMfmqTA1zNRGspg2lNc-ubBMZspO3Wkxtxi6Jv2q4GFbNnj4NNOQ/pub?single=true&output=csv&gid=1742583716";
-const TV_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR18XqAhbSAWTMfmqTA1zNRGspg2lNc-ubBMZspO3Wkxtxi6Jv2q4GFbNnj4NNOQ/pub?single=true&output=csv&gid=2139196842";
-const PL_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR18XqAhbSAWTMfmqTA1zNRGspg2lNc-ubBMZspO3Wkxtxi6Jv2q4GFbNnj4NNOQ/pub?single=true&output=csv&gid=61031450";
+const SHEETS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUA3QRTWLWi3PMuC3WMTkA2AhkZr4SSXOSUEEV-2fCX5-OOK0HekEwBS_vbtkVdn2PS1AwguZvxuvf/pub?single=true&output=csv&gid=1949316541";
+const VENTAS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUA3QRTWLWi3PMuC3WMTkA2AhkZr4SSXOSUEEV-2fCX5-OOK0HekEwBS_vbtkVdn2PS1AwguZvxuvf/pub?single=true&output=csv&gid=1403713171";
+const COBR_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUA3QRTWLWi3PMuC3WMTkA2AhkZr4SSXOSUEEV-2fCX5-OOK0HekEwBS_vbtkVdn2PS1AwguZvxuvf/pub?single=true&output=csv&gid=1988204391";
+const RENOV_URL    = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUA3QRTWLWi3PMuC3WMTkA2AhkZr4SSXOSUEEV-2fCX5-OOK0HekEwBS_vbtkVdn2PS1AwguZvxuvf/pub?single=true&output=csv&gid=2000985249";
+const MORA_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUA3QRTWLWi3PMuC3WMTkA2AhkZr4SSXOSUEEV-2fCX5-OOK0HekEwBS_vbtkVdn2PS1AwguZvxuvf/pub?single=true&output=csv&gid=296707702";
+const PROYECT_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUA3QRTWLWi3PMuC3WMTkA2AhkZr4SSXOSUEEV-2fCX5-OOK0HekEwBS_vbtkVdn2PS1AwguZvxuvf/pub?single=true&output=csv&gid=1560716831";
+const VDIARIO_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUA3QRTWLWi3PMuC3WMTkA2AhkZr4SSXOSUEEV-2fCX5-OOK0HekEwBS_vbtkVdn2PS1AwguZvxuvf/pub?single=true&output=csv&gid=858254033";
+const VENDEDOR_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUA3QRTWLWi3PMuC3WMTkA2AhkZr4SSXOSUEEV-2fCX5-OOK0HekEwBS_vbtkVdn2PS1AwguZvxuvf/pub?single=true&output=csv&gid=223312063";
+const TV_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUA3QRTWLWi3PMuC3WMTkA2AhkZr4SSXOSUEEV-2fCX5-OOK0HekEwBS_vbtkVdn2PS1AwguZvxuvf/pub?single=true&output=csv&gid=1418353562";
+const PL_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUA3QRTWLWi3PMuC3WMTkA2AhkZr4SSXOSUEEV-2fCX5-OOK0HekEwBS_vbtkVdn2PS1AwguZvxuvf/pub?single=true&output=csv&gid=1802474218";
 
 // Ventas data — updated from VENTAS_URL, fallback to feb seed
 let ventasData = {
@@ -1003,7 +1003,7 @@ function updateUI() {
   const set = (id, val) => {
     const el = document.getElementById(id);
     if (el) { el.textContent = val; }
-    else { console.warn('[DigiLife] ID not found:', id); }
+    // Silent fail if element not yet in DOM (lazy-rendered pages)
   };
   const setC = (id, col) => { const el = document.getElementById(id); if (el) el.style.color = col; };
 
@@ -1093,6 +1093,17 @@ function updateUI() {
   set('kpi-ventas-feb',   fmtN(kpiData.ventas_feb));
   set('kpi-inst-feb',     fmtN(kpiData.inst_feb));
   set('kpi-bajas-feb',    fmtN(kpiData.bajas_feb));
+
+  // ── Día actual dinámico desde fecha_cobr ──
+  let diaStr = '16';
+  if (kpiData.fecha_cobr) {
+    const parts = kpiData.fecha_cobr.toString().split('/');
+    if (parts.length >= 1) diaStr = (parseInt(parts[0]) || 16).toString();
+  }
+  ['ritmo-dia-label','dia-label-vendedor','dia-label-tv',
+   'dia-label-tabla','dia-label-tabla2','dia-label-alarm'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = diaStr;
+  });
 
   // Progress bar Revamp
   const pct = Math.min((kpiData.cx_brutas / kpiData.meta_cx) * 100, 100);
