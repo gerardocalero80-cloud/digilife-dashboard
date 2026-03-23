@@ -653,7 +653,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 
 <!-- ══════════ CXC · AGING -->
 <div id="page-cxc-aging" class="page">
-  <div class="slbl">aging de mora · al 02 marzo 2026 · factura conforme cobra</div>
+  <div class="slbl" id="slbl-mora-fecha">aging de mora · al 02 marzo 2026 · factura conforme cobra</div>
   <div class="g3">
     <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Tasa de mora</div><div class="kpi-val" style="color:var(--amber);">11.9%</div><div class="kpi-sub">1,257 / 10,586 base ERP</div><div class="kpi-fx">Clientes mora / Base ERP total</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--coral2);"></div><div class="kpi-lbl">Ingreso no realizado</div><div class="kpi-val" style="color:var(--coral);">$33,372</div><div class="kpi-sub">por mes · extracontable</div><div class="kpi-fx">1,257 × $26.55 ARPU</div></div>
@@ -1213,18 +1213,18 @@ async function fetchCobr() {
       const metaV = parseNum(r[3]);
       const cobV  = parseNum(r[4]); // null if empty (day not yet filled)
       if (!metaV && cobV == null) return; // skip truly empty rows
-      // Short day label: "D01", "L02" etc from col C, or just day number
-      const diaSem = (r[2]||'').toString().trim().substring(0,1).toUpperCase();
-      // Handle both DD/MM/YYYY and YYYY-MM-DD formats
+      // Label: "D01", "L02" etc — día semana + número
       let dNum;
       if (fecha.includes('-')) {
-        // YYYY-MM-DD → take last part
         dNum = fecha.split('-')[2] || (dias.length+1).toString();
       } else {
-        // DD/MM/YYYY → take first part
         dNum = fecha.split('/')[0] || (dias.length+1).toString();
       }
-      const label = diaSem + dNum.padStart(2,'0');
+      // Map día semana español → letra
+      const diaSemMap = {d:'D',l:'L',m:'M',x:'X',j:'J',v:'V',s:'S'};
+      const diaSemRaw = (r[2]||'').toString().trim().toLowerCase().substring(0,1);
+      const diaSemLetra = diaSemMap[diaSemRaw] || diaSemRaw.toUpperCase();
+      const label = diaSemLetra + parseInt(dNum).toString().padStart(2,'0');
       dias.push(label);
       met.push(metaV || 0);
       cob.push(cobV != null ? cobV : null); // null = not yet collected
@@ -1259,7 +1259,7 @@ async function fetchRenov() {
     const zonas=[], reservas=[], renovaciones=[], metas=[];
     rows.slice(ds).forEach(r => {
       const zona = (r[0]||'').toString().trim();
-      if (!zona || zona.includes('TOTAL') || zona.includes('Nueva') ||
+      if (!zona || zona.includes('TOTAL') ||
           zona.includes('↑') || zona.includes('→') || zona.includes('↓')) return;
       const resV = parseNum(r[1]) || 0;
       const renV = parseNum(r[2]) || 0;
@@ -1293,12 +1293,27 @@ async function fetchMora() {
       const c0 = (rows[i][0]||'').toLowerCase();
       if (c0 === 'zona') { ds = i+1; break; }
     }
+    // Extract fecha de corte from row with "FECHA DE CORTE" label
+    let fechaCorte = '';
+    for (let i = 0; i < Math.min(rows.length, 6); i++) {
+      const c0 = (rows[i][0]||'').toString().toUpperCase();
+      if (c0.includes('FECHA')) {
+        const raw = (rows[i][1]||'').toString().trim();
+        fechaCorte = raw ? excelSerialToDate(parseInt(raw)) || raw : '';
+        break;
+      }
+    }
+    if (fechaCorte) {
+      const el = document.getElementById('slbl-mora-fecha');
+      if (el) el.textContent = 'aging de mora · al ' + fechaCorte + ' · factura conforme cobra';
+    }
+
     const headerRow = rows[ds-1] || [];
     const rangos = headerRow.slice(1).map(r => r.toString().trim()).filter(r => r && r !== 'Total general');
     const zonas=[], values={};
     rows.slice(ds).forEach(r => {
       const zona = (r[0]||'').toString().trim();
-      if (!zona || zona.includes('Total') || zona.includes('Nueva') || zona.includes('↑') || zona.includes('ARPU')) return;
+      if (!zona || zona.toLowerCase().includes('total') || zona.includes('↑') || zona.includes('ARPU') || zona.startsWith('*') || zona.startsWith('Cada')) return;
       zonas.push(zona);
       values[zona] = r.slice(1).map(v => parseNum(v) || 0);
     });
@@ -1325,7 +1340,7 @@ async function fetchProyectos() {
     const proyectos = [];
     rows.slice(ds).forEach(r => {
       const n = (r[0]||'').toString().trim();
-      if (!n || n.includes('TOTAL') || n.includes('Nueva') || n.includes('↑')) return;
+      if (!n || n.includes('TOTAL') || n.includes('↑')) return;
       const tipo  = (r[1]||'').toString().trim();
       const total = parseNum(r[2]) || 0;
       const digi  = parseNum(r[4]) || 0;
@@ -1352,7 +1367,7 @@ function rebuildCobrCharts() {
     mkBar(id, dias, [
       {label:'Cobrado', data:cobDisplay, backgroundColor:cobColors, borderRadius:3, order:1},
       {label:'Meta',    data:met, type:'line', borderColor:'#94A3B8', borderWidth:1.5, pointRadius:2, fill:false, tension:0, order:0}
-    ],{yFmt:fmtK, xTicks:{autoSkip:false, maxRotation:0}});
+    ],{yFmt:fmtK, xTicks:{autoSkip:true, maxRotation:0, maxTicksLimit:16}});
   });
   // Deviation chart — only for days with cobrado
   const desv = cob.map((v,i) => v == null ? null : v - met[i]);
@@ -1362,7 +1377,7 @@ function rebuildCobrCharts() {
       data: desv,
       backgroundColor: desv.map(v => v == null ? 'transparent' : v>=0 ? 'rgba(16,185,129,.7)' : 'rgba(239,68,68,.7)'),
       borderRadius:3
-    }],{yFmt:v=>v==null?'':((v>=0?'+':'')+fmtK(v)), xTicks:{autoSkip:false,maxRotation:0}});
+    }],{yFmt:v=>v==null?'':((v>=0?'+':'')+fmtK(v)), xTicks:{autoSkip:true,maxRotation:0,maxTicksLimit:16}});
   }
 }
 
@@ -2123,9 +2138,9 @@ function bCobr(){
     mkBar('c-cobr-diario',cobranzaDias,[
       {label:'Cobrado',data:cob,backgroundColor:cob.map((v,i)=>v>=met[i]?'#0066FF':'rgba(239,68,68,.7)'),borderRadius:3,order:1},
       {label:'Meta',data:met,type:'line',borderColor:'#94A3B8',borderWidth:1.5,pointRadius:2,fill:false,tension:0,order:0}
-    ],{yFmt:fmtK,xTicks:{autoSkip:false,maxRotation:0}});
+    ],{yFmt:fmtK,xTicks:{autoSkip:true,maxRotation:0,maxTicksLimit:16}});
     mkBar('c-cobr-desv',cobranzaDias,[{data:desv,backgroundColor:desv.map(v=>v>=0?'rgba(16,185,129,.7)':'rgba(239,68,68,.7)'),borderRadius:3}],
-      {yFmt:v=>(v>=0?'+':'')+fmtK(v),xTicks:{autoSkip:false,maxRotation:0}});
+      {yFmt:v=>(v>=0?'+':'')+fmtK(v),xTicks:{autoSkip:true,maxRotation:0,maxTicksLimit:16}});
   }
   // Projection chart — built from live or seed data
   const cobArr = cobrData.cob.length > 0 ? cobrData.cob.map(v=>v||0) : cob;
