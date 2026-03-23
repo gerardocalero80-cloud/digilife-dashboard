@@ -2049,89 +2049,78 @@ function updateProyCard() {
 
 async function fetchVentas() {
   console.log('[DigiLife] fetchVentas START — URL:', VENTAS_URL ? 'set' : 'null');
-  if (!VENTAS_URL) { console.warn('[DigiLife] VENTAS_URL not set'); return; }
+  if (!VENTAS_URL) return;
   try {
     const res = await fetch(VENTAS_URL);
-    console.log('[DigiLife] fetchVentas response status:', res.status);
-    if (!res.ok) { console.warn('[DigiLife] fetchVentas HTTP error:', res.status); return; }
-    const text = await res.text();
-    const rows = parseCSV(text);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
 
-    // Structure: row 0=title, row 1=subtitle, row 2=headers, row 3+=data
-    // Cols: A=Mes, B=Zona, C=Ventas brutas, D=Reservas, E=Total ventas, F=Instalaciones, G=Bajas, H=Netos
-    // Find header row
-    // Find header row: look for row with "Mes" in col A AND "Zona" in col B
-    let dataStart = 3;
-    for (let i = 0; i < Math.min(rows.length, 8); i++) {
-      const c0 = (rows[i][0]||'').toLowerCase().trim();
-      const c1 = (rows[i][1]||'').toLowerCase().trim();
-      // Header row has both "mes" and "zona"
-      if (c0.includes('mes') && c1.includes('zona')) { dataStart = i + 1; break; }
-    }
+    // ── New structure: 03_VENTAS_MES ──
+    // TABLA A: cols #, Zona/Proyecto, Mes/Año, Ventas directas, Inst. directas, Bajas, Netos...
+    // TABLA B: cols #, Proyecto, Contratos reserva este mes, Inst. reserva este mes, Pendientes...
+    // TABLA C: Métrica, Ventas directas, Ventas reserva, TOTAL...
 
-    // Get the most recent month's data
-    // Find last non-empty, non-buffer, non-total row
-    console.log('[DigiLife] Ventas CSV total rows:', rows.length);
-    console.log('[DigiLife] Ventas row 0:', rows[0]);
-    console.log('[DigiLife] Ventas row 1:', rows[1]);
-    console.log('[DigiLife] Ventas row 2:', rows[2]);
-    console.log('[DigiLife] Ventas row 3:', rows[3]);
-    console.log('[DigiLife] Ventas row 4:', rows[4]);
-    console.log('[DigiLife] Ventas dataStart:', dataStart);
-
-    // Forward-fill mes column: if col A is empty, use previous row's mes
-    let lastMes = '';
-    const filledRows = rows.slice(dataStart).map(r => {
-      const mes = (r[0]||'').toString().trim();
-      if (mes && !mes.includes('Nueva') && !mes.includes('TOTAL') && !mes.includes('fila')) {
-        lastMes = mes;
+    // Find TABLA A header row (has "zona" and "mes")
+    let dsA = -1;
+    for (let i = 0; i < Math.min(rows.length, 10); i++) {
+      const row = rows[i].map(c => (c||'').toString().toLowerCase());
+      if (row.some(c => c.includes('zona')) && row.some(c => c.includes('mes'))) {
+        dsA = i + 1; break;
       }
-      return [lastMes, ...r.slice(1)];
-    });
-
-    const dataRows = filledRows.filter(r => {
-      const mes  = r[0];
-      const zona = (r[1]||'').toString().trim();
-      if (!mes || !zona) return false;
-      if (mes.includes('Nueva') || mes.includes('TOTAL') || mes.includes('fila')) return false;
-      if (zona.includes('Nueva') || zona.includes('TOTAL') || zona.includes('→')) return false;
-      return true;
-    });
-
-    console.log('[DigiLife] Ventas dataRows after fill+filter:', dataRows.length);
-    if (dataRows.length > 0) {
-      console.log('[DigiLife] First:', dataRows[0][0], dataRows[0][1], dataRows[0][2]);
-      console.log('[DigiLife] Last:', dataRows[dataRows.length-1][0], dataRows[dataRows.length-1][1]);
     }
 
-    if (dataRows.length === 0) return;
+    // Find TABLA C header (has "métrica" and "total")
+    let dsC = -1;
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i].map(c => (c||'').toString().toLowerCase());
+      if (row.some(c => c.includes('métrica') || c.includes('metrica'))) {
+        dsC = i + 1; break;
+      }
+    }
 
-    // Get latest month — most frequent or last
-    const mesCounts = {};
-    dataRows.forEach(r => { mesCounts[r[0]] = (mesCounts[r[0]]||0) + 1; });
-    const latestMes = Object.entries(mesCounts).sort((a,b) => b[1]-a[1])[0][0];
-    console.log('[DigiLife] latestMes:', latestMes, '| count:', mesCounts[latestMes]);
+    console.log('[DigiLife] Ventas CSV rows:', rows.length, '| dsA:', dsA, '| dsC:', dsC);
 
-    // Filter to latest month only
-    const mesRows = dataRows.filter(r => r[0] === latestMes);
+    // ── Read Tabla C for KPI totals ──
+    let totalContratos = 0, totalInst = 0, totalBajas = 0;
+    let mesLabel = '';
 
-    console.log('[DigiLife] Ventas CSV — mes:', latestMes, '| zonas:', mesRows.length);
+    if (dsC > 0) {
+      const headerC = rows[dsC-1].map(c => (c||'').toString().toLowerCase());
+      const colTotal = headerC.findIndex(c => c.includes('total'));
+      const colMes   = headerC.findIndex(c => c.includes('vs mes') || c.includes('anterior'));
 
-    // Aggregate by zona (in case same zona appears multiple times)
+      for (let i = dsC; i < rows.length; i++) {
+        const label = (rows[i][1]||'').toString().toLowerCase();
+        const tot   = parseNum(rows[i][colTotal > 0 ? colTotal : 4]);
+        if (label.includes('contratos')) totalContratos = tot || 0;
+        if (label.includes('instalac'))  totalInst      = tot || 0;
+        if (label.includes('bajas'))     totalBajas     = parseNum(rows[i][2]) || 0; // directas only
+      }
+    }
+
+    // ── Read Tabla A for zone breakdown ──
     const agg = {};
-    mesRows.forEach(r => {
-      const zona  = (r[1]||'').toString().trim();
-      const vtas  = parseNum(r[2]) || 0;
-      const inst  = parseNum(r[5]) || 0;
-      const bajas = parseNum(r[6]) || 0;
-      if (!zona) return;
-      if (!agg[zona]) agg[zona] = { vtas:0, inst:0, bajas:0 };
-      agg[zona].vtas  += vtas;
-      agg[zona].inst  += inst;
-      agg[zona].bajas += bajas;
-    });
+    if (dsA > 0) {
+      let lastMes = '';
+      for (let i = dsA; i < rows.length; i++) {
+        const zona = (rows[i][1]||'').toString().trim();
+        const mes  = (rows[i][2]||'').toString().trim();
+        if (!zona || zona.includes('TOTAL') || zona.includes('Nueva fila') || zona.includes('→')) continue;
+        if (mes) lastMes = mes;
+        if (!lastMes) continue;
+        if (lastMes !== mesLabel && mesLabel === '') mesLabel = lastMes;
+        if (lastMes !== mesLabel) continue; // only latest month
 
-    // Sort by ventas desc, take top 8 for readability
+        const vtas  = parseNum(rows[i][3]) || 0;
+        const inst  = parseNum(rows[i][4]) || 0;
+        const bajas = parseNum(rows[i][5]) || 0;
+        if (!agg[zona]) agg[zona] = { vtas:0, inst:0, bajas:0 };
+        agg[zona].vtas  += vtas;
+        agg[zona].inst  += inst;
+        agg[zona].bajas += bajas;
+      }
+    }
+
     const sorted = Object.entries(agg)
       .sort((a,b) => b[1].vtas - a[1].vtas)
       .slice(0, 10);
@@ -2141,12 +2130,13 @@ async function fetchVentas() {
       ventas: sorted.map(([,v]) => v.vtas),
       inst:   sorted.map(([,v]) => v.inst),
       bajas:  sorted.map(([,v]) => v.bajas),
-      mes:    latestMes
+      mes:    mesLabel || 'mes actual',
+      totalContratos, totalInst, totalBajas
     };
 
-    console.log('[DigiLife] ventasData:', ventasData);
+    console.log('[DigiLife] Ventas loaded:', mesLabel,
+      '| contratos:', totalContratos, '| inst:', totalInst, '| bajas:', totalBajas);
 
-    // Rebuild charts if already rendered
     rebuildVentasCharts();
 
   } catch(e) {
@@ -2156,29 +2146,38 @@ async function fetchVentas() {
 
 // Rebuild ventas charts with fresh data
 function rebuildVentasCharts() {
-  const {zonas, ventas, inst, bajas, mes} = ventasData;
-  if (!zonas.length) return; // no data yet
+  const {zonas, ventas, inst, bajas, mes, totalContratos, totalInst, totalBajas} = ventasData;
+  if (!zonas.length) return;
 
-  const totalVentas = ventas.reduce((a,b)=>a+b,0);
-  const totalInst   = inst.reduce((a,b)=>a+b,0);
-  const totalBajas  = bajas.reduce((a,b)=>a+b,0);
-  const netos       = totalInst - totalBajas;
-  const mesLabel    = mes || 'mes actual';
+  // Use Tabla C totals if available (more accurate — includes reservas)
+  const dispContratos = totalContratos > 0 ? totalContratos : ventas.reduce((a,b)=>a+b,0);
+  const dispInst      = totalInst      > 0 ? totalInst      : inst.reduce((a,b)=>a+b,0);
+  const dispBajas     = totalBajas     > 0 ? totalBajas     : bajas.reduce((a,b)=>a+b,0);
+  const netos         = dispInst - dispBajas;
+  const mesLabel      = mes || 'mes actual';
 
   const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
 
-  // Update labels and KPI cards
+  // Update labels
   ['ventas-mes-label','ventas-mes-s1','ventas-mes-s2','ventas-mes-s3','res-mes-label','res-mes-chart'].forEach(id => setEl(id, mesLabel));
-  setEl('vc-ventas',    totalVentas > 0 ? totalVentas : '—');
-  setEl('vc-inst',      totalInst   > 0 ? totalInst   : '—');
-  setEl('vc-bajas',     totalBajas  > 0 ? totalBajas  : '—');
-  setEl('vc-netos',     netos);
+
+  // KPI cards — use Tabla C totals
+  setEl('vc-ventas',    dispContratos > 0 ? fmtN(dispContratos) : '—');
+  setEl('vc-inst',      dispInst      > 0 ? fmtN(dispInst)      : '—');
+  setEl('vc-bajas',     dispBajas     > 0 ? fmtN(dispBajas)     : '—');
+  setEl('vc-netos',     fmtN(netos));
   setEl('vc-inst-sub',  `Instaladas ${mesLabel}`);
   setEl('vc-bajas-sub', `Bajas ${mesLabel}`);
-  setEl('vc-netos-sub', `${totalInst} inst. − ${totalBajas} bajas`);
-  setEl('kpi-ventas-feb', totalVentas);
-  setEl('kpi-inst-feb',   totalInst);
-  setEl('kpi-bajas-feb',  totalBajas);
+  setEl('vc-netos-sub', `${fmtN(dispInst)} inst. − ${fmtN(dispBajas)} bajas`);
+
+  // Resumen page KPIs
+  setEl('kpi-ventas-feb', fmtN(dispContratos));
+  setEl('kpi-inst-feb',   fmtN(dispInst));
+  setEl('kpi-bajas-feb',  fmtN(dispBajas));
+
+  // Ventas label on resumen card
+  const slblVentas = document.getElementById('res-mes-label');
+  if (slblVentas) slblVentas.textContent = mesLabel;
 
   // Update chart title
   const titleEl = document.querySelector('#page-ventas-campo .ct');
