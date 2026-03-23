@@ -653,37 +653,30 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 
 <!-- ══════════ CXC · AGING -->
 <div id="page-cxc-aging" class="page">
-  <div class="slbl" id="slbl-mora-fecha">aging de mora · al 02 marzo 2026 · factura conforme cobra</div>
+  <div class="slbl" id="slbl-mora-fecha">aging de mora · factura conforme cobra</div>
   <div class="g3">
-    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Tasa de mora</div><div class="kpi-val" style="color:var(--amber);">11.9%</div><div class="kpi-sub">1,257 / 10,586 base ERP</div><div class="kpi-fx">Clientes mora / Base ERP total</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--coral2);"></div><div class="kpi-lbl">Ingreso no realizado</div><div class="kpi-val" style="color:var(--coral);">$33,372</div><div class="kpi-sub">por mes · extracontable</div><div class="kpi-fx">1,257 × $26.55 ARPU</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Recuperable 0–60d</div><div class="kpi-val" style="color:var(--green);">+$6,000</div><div class="kpi-sub">452 clientes · tasa 50%</div><div class="kpi-fx">Sin costo de adquisición</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Tasa de mora</div><div class="kpi-val" style="color:var(--amber);" id="mora-tasa-val">—</div><div class="kpi-sub" id="mora-tasa-sub">— clientes / — base ERP</div><div class="kpi-fx">Clientes mora / Base ERP total</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--coral2);"></div><div class="kpi-lbl">Ingreso no realizado</div><div class="kpi-val" style="color:var(--coral);" id="mora-ing-val">—</div><div class="kpi-sub" id="mora-ing-sub">por mes · extracontable</div><div class="kpi-fx" id="mora-ing-fx">— × ARPU</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Recuperable 0–60d</div><div class="kpi-val" style="color:var(--green);" id="mora-recup-val">—</div><div class="kpi-sub" id="mora-recup-sub">— clientes · tasa 50%</div><div class="kpi-fx">Sin costo de adquisición</div></div>
   </div>
   <div class="g23">
     <div class="card">
       <div class="ct">Distribución aging</div>
       <div style="position:relative;height:190px;"><canvas id="c-aging-donut"></canvas></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;">
-        <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#10B981;flex-shrink:0;"></span><span style="font-size:10px;color:var(--text2);">0–30d</span><span style="font-size:11px;font-weight:700;margin-left:auto;font-family:var(--mono);">338</span></div>
-        <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#F59E0B;flex-shrink:0;"></span><span style="font-size:10px;color:var(--text2);">31–60d</span><span style="font-size:11px;font-weight:700;margin-left:auto;font-family:var(--mono);">114</span></div>
-        <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#F97316;flex-shrink:0;"></span><span style="font-size:10px;color:var(--text2);">61–90d</span><span style="font-size:11px;font-weight:700;margin-left:auto;font-family:var(--mono);">159</span></div>
-        <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#EF4444;flex-shrink:0;"></span><span style="font-size:10px;color:var(--text2);">91–150d</span><span style="font-size:11px;font-weight:700;margin-left:auto;font-family:var(--mono);">131</span></div>
-        <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#7F1D1D;flex-shrink:0;"></span><span style="font-size:10px;color:var(--text2);">+150d</span><span style="font-size:11px;font-weight:700;margin-left:auto;font-family:var(--mono);">515</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#10B981;flex-shrink:0;"></span><span style="font-size:10px;color:var(--text2);">0–30d</span><span style="font-size:11px;font-weight:700;margin-left:auto;font-family:var(--mono);" id="mora-d0">—</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#F59E0B;flex-shrink:0;"></span><span style="font-size:10px;color:var(--text2);">31–60d</span><span style="font-size:11px;font-weight:700;margin-left:auto;font-family:var(--mono);" id="mora-d31">—</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#F97316;flex-shrink:0;"></span><span style="font-size:10px;color:var(--text2);">61–90d</span><span style="font-size:11px;font-weight:700;margin-left:auto;font-family:var(--mono);" id="mora-d61">—</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#EF4444;flex-shrink:0;"></span><span style="font-size:10px;color:var(--text2);">91–150d</span><span style="font-size:11px;font-weight:700;margin-left:auto;font-family:var(--mono);" id="mora-d91">—</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#7F1D1D;flex-shrink:0;"></span><span style="font-size:10px;color:var(--text2);">+150d</span><span style="font-size:11px;font-weight:700;margin-left:auto;font-family:var(--mono);" id="mora-d150">—</span></div>
       </div>
     </div>
     <div class="card">
       <div class="ct">Mora por zona <span class="ctag">prioridad gestión</span></div>
       <table class="tbl">
         <thead><tr><th>Zona</th><th>Total</th><th>0–60d</th><th>61–150d</th><th>+150d</th><th>% recup.</th><th></th></tr></thead>
-        <tbody>
-          <tr><td>Marsella</td><td>653</td><td>192</td><td>142</td><td>319</td><td>51%</td><td><span class="pill pr">ALTA</span></td></tr>
-          <tr><td>Megápolis</td><td>201</td><td>75</td><td>44</td><td>82</td><td>58%</td><td><span class="pill pr">ALTA</span></td></tr>
-          <tr><td>Villa Panam.</td><td>147</td><td>73</td><td>37</td><td>37</td><td>75%</td><td><span class="pill pr">ALTA</span></td></tr>
-          <tr><td>Ecoterra</td><td>152</td><td>71</td><td>34</td><td>47</td><td>69%</td><td><span class="pill pa">MEDIA</span></td></tr>
-          <tr><td>Sonsonate</td><td>53</td><td>19</td><td>16</td><td>18</td><td>66%</td><td><span class="pill pa">MEDIA</span></td></tr>
-          <tr><td>Mediterráneo</td><td>51</td><td>22</td><td>17</td><td>12</td><td>76%</td><td><span class="pill pa">MEDIA</span></td></tr>
-        </tbody>
-        <tfoot><tr><td>TOTAL</td><td>1,257</td><td>452</td><td>290</td><td>515</td><td>—</td><td></td></tr></tfoot>
+        <tbody id="tbody-mora-zona"></tbody>
+        <tfoot><tr><td>TOTAL</td><td id="mora-tot-total">—</td><td id="mora-tot-060">—</td><td id="mora-tot-61150">—</td><td id="mora-tot-150">—</td><td>—</td><td></td></tr></tfoot>
       </table>
       <div style="position:relative;height:160px;margin-top:10px;"><canvas id="c-aging-zona"></canvas></div>
     </div>
@@ -1318,8 +1311,8 @@ async function fetchMora() {
       values[zona] = r.slice(1).map(v => parseNum(v) || 0);
     });
     if (zonas.length > 0) {
-      moraData = { zonas, rangos, values };
-      console.log('[DigiLife] Mora loaded:', zonas.length, 'zonas,', rangos.length, 'rangos');
+      moraData = { zonas, rangos, values, fechaCorte };
+      console.log('[DigiLife] Mora loaded:', zonas.length, 'zonas,', rangos.length, 'rangos, fecha:', fechaCorte);
       rebuildMoraCharts();
     }
   } catch(e) { console.warn('[DigiLife] fetchMora error:', e); }
@@ -1400,24 +1393,115 @@ function rebuildRenovCharts() {
 }
 
 function rebuildMoraCharts() {
-  const {zonas, values} = moraData;
+  const {zonas, values, rangos, fechaCorte, totalMora, arpu} = moraData;
   if (!zonas.length) return;
+
+  const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+
+  // Group rangos into buckets based on index
+  // Rangos: 0-15,16-30,31-45,46-60 = bucket 0-60d (cols 0-3)
+  //         61-90,91-150 = bucket 61-150d (cols 4-5)
+  //         151+ = bucket +150d (cols 6+)
+  const nRangos = rangos.length;
+  const b1End = Math.min(4, nRangos);   // 0-60d
+  const b2End = Math.min(7, nRangos);   // 61-150d
+  // rest = +150d
+
+  const g1=[],g2=[],g3=[],tots=[];
+  let tot0=0, tot1=0, tot2=0, totAll=0;
+
+  zonas.forEach(z => {
+    const v = values[z] || [];
+    const s1 = v.slice(0,b1End).reduce((a,b)=>a+b,0);
+    const s2 = v.slice(b1End,b2End).reduce((a,b)=>a+b,0);
+    const s3 = v.slice(b2End).reduce((a,b)=>a+(typeof b==='number'?b:0),0);
+    const tot = s1+s2+s3;
+    g1.push(s1); g2.push(s2); g3.push(s3); tots.push(tot);
+    tot0+=s1; tot1+=s2; tot2+=s3; totAll+=tot;
+  });
+
+  // Update KPI cards from KPI_RESUMEN data (more accurate)
+  const totalMoraKPI = kpiData.total_mora || totAll;
+  const tasaMoraKPI  = kpiData.tasa_mora  || (totAll > 0 ? totAll/10000 : 0);
+  const ingMora      = kpiData.ing_mora   || 0;
+  const mora60       = kpiData.mora_60    || tot0;
+  const baseERP      = kpiData.base_erp  || 10000;
+  const arpuVal      = ingMora > 0 && totalMoraKPI > 0 ? (ingMora/totalMoraKPI) : 26.55;
+  const recup0_60    = Math.round(mora60 * arpuVal * 0.5);
+
+  setEl('mora-tasa-val', fmtP(tasaMoraKPI));
+  setEl('mora-tasa-sub', `${fmtN(totalMoraKPI)} / ${fmtN(baseERP)} base ERP`);
+  setEl('mora-ing-val',  fmt(ingMora));
+  setEl('mora-ing-sub',  'por mes · extracontable');
+  setEl('mora-ing-fx',   `${fmtN(totalMoraKPI)} × $${arpuVal.toFixed(2)} ARPU`);
+  setEl('mora-recup-val', '+' + fmt(recup0_60));
+  setEl('mora-recup-sub', `${fmtN(mora60)} clientes · tasa 50%`);
+
+  // Donut legend
+  const nRangosFull = rangos.length;
+  const buckets = [0,0,0,0,0]; // 0-30,31-60,61-90,91-150,+150
+  zonas.forEach(z => {
+    const v = values[z] || [];
+    rangos.forEach((r,i) => {
+      const rv = v[i] || 0;
+      const rNum = parseInt(r.split('-')[0]) || parseInt(r.replace('+','')) || 0;
+      if      (rNum <= 30)  buckets[0] += rv;
+      else if (rNum <= 60)  buckets[1] += rv;
+      else if (rNum <= 90)  buckets[2] += rv;
+      else if (rNum <= 150) buckets[3] += rv;
+      else                  buckets[4] += rv;
+    });
+  });
+  setEl('mora-d0',   fmtN(buckets[0]));
+  setEl('mora-d31',  fmtN(buckets[1]));
+  setEl('mora-d61',  fmtN(buckets[2]));
+  setEl('mora-d91',  fmtN(buckets[3]));
+  setEl('mora-d150', fmtN(buckets[4]));
+
+  // Tabla por zona
+  const tbody = document.getElementById('tbody-mora-zona');
+  if (tbody) {
+    tbody.innerHTML = '';
+    zonas.forEach((z,i) => {
+      const tot = tots[i];
+      const s1  = g1[i], s2=g2[i], s3=g3[i];
+      const pctRecup = tot > 0 ? Math.round((s1/tot)*100) : 0;
+      const prioridad = s3/tot > 0.4 ? '<span class="pill pr">ALTA</span>' :
+                        s3/tot > 0.2 ? '<span class="pill pa">MEDIA</span>' :
+                                       '<span class="pill pg">BAJA</span>';
+      const zLabel = z.length > 12 ? z.substring(0,12)+'.' : z;
+      tbody.innerHTML += `<tr><td>${zLabel}</td><td>${fmtN(tot)}</td><td>${fmtN(s1)}</td><td>${fmtN(s2)}</td><td>${fmtN(s3)}</td><td>${pctRecup}%</td><td>${prioridad}</td></tr>`;
+    });
+  }
+  // Footer totals
+  setEl('mora-tot-total', fmtN(totAll));
+  setEl('mora-tot-060',   fmtN(tot0));
+  setEl('mora-tot-61150', fmtN(tot1));
+  setEl('mora-tot-150',   fmtN(tot2));
+
+  // Chart
   const el = document.getElementById('c-aging-zona');
   if (!el) return;
   const ex = Chart.getChart(el); if (ex) ex.destroy();
-  // Group into 0-60d, 61-150d, +150d
-  const g1=[],g2=[],g3=[];
-  zonas.forEach(z => {
-    const v = values[z] || [];
-    g1.push((v[0]||0)+(v[1]||0)+(v[2]||0)+(v[3]||0)); // 0-60d (cols 0-3)
-    g2.push((v[4]||0)+(v[5]||0)+(v[6]||0));             // 61-150d (cols 4-6)
-    g3.push(v.slice(7,-1).reduce((a,b)=>a+b,0));         // +150d
-  });
-  mkBar('c-aging-zona', zonas, [
+  mkBar('c-aging-zona', zonas.map(z=>z.substring(0,10)), [
     {label:'0–60d',   data:g1, backgroundColor:'#10B981', borderRadius:2},
     {label:'61–150d', data:g2, backgroundColor:'#F59E0B', borderRadius:2},
     {label:'+150d',   data:g3, backgroundColor:'#EF4444', borderRadius:2}
   ],{yFmt:v=>v, extra:{scales:{x:{stacked:true,ticks:{font:{size:9}},grid:{display:false}},y:{stacked:true,ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}}}}});
+
+  // Donut chart
+  const donutEl = document.getElementById('c-aging-donut');
+  if (donutEl) {
+    const dex = Chart.getChart(donutEl); if(dex) dex.destroy();
+    new Chart(donutEl, {
+      type:'doughnut',
+      data:{
+        labels:['0–30d','31–60d','61–90d','91–150d','+150d'],
+        datasets:[{data:buckets, backgroundColor:['#10B981','#F59E0B','#F97316','#EF4444','#7F1D1D'], borderWidth:0}]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}
+    });
+  }
 }
 
 function rebuildProyCharts() {
@@ -1535,31 +1619,89 @@ async function fetchTV() {
     const res = await fetch(TV_URL);
     if (!res.ok) return;
     const rows = parseCSV(await res.text());
-    let ds = 3;
-    for (let i = 0; i < Math.min(rows.length,8); i++) {
-      if ((rows[i][2]||'').toLowerCase() === 'agente') { ds = i+1; break; }
+
+    // Find data start — header row has "agente" in col C (index 2)
+    let ds = 4;
+    for (let i = 0; i < Math.min(rows.length, 8); i++) {
+      const c2 = (rows[i][2]||'').toString().toLowerCase().trim();
+      if (c2 === 'agente') { ds = i + 1; break; }
     }
-    const agg = {};
+
+    // New structure: col1=#, col2=Fecha, col3=Agente, col4=Canal,
+    // col5=Alcance, col6=Respuestas, col7=Leads, col8=Cierres, col9=Costo
+    // Filter: only current month rows
+    const mesActual = kpiData.fecha_cobr
+      ? (kpiData.fecha_cobr.toString().split('/')[1] || '03')
+      : new Date().getMonth() + 1;
+    const anioActual = kpiData.fecha_cobr
+      ? (kpiData.fecha_cobr.toString().split('/')[2] || new Date().getFullYear().toString())
+      : new Date().getFullYear().toString();
+
+    const agg = {}; // by agente
+    const byCanal = { LLAMADAS:{alcance:0,resp:0,leads:0,cierres:0,costo:0},
+                      SMS:      {alcance:0,resp:0,leads:0,cierres:0,costo:0},
+                      WHATSAPP: {alcance:0,resp:0,leads:0,cierres:0,costo:0},
+                      RRSS:     {alcance:0,resp:0,leads:0,cierres:0,costo:0} };
+    let totalCierres = 0, totalAlcance = 0, totalLeads = 0, totalCosto = 0;
+
     rows.slice(ds).forEach(r => {
-      const agente = (r[2]||'').toString().trim();
       const fecha  = (r[1]||'').toString().trim();
-      if (!agente || !fecha || agente.includes('Nueva')) return;
-      if (!agg[agente]) agg[agente] = {llamadas:0,contactos:0,directos:0,reservas:0,meta:0};
-      agg[agente].llamadas  += parseNum(r[3])||0;
-      agg[agente].contactos += parseNum(r[4])||0;
-      agg[agente].directos  += parseNum(r[5])||0;
-      agg[agente].reservas  += parseNum(r[6])||0;
-      agg[agente].meta = Math.max(agg[agente].meta, parseNum(r[11])||0);
+      const agente = (r[2]||'').toString().trim();
+      const canal  = (r[3]||'').toString().trim().toUpperCase();
+      if (!agente || !fecha) return;
+
+      // Filter by current month/year
+      const fParts = fecha.includes('-')
+        ? [fecha.split('-')[2], fecha.split('-')[1], fecha.split('-')[0]]
+        : fecha.split('/');
+      const fMes  = parseInt(fParts[1] || 0).toString();
+      const fAnio = (fParts[2] || '').toString().trim();
+      if (fMes !== parseInt(mesActual).toString()) return;
+      if (fAnio && fAnio !== anioActual.toString().substring(0,4)) return;
+
+      const alcance  = parseNum(r[4]) || 0;
+      const resp     = parseNum(r[5]) || 0;
+      const leads    = parseNum(r[6]) || 0;
+      const cierres  = parseNum(r[7]) || 0;
+      const costo    = parseNum(r[8]) || 0;
+      const meta     = parseNum(r[12]) || 0;
+
+      // Aggregate by agente
+      if (!agg[agente]) agg[agente] = {alcance:0,resp:0,leads:0,cierres:0,costo:0,meta:0};
+      agg[agente].alcance  += alcance;
+      agg[agente].resp     += resp;
+      agg[agente].leads    += leads;
+      agg[agente].cierres  += cierres;
+      agg[agente].costo    += costo;
+      agg[agente].meta = Math.max(agg[agente].meta, meta);
+
+      // Aggregate by canal
+      if (byCanal[canal]) {
+        byCanal[canal].alcance  += alcance;
+        byCanal[canal].resp     += resp;
+        byCanal[canal].leads    += leads;
+        byCanal[canal].cierres  += cierres;
+        byCanal[canal].costo    += costo;
+      }
+
+      totalCierres += cierres;
+      totalAlcance += alcance;
+      totalLeads   += leads;
+      totalCosto   += costo;
     });
-    const agentes = Object.entries(agg).map(([nombre,v]) => ({
-      nombre, llamadas:v.llamadas, contactos:v.contactos,
-      cierres:v.directos+v.reservas,
-      tConv:v.llamadas>0?(v.directos+v.reservas)/v.llamadas:0,
-      meta:v.meta,
+
+    const agentes = Object.entries(agg).map(([nombre, v]) => ({
+      nombre,
+      llamadas: v.alcance, // alcance total como proxy de "llamadas"
+      contactos: v.resp,
+      cierres: v.cierres,
+      tConv: v.alcance > 0 ? v.cierres / v.alcance : 0,
+      meta: v.meta,
     }));
-    if (agentes.length > 0) {
-      tvData = { agentes };
-      console.log('[DigiLife] TV loaded:', agentes.length, 'agentes');
+
+    if (agentes.length > 0 || totalCierres > 0) {
+      tvData = { agentes, byCanal, totalCierres, totalAlcance, totalLeads, totalCosto };
+      console.log('[DigiLife] TV loaded:', agentes.length, 'agentes,', totalCierres, 'cierres mes');
       rebuildTVTable();
     }
   } catch(e) { console.warn('[DigiLife] fetchTV error:', e); }
