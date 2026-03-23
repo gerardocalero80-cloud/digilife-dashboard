@@ -553,9 +553,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 <div id="page-ventas-corp" class="page">
   <div class="slbl">corporativo · pipeline y resultados · <span class="mes-ant-label">feb 2026</span></div>
   <div class="g4">
-    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Clientes activos</div><div class="kpi-val">56</div><div class="kpi-sub">recurrente $1,751/mes sin IVA</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">NRR dic→feb</div><div class="kpi-val" style="color:var(--red);">89%</div><div class="kpi-sub"><span class="dn">encogimiento</span> · meta 100%+</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Pipeline total</div><div class="kpi-val" style="color:var(--amber);">$10,521</div><div class="kpi-sub">negocia. $7,070 · cierre $3,451</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Clientes activos</div><div class="kpi-val" id="corp-clientes">56</div><div class="kpi-sub" id="corp-recurrente">recurrente $1,751/mes sin IVA</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">NRR dic→feb</div><div class="kpi-val" style="color:var(--red);" id="corp-nrr">89%</div><div class="kpi-sub"><span class="dn">encogimiento</span> · meta 100%+</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Pipeline total</div><div class="kpi-val" style="color:var(--amber);" id="corp-pipeline">$10,521</div><div class="kpi-sub" id="corp-pipeline-sub">negocia. $7,070 · cierre $3,451</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">KAM actual</div><div class="kpi-val" style="color:var(--green);">1</div><div class="kpi-sub">Contratando 2 vendedores corp.</div></div>
   </div>
 
@@ -563,10 +563,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     <div class="card">
       <div class="ct">Funnel de ventas corporativo · <span class="mes-ant-label">feb 2026</span></div>
       <div class="funnel">
-        <div class="funnel-row" style="background:#EEF2F8;"><div class="funnel-label">Propuesta / Factibilidad</div><div class="funnel-val" style="color:var(--brand);">4</div><div class="funnel-money">prospectos</div></div>
-        <div class="funnel-row" style="background:#E8F0FF;"><div class="funnel-label">Ofertas / Cotización</div><div class="funnel-val" style="color:var(--brand2);">2</div><div class="funnel-money">cotizando</div></div>
-        <div class="funnel-row" style="background:#DBEAFE;"><div class="funnel-label">Negociaciones activas</div><div class="funnel-val" style="color:var(--teal);">6</div><div class="funnel-money" style="color:var(--teal);">$7,070.31</div></div>
-        <div class="funnel-row" style="background:var(--green-l);"><div class="funnel-label">Cierre</div><div class="funnel-val" style="color:var(--green);">7</div><div class="funnel-money" style="color:var(--green);">$3,451.41</div></div>
+        <div class="funnel-row" style="background:#EEF2F8;"><div class="funnel-label">Propuesta / Factibilidad</div><div class="funnel-val" style="color:var(--brand);" id="corp-f1">4</div><div class="funnel-money">prospectos</div></div>
+        <div class="funnel-row" style="background:#E8F0FF;"><div class="funnel-label">Ofertas / Cotización</div><div class="funnel-val" style="color:var(--brand2);" id="corp-f2">2</div><div class="funnel-money">cotizando</div></div>
+        <div class="funnel-row" style="background:#DBEAFE;"><div class="funnel-label">Negociaciones activas</div><div class="funnel-val" style="color:var(--teal);" id="corp-f3">6</div><div class="funnel-money" style="color:var(--teal);" id="corp-f3-money">$7,070.31</div></div>
+        <div class="funnel-row" style="background:var(--green-l);"><div class="funnel-label">Cierre</div><div class="funnel-val" style="color:var(--green);" id="corp-f4">7</div><div class="funnel-money" style="color:var(--green);" id="corp-f4-money">$3,451.41</div></div>
       </div>
       <div class="div"></div>
       <div class="ct" style="margin-bottom:8px;">Pipeline · prospectos activos</div>
@@ -586,10 +586,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
       <div class="div"></div>
       <div class="ct" style="margin-bottom:8px;">Predicción cierre mes</div>
       <div class="mstats">
-        <div class="mstat"><div class="mstat-l">Ritmo actual</div><div class="mstat-v" style="color:var(--amber);">0.4/día</div><div class="mstat-s">nuevos/día</div></div>
-        <div class="mstat"><div class="mstat-l">Proyección mes</div><div class="mstat-v" style="color:var(--amber);">~12</div><div class="mstat-s">cierres estimados</div></div>
-        <div class="mstat"><div class="mstat-l">Pipeline potencial</div><div class="mstat-v" style="color:var(--green);">$10,521</div><div class="mstat-s">si se cierran todos</div></div>
-        <div class="mstat"><div class="mstat-l">Ingreso recurrente</div><div class="mstat-v" style="color:var(--brand);">$1,751</div><div class="mstat-s">/mes sin IVA actual</div></div>
+        <div class="mstat"><div class="mstat-l">Ritmo actual</div><div class="mstat-v" style="color:var(--amber);" id="corp-ritmo">0.4/día</div><div class="mstat-s">nuevos/día</div></div>
+        <div class="mstat"><div class="mstat-l">Proyección mes</div><div class="mstat-v" style="color:var(--amber);" id="corp-proy">~12</div><div class="mstat-s">cierres estimados</div></div>
+        <div class="mstat"><div class="mstat-l">Pipeline potencial</div><div class="mstat-v" style="color:var(--green);" id="corp-pipeline-pot">$10,521</div><div class="mstat-s">si se cierran todos</div></div>
+        <div class="mstat"><div class="mstat-l">Ingreso recurrente</div><div class="mstat-v" style="color:var(--brand);" id="corp-ing-rec">$1,751</div><div class="mstat-s">/mes sin IVA actual</div></div>
       </div>
       <div class="pending" style="margin-top:10px;"><strong>KAM vendedores pendientes de contratar</strong>3 vendedores pyme + 2 corporativos en proceso. Actualizar cuando estén activos para agregar sus metas y seguimiento individual.</div>
     </div>
@@ -600,10 +600,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 <div id="page-ventas-pyme" class="page">
   <div class="slbl">pyme · cartera y pipeline · <span class="mes-ant-label">feb 2026</span></div>
   <div class="g4">
-    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Activos facturando</div><div class="kpi-val" style="color:var(--green);">$169,254</div><div class="kpi-sub">clientes vigentes 73.6%</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Clientes vencidos</div><div class="kpi-val" style="color:var(--amber);">23%</div><div class="kpi-sub">de la cartera activa</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Suspendidos + incobrables</div><div class="kpi-val" style="color:var(--red);">$18,984</div><div class="kpi-sub">$9,492 cada estado</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Por renovar</div><div class="kpi-val">3.4%</div><div class="kpi-sub">de clientes vigentes</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Activos facturando</div><div class="kpi-val" style="color:var(--green);" id="pyme-activos">$169,254</div><div class="kpi-sub" id="pyme-activos-sub">clientes vigentes 73.6%</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Clientes vencidos</div><div class="kpi-val" style="color:var(--amber);" id="pyme-vencidos">23%</div><div class="kpi-sub">de la cartera activa</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Suspendidos + incobrables</div><div class="kpi-val" style="color:var(--red);" id="pyme-suspendidos">$18,984</div><div class="kpi-sub">$9,492 cada estado</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Por renovar</div><div class="kpi-val" id="pyme-renovar">3.4%</div><div class="kpi-sub">de clientes vigentes</div></div>
   </div>
   <div class="g2">
     <div class="card">
@@ -632,7 +632,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 <div id="page-ventas-proy" class="page">
   <div class="slbl">proyección ventas H1-2026 · residencial · 4 escenarios</div>
   <div class="g4">
-    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Piso orgánico jun</div><div class="kpi-val">$244K</div><div class="kpi-sub">sin Revamp activo</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Piso orgánico jun</div><div class="kpi-val" id="proy-piso">$244K</div><div class="kpi-sub">sin Revamp activo</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Revamp moderado jun</div><div class="kpi-val" style="color:var(--green);">$268K</div><div class="kpi-sub">300 conexiones/mes</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--purple2);"></div><div class="kpi-lbl">Revamp pleno jun</div><div class="kpi-val" style="color:var(--purple);">$295K</div><div class="kpi-sub">600 conexiones/mes · riesgo alto</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Ritmo marzo · <span id="ritmo-dia-label">día 12</span></div><div class="kpi-val" style="color:var(--amber);" id="kpi-cx-brutas2">135</div><div class="kpi-sub wn" id="pb-revamp-pct">22.5% de meta 600 · alarma</div></div>
@@ -745,7 +745,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 <div id="page-cxc-proy" class="page">
   <div class="slbl">proyección ingresos H1-2026 · sin IVA</div>
   <div class="g4">
-    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Piso sin Revamp jun</div><div class="kpi-val">$244K</div><div class="kpi-sub">residencial orgánico</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Piso sin Revamp jun</div><div class="kpi-val" id="proy-piso2">$244K</div><div class="kpi-sub">residencial orgánico</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Revamp moderado jun</div><div class="kpi-val" style="color:var(--green);">$268K</div><div class="kpi-sub">300 cx/mes · mayor ROI</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--purple2);"></div><div class="kpi-lbl">Revamp pleno jun</div><div class="kpi-val" style="color:var(--purple);">$295K</div><div class="kpi-sub">600 cx/mes</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">+ Reactivación mora</div><div class="kpi-val" style="color:var(--green);">+$6K</div><div class="kpi-sub">cualquier escenario</div></div>
@@ -766,7 +766,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Brecha mes 1</div><div class="kpi-val" style="color:var(--amber);">281</div><div class="kpi-sub">altas sin primer cobro</div></div>
   </div>
   <div class="g4">
-    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Retenidos/mes prom.</div><div class="kpi-val">8,371</div><div class="kpi-sub">base − bajas promedio Q1</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Retenidos/mes prom.</div><div class="kpi-val" id="ret-retenidos">8,371</div><div class="kpi-sub">base − bajas promedio Q1</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--purple2);"></div><div class="kpi-lbl">LTV residencial</div><div class="kpi-val" style="color:var(--purple);">$2,928</div><div class="kpi-sub">$28.69 ARPU ÷ 0.98%</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Renovaciones feb</div><div class="kpi-val" style="color:var(--amber);">608</div><div class="kpi-sub">vs meta por zona</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">Reservas activas</div><div class="kpi-val" style="color:var(--teal);">337</div><div class="kpi-sub">Sonsonate 279 · Ecoterra 40</div></div>
@@ -823,7 +823,7 @@ let ventasData = {
   ventas: [88, 150, 33, 24, 10, 29],
   inst:   [53, 148, 16, 25, 9, 31],
   bajas:  [18, 50, 4, 0, 4, 10],
-  mes:    'Feb 2026'
+  mes:    plData.mesAnterior || 'Feb 2026'
 };
 
 // Índices de filas en KPI_RESUMEN (fila 4 = índice 0 del CSV después del header)
@@ -1107,6 +1107,20 @@ function updateUI() {
   set('kpi-nrr',          fmtP(kpiData.nrr_corp));
   set('kpi-pipeline',     fmt(kpiData.pipeline_corp));
   set('kpi-ing-resid',    fmt(kpiData.ing_resid));
+
+  // ── Corporativo page ──
+  set('corp-nrr',          fmtP(kpiData.nrr_corp));
+  set('corp-pipeline',     fmt(kpiData.pipeline_corp));
+  set('corp-pipeline-sub', `negocia. ${fmt(kpiData.pipeline_negocia||0)} · cierre ${fmt(kpiData.pipeline_cierre||0)}`);
+  set('corp-pipeline-pot', fmt(kpiData.pipeline_corp));
+  set('corp-ing-rec',      fmt(kpiData.ing_corp));
+
+  // ── Pyme page ──
+  set('pyme-activos',     fmt(kpiData.cartera_pyme));
+  set('pyme-activos-sub', `clientes vigentes · sin IVA`);
+
+  // ── Retención page ──
+  set('ret-retenidos',    fmtN(kpiData.base_erp || 0));
 
   // ── Ventas ──
   set('kpi-cx-brutas2',   fmtN(kpiData.cx_brutas));
@@ -2551,16 +2565,20 @@ function bPL(){
 }
 
 function bRetencion(){
-  // Use live data from KPI if available
+  const retMeses = plData.meses && plData.meses.length >= 3
+    ? plData.meses.slice(-3)
+    : ['Dic 2025','Ene 2026', plData.mesAnterior || 'Feb 2026'];
   const churnVal = kpiData.churn || 0.0098;
-  const churnPct = churnVal <= 1 ? (churnVal*100).toFixed(2) : churnVal.toFixed(2);
-  mkLine('c-ret-churn',['Dic 2025','Ene 2026','Feb 2026'],[
-    {label:'Churn %',data:[0.98,0.97,parseFloat(churnPct)],borderColor:'#0066FF',borderWidth:2,pointRadius:5,pointBackgroundColor:'#0066FF',fill:true,backgroundColor:'rgba(0,102,255,.06)',tension:.3},
+  const churnPct = parseFloat(churnVal <= 1 ? (churnVal*100).toFixed(2) : churnVal.toFixed(2));
+  const bajas = parseFloat(kpiData.bajas_ant||87);
+  const baseErp = kpiData.base_erp || 10000;
+  mkLine('c-ret-churn', retMeses,[
+    {label:'Churn %',data:[0.98,0.97,churnPct],borderColor:'#0066FF',borderWidth:2,pointRadius:5,pointBackgroundColor:'#0066FF',fill:true,backgroundColor:'rgba(0,102,255,.06)',tension:.3},
     {label:'Benchmark',data:[1.8,1.8,1.8],borderColor:'rgba(239,68,68,.4)',borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false}
   ],{yFmt:v=>v+'%',yExtra:{min:0,max:3}});
-  mkBar('c-ret-rvp',['Dic 2025','Ene 2026','Feb 2026'],[
-    {label:'Retenidos',data:[8184,8450,8367],backgroundColor:'rgba(0,102,255,.6)',borderRadius:3},
-    {label:'Bajas',data:[81,80,parseFloat(kpiData.bajas_ant||87)],backgroundColor:'rgba(239,68,68,.6)',borderRadius:3}
+  mkBar('c-ret-rvp', retMeses,[
+    {label:'Retenidos',data:[8184,8450,Math.round(baseErp-bajas)],backgroundColor:'rgba(0,102,255,.6)',borderRadius:3},
+    {label:'Bajas',data:[81,80,bajas],backgroundColor:'rgba(239,68,68,.6)',borderRadius:3}
   ],{yFmt:v=>v.toLocaleString()});
 }
 
@@ -2571,17 +2589,6 @@ function bCxcProy(){
     {label:'Moderado',data:[null,null,null,null,255000,261000,268000],backgroundColor:'rgba(16,185,129,.45)',borderRadius:3},
     {label:'Pleno',data:[null,null,null,null,265000,280000,295000],backgroundColor:'rgba(109,40,217,.4)',borderRadius:3}
   ],{yFmt:fmtK,yExtra:{min:220000}});
-}
-
-function bRetencion(){
-  mkLine('c-ret-churn',['Dic 2025','Ene 2026','Feb 2026'],[
-    {label:'Churn %',data:[0.98,0.97,0.98],borderColor:'#0066FF',borderWidth:2,pointRadius:5,pointBackgroundColor:'#0066FF',fill:true,backgroundColor:'rgba(0,102,255,.06)',tension:.3},
-    {label:'Benchmark',data:[1.8,1.8,1.8],borderColor:'rgba(239,68,68,.4)',borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false}
-  ],{yFmt:v=>v+'%',yExtra:{min:0,max:3}});
-  mkBar('c-ret-rvp',['Dic 2025','Ene 2026','Feb 2026'],[
-    {label:'Retenidos',data:[8184,8450,8367],backgroundColor:'rgba(0,102,255,.6)',borderRadius:3},
-    {label:'Bajas',data:[81,80,87],backgroundColor:'rgba(239,68,68,.6)',borderRadius:3}
-  ],{yFmt:v=>v.toLocaleString()});
 }
 
 // ── Iniciar — todas las declaraciones están listas ────────────────────────────
