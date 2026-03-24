@@ -1527,19 +1527,18 @@ function rebuildMoraCharts() {
   // KPI cards — priorizar datos de KPI_RESUMEN (más precisos)
   const totalMoraKPI = kpiData.total_mora  || totAll;
   const tasaMoraKPI  = kpiData.tasa_mora   || (totAll > 0 ? totAll / (kpiData.base_erp||10586) : 0);
-  const ingMora      = (() => {
-    // Priorizar valor de KPI_RESUMEN solo si parece razonable (>1000 = monto en $, no conteo de clientes)
-    const raw = kpiData.ing_mora || kpiData.ing_no_realiz;
-    if (raw && raw > 1000) return raw;
-    // Fallback: calcular desde total_mora × ARPU
-    return Math.round(totalMoraKPI * arpuVal);
-  })();
   const mora60       = kpiData.mora_60     || kpiData.mora_60d      || tot0;
   const baseERP      = kpiData.base_erp    || 10586;
   // ARPU: ingreso residencial / base activos facturando
   const arpuVal      = kpiData.ing_resid > 0 && baseERP > 0
     ? (kpiData.ing_resid / baseERP)
     : 26.55;
+  // Ingreso no realizado: usar KPI_RESUMEN solo si es monto en $ (>1000), sino calcular total_mora × ARPU
+  const ingMora      = (() => {
+    const raw = kpiData.ing_mora || kpiData.ing_no_realiz;
+    if (raw && raw > 1000) return raw;
+    return Math.round(totalMoraKPI * arpuVal);
+  })();
   const recup0_60    = Math.round(mora60 * arpuVal * 0.5);
 
   setEl('mora-tasa-val', fmtP(tasaMoraKPI));
