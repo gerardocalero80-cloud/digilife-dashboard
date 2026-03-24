@@ -827,6 +827,7 @@ let ventasData = {
 };
 
 // Índices de filas en KPI_RESUMEN (fila 4 = índice 0 del CSV después del header)
+// Orden confirmado contra 12_KPI_RESUMEN DataSheet v7
 const KPI_IDX = {
   fecha_cobr:       0,   // Fecha última actualización cobranza
   cobr_acum:        1,   // Cobranza acumulada mes
@@ -834,8 +835,8 @@ const KPI_IDX = {
   superavit:        3,   // Superávit / déficit acumulado
   pct_cobr:         4,   // % Cumplimiento cobranza
   total_mora:       5,   // Total mora (clientes)
-  mora_60d:         6,   // Mora 0–60 días
-  ing_no_realiz:    7,   // Ingreso no realizado mora
+  mora_60d:         6,   // Mora 0–60 días (recuperable)
+  ing_no_realiz:    7,   // Ingreso no realizado mora (= ing_mora)
   tasa_mora:        8,   // Tasa de mora %
   cx_brutas:        9,   // Conexiones brutas acum.
   meta_cx:          10,  // Meta conexiones mes
@@ -853,45 +854,51 @@ const KPI_IDX = {
   ing_resid:        22,  // Ingreso residencial
   ing_operativo:    23,  // Ingreso operativo
   gan_neta:         24,  // Ganancia neta
-  margen_neto:      25,  // Margen neto % (nuevo)
+  margen_neto:      25,  // Margen neto %
   churn:            26,  // Churn mensual %
   renovaciones:     27,  // Renovaciones mes anterior
   reservas:         28,  // Reservas activas
   conciliacion:     29,  // Diferencia conciliación
 };
 
-// Estado de los datos — valores reales al 15 marzo 2026
+// Estado de los datos — valores reales DataSheet v7 · Marzo 2026
 // Se sobreescriben con datos de Google Sheets al conectar
 let kpiData = {
-  fecha_cobr:      "15/03/2026",
-  cobr_acum:       123999,   // acum. cobrado día 15 sin IVA
-  meta_acum:       127058,   // acum. meta día 15
-  superavit:       -3060,    // déficit acumulado día 15
-  pct_cobr:        0.976,    // 97.6% cumplimiento acum.
-  total_mora:      1257,
-  mora_60d:        452,
-  ing_no_realiz:   33372,
-  tasa_mora:       0.119,
-  cx_brutas:       135,
-  meta_cx:         600,
-  pct_revamp:      0.225,
-  ventas_feb:      539,
-  inst_feb:        292,
-  bajas_feb:       87,
-  pct_penetracion: 0.265,
-  universo:        32314,
-  con_digilife:    8552,
-  ing_corp:        24897,
-  nrr_corp:        0.89,
-  pipeline_corp:   10521,
-  cartera_pyme:    169254,
-  ing_resid:       242542,
-  ing_operativo:   299595,
-  gan_neta:        132617,
-  churn:           0.0098,
-  renovaciones:    608,
-  reservas:        337,
-  conciliacion:    6591,
+  fecha_cobr:      "12/03/2026",
+  cobr_acum:       100390,   // 12_KPI_RESUMEN fila 3 — cobranza acum. al 12/03
+  meta_acum:       101411,   // 12_KPI_RESUMEN fila 4
+  superavit:       -1021,    // 12_KPI_RESUMEN fila 5 — déficit acumulado
+  pct_cobr:        0.9899,   // 12_KPI_RESUMEN fila 6
+  total_mora:      176,      // 12_KPI_RESUMEN fila 7 — clientes en mora
+  mora_60d:        333,      // 12_KPI_RESUMEN fila 8 — mora 0-60d (recuperable)
+  ing_no_realiz:   335,      // 12_KPI_RESUMEN fila 9 — ingreso no realizado
+  tasa_mora:       0.01740,  // 12_KPI_RESUMEN fila 10 — 1.74%
+  cx_brutas:       121,      // 12_KPI_RESUMEN fila 11 — conexiones Revamp acum.
+  meta_cx:         600,      // 12_KPI_RESUMEN fila 12
+  pct_revamp:      0.2017,   // 12_KPI_RESUMEN fila 13
+  ventas_feb:      539,      // 12_KPI_RESUMEN fila 14
+  inst_feb:        292,      // 12_KPI_RESUMEN fila 15
+  bajas_feb:       87,       // 12_KPI_RESUMEN fila 16 — también usado como bajas_ant
+  bajas_ant:       87,
+  pct_penetracion: 0.2841,   // 12_KPI_RESUMEN fila 17
+  universo:        35617,    // 12_KPI_RESUMEN fila 18
+  con_digilife:    10118,    // 12_KPI_RESUMEN fila 19
+  ing_corp:        24897,    // 12_KPI_RESUMEN fila 20
+  nrr_corp:        0.8903,   // 12_KPI_RESUMEN fila 21
+  pipeline_corp:   10522,    // 12_KPI_RESUMEN fila 22
+  cartera_pyme:    169254,   // 12_KPI_RESUMEN fila 23
+  ing_resid:       242542,   // 12_KPI_RESUMEN fila 24
+  ing_operativo:   271595,   // 12_KPI_RESUMEN fila 25
+  gan_neta:        132617,   // 12_KPI_RESUMEN fila 26
+  margen_neto:     0.4883,   // 12_KPI_RESUMEN fila 27 — 48.8%
+  churn:           0.0098,   // 12_KPI_RESUMEN fila 28
+  renovaciones:    608,      // 12_KPI_RESUMEN fila 29
+  reservas:        380,      // 12_KPI_RESUMEN fila 30
+  conciliacion:    6591,     // 12_KPI_RESUMEN fila 31
+  base_erp:        10586,    // 13_SUSCRIPCIONES_SEMANAL — último corte S11-2026
+  // Alias para compatibilidad con rebuildMoraCharts
+  ing_mora:        335,      // alias de ing_no_realiz
+  mora_60:         333,      // alias de mora_60d
 };
 
 // ── CSV Parser ────────────────────────────────────────────────────────────────
@@ -994,12 +1001,18 @@ async function fetchSheets() {
       }
     });
 
+    // Sincronizar alias — rebuildMoraCharts usa ing_mora / mora_60 / base_erp
+    kpiData.ing_mora  = kpiData.ing_no_realiz || kpiData.ing_mora  || 335;
+    kpiData.mora_60   = kpiData.mora_60d      || kpiData.mora_60   || 333;
+    kpiData.bajas_ant = kpiData.bajas_feb     || kpiData.bajas_ant || 87;
+    if (!kpiData.base_erp) kpiData.base_erp = 10586;
+
     // Confirm parsed values
     console.log('[DigiLife] ✓ kpiData after parse:');
-    console.log('  cobr_acum:', kpiData.cobr_acum);
-    console.log('  meta_acum:', kpiData.meta_acum);
-    console.log('  superavit:', kpiData.superavit);
-    console.log('  fecha_cobr:', kpiData.fecha_cobr);
+    console.log('  cobr_acum:', kpiData.cobr_acum, '| total_mora:', kpiData.total_mora);
+    console.log('  tasa_mora:', kpiData.tasa_mora, '| ing_mora:', kpiData.ing_mora);
+    console.log('  mora_60:', kpiData.mora_60, '| base_erp:', kpiData.base_erp);
+    console.log('  superavit:', kpiData.superavit, '| fecha_cobr:', kpiData.fecha_cobr);
 
     const now = new Date();
     const ts = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
@@ -1182,6 +1195,25 @@ function updateUI() {
   setC('kpi-tasa-mora', moraPct >= 15 ? 'var(--red)' : moraPct >= 8 ? 'var(--amber2)' : 'var(--green)');
   const nrrColor = (kpiData.nrr_corp||0) >= 1 ? 'var(--green)' : (kpiData.nrr_corp||0) >= 0.95 ? 'var(--amber)' : 'var(--red)';
   setC('kpi-nrr', nrrColor);
+
+  // ── Mora KPI cards — actualizar directamente desde kpiData ──
+  // Así se ven aunque el tab Aging no haya sido visitado
+  const fmtEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+  const totalMora  = kpiData.total_mora  || 176;
+  const tasaMora   = kpiData.tasa_mora   || 0.0174;
+  const ingMora    = kpiData.ing_mora    || kpiData.ing_no_realiz || 335;
+  const mora60     = kpiData.mora_60     || kpiData.mora_60d      || 333;
+  const baseERP    = kpiData.base_erp    || 10586;
+  const arpuUI     = kpiData.ing_resid > 0 && baseERP > 0 ? (kpiData.ing_resid / baseERP) : 26.55;
+  const recupUI    = Math.round(mora60 * arpuUI * 0.5);
+
+  fmtEl('mora-tasa-val',  (tasaMora * 100).toFixed(2) + '%');
+  fmtEl('mora-tasa-sub',  `${totalMora.toLocaleString()} / ${baseERP.toLocaleString()} base ERP`);
+  fmtEl('mora-ing-val',   '$' + Math.round(ingMora).toLocaleString('en-US'));
+  fmtEl('mora-ing-sub',   'por mes · extracontable');
+  fmtEl('mora-ing-fx',    `${totalMora} × $${arpuUI.toFixed(2)} ARPU`);
+  fmtEl('mora-recup-val', '+$' + recupUI.toLocaleString('en-US'));
+  fmtEl('mora-recup-sub', `${mora60} clientes · tasa 50%`);
 }
 
 // ── Dynamic alarm builder ─────────────────────────────────────────────────────
@@ -1434,40 +1466,63 @@ function rebuildRenovCharts() {
 }
 
 function rebuildMoraCharts() {
-  const {zonas, values, rangos, fechaCorte, totalMora, arpu} = moraData;
-  if (!zonas.length) return;
-
   const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
 
-  // Group rangos into buckets based on index
-  // Rangos: 0-15,16-30,31-45,46-60 = bucket 0-60d (cols 0-3)
-  //         61-90,91-150 = bucket 61-150d (cols 4-5)
-  //         151+ = bucket +150d (cols 6+)
+  // Datos reales DataSheet v7 · 02_MORA_AGING · corte 2026-03-15
+  const MORA_SEED = {
+    zonas:  ['Ecoterra','Marsella','Mediterráneo','Megápolis','Sonsonate','V. Panam.'],
+    // Columnas: [0-15,16-30,31-45,46-60,61-90,91-150,151-210,211-270,271-330,331+, Total]
+    values: {
+      'Ecoterra':          [44,20,12,8,16,23,23,13,13,1,173],
+      'Marsella':          [81,50,33,24,50,83,65,10,3,43,442],
+      'Mediterráneo':      [10,9,3,4,4,9,10,4,2,1,56],
+      'Megápolis':         [42,19,9,9,22,24,21,16,11,39,212],
+      'Sonsonate':         [7,7,4,2,3,13,7,8,3,2,56],
+      'V. Panam.':         [29,15,8,20,20,24,12,11,5,11,155],
+    },
+    rangos: ['0-15','16-30','31-45','46-60','61-90','91-150','151-210','211-270','271-330','331+'],
+    fechaCorte: '15/03/2026'
+  };
+
+  // Usar datos live si disponibles, seed v7 si no
+  const src = (moraData.zonas && moraData.zonas.length > 0) ? moraData : MORA_SEED;
+  const {zonas, values, rangos, fechaCorte} = src;
+
+  // Actualizar label de fecha
+  const fechaEl = document.getElementById('slbl-mora-fecha');
+  if (fechaEl && fechaCorte) fechaEl.textContent = 'aging de mora · al ' + fechaCorte + ' · factura conforme cobra';
+
+  // Agrupar rangos en 3 buckets:
+  // 0-60d  = cols 0-3 (0-15,16-30,31-45,46-60)
+  // 61-150d = cols 4-5 (61-90,91-150)
+  // +150d  = cols 6+
   const nRangos = rangos.length;
-  const b1End = Math.min(4, nRangos);   // 0-60d
-  const b2End = Math.min(7, nRangos);   // 61-150d
-  // rest = +150d
+  const b1End = Math.min(4, nRangos);
+  const b2End = Math.min(6, nRangos);
 
   const g1=[],g2=[],g3=[],tots=[];
   let tot0=0, tot1=0, tot2=0, totAll=0;
 
   zonas.forEach(z => {
     const v = values[z] || [];
-    const s1 = v.slice(0,b1End).reduce((a,b)=>a+b,0);
-    const s2 = v.slice(b1End,b2End).reduce((a,b)=>a+b,0);
-    const s3 = v.slice(b2End).reduce((a,b)=>a+(typeof b==='number'?b:0),0);
+    const s1 = v.slice(0,b1End).reduce((a,b)=>a+(+b||0),0);
+    const s2 = v.slice(b1End,b2End).reduce((a,b)=>a+(+b||0),0);
+    const s3 = v.slice(b2End,nRangos).reduce((a,b)=>a+(+b||0),0);
     const tot = s1+s2+s3;
     g1.push(s1); g2.push(s2); g3.push(s3); tots.push(tot);
     tot0+=s1; tot1+=s2; tot2+=s3; totAll+=tot;
   });
 
-  // Update KPI cards from KPI_RESUMEN data (more accurate)
-  const totalMoraKPI = kpiData.total_mora || totAll;
-  const tasaMoraKPI  = kpiData.tasa_mora  || (totAll > 0 ? totAll/10000 : 0);
-  const ingMora      = kpiData.ing_mora   || 0;
-  const mora60       = kpiData.mora_60    || tot0;
-  const baseERP      = kpiData.base_erp  || 10000;
-  const arpuVal      = ingMora > 0 && totalMoraKPI > 0 ? (ingMora/totalMoraKPI) : 26.55;
+  // KPI cards — priorizar datos de KPI_RESUMEN (más precisos)
+  const totalMoraKPI = kpiData.total_mora  || totAll;
+  const tasaMoraKPI  = kpiData.tasa_mora   || (totAll > 0 ? totAll / (kpiData.base_erp||10586) : 0);
+  const ingMora      = kpiData.ing_mora    || kpiData.ing_no_realiz || 335;
+  const mora60       = kpiData.mora_60     || kpiData.mora_60d      || tot0;
+  const baseERP      = kpiData.base_erp    || 10586;
+  // ARPU: ingreso residencial / base activos facturando
+  const arpuVal      = kpiData.ing_resid > 0 && baseERP > 0
+    ? (kpiData.ing_resid / baseERP)
+    : 26.55;
   const recup0_60    = Math.round(mora60 * arpuVal * 0.5);
 
   setEl('mora-tasa-val', fmtP(tasaMoraKPI));
@@ -2552,14 +2607,8 @@ function bCobr(){
 }
 
 function bAging(){
-  const el=document.getElementById('c-aging-donut');
-  if(el) new Chart(el,{type:'doughnut',data:{labels:['0–30d','31–60d','61–90d','91–150d','+150d'],datasets:[{data:[338,114,159,131,515],backgroundColor:['#10B981','#F59E0B','#F97316','#EF4444','#7F1D1D'],borderWidth:0,hoverOffset:4}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}});
-  mkBar('c-aging-zona',['Marsella','Megápolis','V.Panam','Ecoterra','Sonsonate','Medit.'],[
-    {label:'0–60d',data:[192,75,73,71,19,22],backgroundColor:'#10B981',borderRadius:2},
-    {label:'61–150d',data:[142,44,37,34,16,17],backgroundColor:'#F59E0B',borderRadius:2},
-    {label:'+150d',data:[319,82,37,47,18,12],backgroundColor:'#EF4444',borderRadius:2}
-  ],{yFmt:v=>v,extra:{scales:{x:{stacked:true,ticks:{font:{size:9}},grid:{display:false}},y:{stacked:true,ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}}}}});
+  // Delegar completamente a rebuildMoraCharts que ya tiene datos v7 embebidos
+  rebuildMoraCharts();
 }
 
 function bPL(){
