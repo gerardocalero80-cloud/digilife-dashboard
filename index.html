@@ -2277,6 +2277,8 @@ function rebuildVentasCharts() {
 const fmtK=v=>'$'+(v/1000).toFixed(0)+'k';
 const fmtFull=v=>'$'+Math.round(v).toLocaleString('en-US');
 function fmtN(v){ return v == null ? '—' : Math.round(v).toLocaleString('en-US'); }
+function fmt(v, prefix='$'){ return v == null ? '—' : prefix + Math.round(v).toLocaleString('en-US'); }
+function fmtP(v){ return v == null ? '—' : (v * 100).toFixed(1) + '%'; }
 const TODAY_DAY=12, DAYS_MES=31, DIAS_HAB=19;
 
 // ── Navigation ────────────────────────────────────────────────────────────────
