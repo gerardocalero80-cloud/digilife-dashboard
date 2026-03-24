@@ -977,9 +977,9 @@ async function fetchSheets() {
 
     const dataRows = rows.slice(dataStart);
 
-    // Full debug — shows first 6 data rows so we can verify alignment
+    // Full debug — shows ALL data rows to verify index alignment
     console.log('[DigiLife] ✓ CSV rows:', rows.length, '| dataStart:', dataStart);
-    for (let i = 0; i < Math.min(dataRows.length, 6); i++) {
+    for (let i = 0; i < dataRows.length; i++) {
       console.log(`[DigiLife] dataRow[${i}]:`, dataRows[i][0], '→', dataRows[i][1]);
     }
 
@@ -1201,7 +1201,11 @@ function updateUI() {
   const fmtEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
   const totalMora  = kpiData.total_mora  || 176;
   const tasaMora   = kpiData.tasa_mora   || 0.0174;
-  const ingMora    = kpiData.ing_mora    || kpiData.ing_no_realiz || 335;
+  const ingMora    = (() => {
+    const raw = kpiData.ing_mora || kpiData.ing_no_realiz;
+    if (raw && raw > 1000) return raw;
+    return Math.round((kpiData.total_mora || 176) * (kpiData.ing_resid > 0 && (kpiData.base_erp||10586) > 0 ? kpiData.ing_resid/(kpiData.base_erp||10586) : 26.55));
+  })();
   const mora60     = kpiData.mora_60     || kpiData.mora_60d      || 333;
   const baseERP    = kpiData.base_erp    || 10586;
   const arpuUI     = kpiData.ing_resid > 0 && baseERP > 0 ? (kpiData.ing_resid / baseERP) : 26.55;
@@ -1379,7 +1383,14 @@ async function fetchMora() {
     const zonas=[], values={};
     rows.slice(ds).forEach(r => {
       const zona = (r[0]||'').toString().trim();
-      if (!zona || zona.toLowerCase().includes('total') || zona.includes('↑') || zona.includes('ARPU') || zona.startsWith('*') || zona.startsWith('Cada')) return;
+      if (!zona) return;
+      const zl = zona.toLowerCase();
+      if (zl.includes('total')) return;
+      if (zona.includes('↑') || zona.includes('ARPU')) return;
+      if (zona.startsWith('*') || zona.startsWith('Cada')) return;
+      if (/^\d/.test(zona)) return;                      // filas que empiezan con número (0-60 días, 61-150 día, etc.)
+      if (/^S\d{1,2}-\d{4}/.test(zona)) return;         // semanas tipo S9-2026, S11-2026
+      if (zl === 'semana' || zl === 'segmento' || zl.includes('resumen')) return;
       zonas.push(zona);
       values[zona] = r.slice(1).map(v => parseNum(v) || 0);
     });
@@ -1516,7 +1527,13 @@ function rebuildMoraCharts() {
   // KPI cards — priorizar datos de KPI_RESUMEN (más precisos)
   const totalMoraKPI = kpiData.total_mora  || totAll;
   const tasaMoraKPI  = kpiData.tasa_mora   || (totAll > 0 ? totAll / (kpiData.base_erp||10586) : 0);
-  const ingMora      = kpiData.ing_mora    || kpiData.ing_no_realiz || 335;
+  const ingMora      = (() => {
+    // Priorizar valor de KPI_RESUMEN solo si parece razonable (>1000 = monto en $, no conteo de clientes)
+    const raw = kpiData.ing_mora || kpiData.ing_no_realiz;
+    if (raw && raw > 1000) return raw;
+    // Fallback: calcular desde total_mora × ARPU
+    return Math.round(totalMoraKPI * arpuVal);
+  })();
   const mora60       = kpiData.mora_60     || kpiData.mora_60d      || tot0;
   const baseERP      = kpiData.base_erp    || 10586;
   // ARPU: ingreso residencial / base activos facturando
