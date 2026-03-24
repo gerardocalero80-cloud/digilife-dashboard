@@ -769,7 +769,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Retenidos/mes prom.</div><div class="kpi-val" id="ret-retenidos">8,371</div><div class="kpi-sub">base − bajas promedio Q1</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--purple2);"></div><div class="kpi-lbl">LTV residencial</div><div class="kpi-val" style="color:var(--purple);">$2,928</div><div class="kpi-sub">$28.69 ARPU ÷ 0.98%</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Renovaciones feb</div><div class="kpi-val" style="color:var(--amber);">608</div><div class="kpi-sub">vs meta por zona</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">Reservas activas</div><div class="kpi-val" style="color:var(--teal);">337</div><div class="kpi-sub">Sonsonate 279 · Ecoterra 40</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">Reservas activas</div><div class="kpi-val" style="color:var(--teal);" id="ret-reservas-total">—</div><div class="kpi-sub" id="ret-reservas-sub">cargando...</div></div>
   </div>
   <div class="g3">
     <div class="card">
@@ -1461,6 +1461,22 @@ function rebuildCobrCharts() {
 function rebuildRenovCharts() {
   const {zonas, reservas, renovaciones, metas} = renovData;
   if (!zonas.length) return;
+
+  // ── KPI Reservas activas (página Retención) ──────────────────────────────
+  const totalReservas = reservas.reduce((a,b) => a+b, 0);
+  const elKpiTotal = document.getElementById('ret-reservas-total');
+  const elKpiSub   = document.getElementById('ret-reservas-sub');
+  if (elKpiTotal) elKpiTotal.textContent = totalReservas.toLocaleString();
+  if (elKpiSub) {
+    // Mostrar las 2 zonas con más reservas en el subtítulo
+    const sorted = zonas
+      .map((z, i) => ({ z, v: reservas[i] }))
+      .filter(x => x.v > 0)
+      .sort((a, b) => b.v - a.v)
+      .slice(0, 2);
+    elKpiSub.textContent = sorted.map(x => `${x.z} ${x.v.toLocaleString()}`).join(' · ');
+  }
+
   // Reservas chart
   const el1 = document.getElementById('c-reservas');
   if (el1) { const ex=Chart.getChart(el1); if(ex) ex.destroy();
