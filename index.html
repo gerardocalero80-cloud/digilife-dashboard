@@ -261,6 +261,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
   <div class="stab" onclick="showSub('cxc','aging',this)">⏱ Aging</div>
   <div class="stab" onclick="showSub('cxc','pl',this)">📊 P&amp;L</div>
   <div class="stab" onclick="showSub('cxc','proy',this)">📈 Proyección</div>
+  <div class="stab" onclick="showSub('cxc','concil',this)">⚖️ Conciliación ERP</div>
 </div>
 
 <!-- CONTENT -->
@@ -769,7 +770,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Retenidos/mes prom.</div><div class="kpi-val" id="ret-retenidos">8,371</div><div class="kpi-sub">base − bajas promedio Q1</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--purple2);"></div><div class="kpi-lbl">LTV residencial</div><div class="kpi-val" style="color:var(--purple);">$2,928</div><div class="kpi-sub">$28.69 ARPU ÷ 0.98%</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Renovaciones feb</div><div class="kpi-val" style="color:var(--amber);">608</div><div class="kpi-sub">vs meta por zona</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">Reservas activas</div><div class="kpi-val" style="color:var(--teal);" id="ret-reservas-total">—</div><div class="kpi-sub" id="ret-reservas-sub">cargando...</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">Reservas activas</div><div class="kpi-val" style="color:var(--teal);">337</div><div class="kpi-sub">Sonsonate 279 · Ecoterra 40</div></div>
   </div>
   <div class="g3">
     <div class="card">
@@ -796,6 +797,95 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
   </div>
 </div>
 
+<!-- ══════════ CXC · CONCILIACIÓN ERP -->
+<div id="page-cxc-concil" class="page">
+  <div class="slbl">conciliación erp · odoo vs wishup · <span id="concil-fecha-corte">—</span></div>
+
+  <!-- KPI row -->
+  <div class="g4">
+    <div class="kpi">
+      <div class="kpi-bar" style="background:var(--brand2);"></div>
+      <div class="kpi-lbl">Activos Odoo ERP</div>
+      <div class="kpi-val" style="color:var(--brand2);" id="concil-odoo-activos">—</div>
+      <div class="kpi-sub">Etapas facturantes</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-bar" style="background:var(--green2);"></div>
+      <div class="kpi-lbl">Activos Wishup</div>
+      <div class="kpi-val" style="color:var(--green2);" id="concil-wishup-activos">—</div>
+      <div class="kpi-sub">Clientes activos en red</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-bar" style="background:var(--amber2);"></div>
+      <div class="kpi-lbl">Diferencia Activos</div>
+      <div class="kpi-val" id="concil-diff-activos">—</div>
+      <div class="kpi-sub" id="concil-diff-sub">Odoo vs Wishup</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-bar" style="background:var(--teal2);"></div>
+      <div class="kpi-lbl">Inst. Mes — Odoo</div>
+      <div class="kpi-val" style="color:var(--teal);" id="concil-inst-odoo">—</div>
+      <div class="kpi-sub" id="concil-inst-sub">vs Wishup <span id="concil-inst-diff">—</span></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <!-- Etapas Odoo -->
+    <div class="card">
+      <div class="ct">Etapas Odoo ERP <span class="ctag" id="concil-total-odoo">— registros</span></div>
+      <table>
+        <thead><tr><th>Etapa</th><th>Factura</th><th class="r">Cantidad</th><th style="width:100px">%</th></tr></thead>
+        <tbody id="tbody-concil-etapas"></tbody>
+      </table>
+    </div>
+
+    <!-- Wishup estados -->
+    <div class="card">
+      <div class="ct">Estados Wishup <span class="ctag" id="concil-total-wishup">— registros</span></div>
+      <table>
+        <thead><tr><th>Estado</th><th class="r">Cantidad</th></tr></thead>
+        <tbody id="tbody-concil-wishup"></tbody>
+      </table>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+        <div class="ct" style="margin-bottom:10px;">Brechas a resolver</div>
+        <div id="concil-alertas" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instalaciones por proyecto -->
+  <div class="card">
+    <div class="ct">Instalaciones por Proyecto — mes actual <span class="ctag">Odoo vs Wishup</span></div>
+    <table>
+      <thead>
+        <tr>
+          <th>Proyecto</th>
+          <th class="r">Odoo ERP</th>
+          <th class="r">Wishup</th>
+          <th class="r">Diferencia</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-concil-inst"></tbody>
+      <tfoot>
+        <tr style="font-weight:700;border-top:2px solid var(--border2);background:var(--surf2);">
+          <td>TOTAL</td>
+          <td class="r" id="concil-tot-odoo">—</td>
+          <td class="r" id="concil-tot-wishup">—</td>
+          <td class="r" id="concil-tot-diff">—</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Chart comparativo -->
+  <div class="card">
+    <div class="ct">Instalaciones por Proyecto — Odoo vs Wishup</div>
+    <div style="position:relative;height:240px;"><canvas id="c-concil-proy"></canvas></div>
+  </div>
+</div>
+
 </div><!-- /content -->
 
 <script>
@@ -817,13 +907,42 @@ const VENDEDOR_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUA3QRTWL
 const TV_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUA3QRTWLWi3PMuC3WMTkA2AhkZr4SSXOSUEEV-2fCX5-OOK0HekEwBS_vbtkVdn2PS1AwguZvxuvf/pub?single=true&output=csv&gid=1418353562";
 const PL_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUA3QRTWLWi3PMuC3WMTkA2AhkZr4SSXOSUEEV-2fCX5-OOK0HekEwBS_vbtkVdn2PS1AwguZvxuvf/pub?single=true&output=csv&gid=1802474218";
 
+// ── NUEVAS URLs: ERP Odoo + Wishup (hoja DigiLife_ERP_Procesado) ──────────────
+// REEMPLAZAR con las URLs reales después de publicar las hojas como CSV
+const ODOO_ETAPAS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=106245315";
+const ODOO_INST_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=154102277";
+const WISHUP_URL      = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=161615554";
+const CONCIL_URL      = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=1271785458";
+const ODOO_VENTAS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=497632876";
+const WISHUP_INST_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=1596198452";
+
 // Ventas data — updated from VENTAS_URL, fallback to feb seed
+// ventasData — Ventas (Odoo: Venta Directa+Reserva) | Instalaciones (Wishup: fuente de verdad)
+// Semilla: exports 24/03/2026
 let ventasData = {
-  zonas:  ['Ecoterra','Marsella','Mediterráneo','San Miguel','Sonsonate','Villa Pan.'],
-  ventas: [88, 150, 33, 24, 10, 29],
-  inst:   [53, 148, 16, 25, 9, 31],
-  bajas:  [18, 50, 4, 0, 4, 10],
-  mes:    'Feb 2026'
+  // Proyectos — unión de ambas fuentes, ordenados por ventas Odoo
+  zonas:  ['Marsella','Ecoterra','Villa Panamericana','Nueva San Miguel','Marsella II','Villas de la Costa','Acrópoli','Mediterráneo','Montecristo','Megápolis'],
+  // Ventas brutas Odoo: Venta Directa + Reserva con fecha instalación marzo
+  ventas: [59, 37, 28, 28, 24, 13, 9, 9, 6, 5],
+  // Instalaciones Wishup: fecha activación en red (fuente de verdad)
+  inst:   [99, 37, 32, 28,  0, 13, 9, 9, 7, 6],
+  bajas:  [35,  8,  5,  0,  5,  2, 2, 3, 1, 0],
+  mes:    'marzo 2026',
+  totalContratos:    230,   // Odoo: Venta Directa 177 + Reserva 53
+  totalInst:         251,   // Wishup: activaciones reales en red
+  totalBajas:         64,
+  venta_directa:     177,
+  reserva:            53,
+  interna:           170,
+  externa:            60,
+  // Diario Odoo (ventas/contratos por día)
+  porDia:     {1:11,2:9,3:11,4:11,5:6,6:13,7:16,8:6,9:11,10:10,11:7,12:10,13:10,14:11,15:8,16:1,17:9,18:13,19:9,20:11,21:10,22:7,23:6,24:9,25:1,27:1,28:2,29:1},
+  acumDia:    [11,20,31,42,48,61,77,83,94,104,111,121,131,142,150,151,160,173,182,193,203,210,216,225,226,226,227,229,230,230,230],
+  // Diario Wishup (instalaciones reales por día)
+  porDiaInst: {1:13,2:11,3:10,4:14,5:5,6:14,7:17,8:7,9:11,10:10,11:7,12:15,13:11,14:11,15:7,16:4,17:9,18:15,19:9,20:15,21:10,22:7,23:7,24:12},
+  acumDiaInst:[13,24,34,48,53,67,84,91,102,112,119,134,145,156,163,167,176,191,200,215,225,232,239,251,251,251,251,251,251,251,251],
+  fuenteOdoo:   true,
+  fuenteWishup: true,
 };
 
 // Índices de filas en KPI_RESUMEN (fila 4 = índice 0 del CSV después del header)
@@ -1260,6 +1379,7 @@ let proyData  = { proyectos:[] };
 let vdiarioData = { dias:[], cx:[], meta:[], acum:[] };
 let vendedorData = { vendedores:[] };
 let tvData = { agentes:[] };
+let concilData = { loaded:false, etapas:{}, wishupEstados:{}, instOdoo:{}, instWishup:{}, odooActivos:0, wishupActivos:0, totalOdoo:0, totalWishup:0, instTotalOdoo:0, instTotalWishup:0, fechaCorte:'—' };
 
 // ── Fetch cobranza diaria ─────────────────────────────────────────────────────
 async function fetchCobr() {
@@ -1461,22 +1581,6 @@ function rebuildCobrCharts() {
 function rebuildRenovCharts() {
   const {zonas, reservas, renovaciones, metas} = renovData;
   if (!zonas.length) return;
-
-  // ── KPI Reservas activas (página Retención) ──────────────────────────────
-  const totalReservas = reservas.reduce((a,b) => a+b, 0);
-  const elKpiTotal = document.getElementById('ret-reservas-total');
-  const elKpiSub   = document.getElementById('ret-reservas-sub');
-  if (elKpiTotal) elKpiTotal.textContent = totalReservas.toLocaleString();
-  if (elKpiSub) {
-    // Mostrar las 2 zonas con más reservas en el subtítulo
-    const sorted = zonas
-      .map((z, i) => ({ z, v: reservas[i] }))
-      .filter(x => x.v > 0)
-      .sort((a, b) => b.v - a.v)
-      .slice(0, 2);
-    elKpiSub.textContent = sorted.map(x => `${x.z} ${x.v.toLocaleString()}`).join(' · ');
-  }
-
   // Reservas chart
   const el1 = document.getElementById('c-reservas');
   if (el1) { const ex=Chart.getChart(el1); if(ex) ex.destroy();
@@ -1868,7 +1972,91 @@ async function fetchTV() {
   } catch(e) { console.warn('[DigiLife] fetchTV error:', e); }
 }
 
-// ── Rebuild vendedores table ──────────────────────────────────────────────────
+// ── Fetch Conciliación ERP (Odoo + Wishup procesado por Apps Script) ──────────
+async function fetchConcil() {
+  // Si no hay URLs configuradas, usar datos semilla del último export conocido
+  const ETAPAS_FACTURA = new Set([
+    'Activo (En progreso)','Activo (Pago anticipado)','Activo VIP',
+    'Cliente Payway','Clientes Pospagos','Arreglo de Pago','Pausado',
+    'Suspendido por falta de pago','Suspendido por Contrato Flexible'
+  ]);
+
+  // Seed data del export 24/03/2026 — se sobreescribe cuando haya URLs
+  const SEED = {
+    fechaCorte: '24/03/2026',
+    etapas: {
+      'Activo (En progreso)':8747,'Activo (Pago anticipado)':222,'Activo VIP':25,
+      'Cliente Payway':227,'Clientes Pospagos':15,'Arreglo de Pago':3,'Pausado':2,
+      'Suspendido por falta de pago':1093,'Suspendido por Contrato Flexible':300,
+      'Suspensiones físicas':215,'Baja de servicio':2634,'Cuenta Incobrable':35,
+      'Suscripciones Duplicadas':2697,'Presupuesto':9
+    },
+    wishupEstados: { 'Activo':9233,'Suspendido':1648,'Cancelado':2465,'Gratis':4 },
+    instOdoo:   { 'Marsella':70,'Ecoterra':37,'Marsella II':30,'Nueva San Miguel':28,'Villa Panamericana':28,'Villas de la Costa':13,'Acrópoli':9,'Mediterráneo':9,'Montecristo':6,'Ciudad Versailles':5,'Megápolis':5,'Sitio Grande':4,'Hacienda de la Riviera':1,'Villa Tzuchi':1 },
+    instWishup: { 'Marsella':99,'Ecoterra':37,'Nueva San Miguel':28,'Villa Panamericana':32,'Villas de la Costa':13,'Acrópoli':9,'Mediterráneo':9,'Montecristo':7,'Ciudad Versailles':5,'Megápolis':6,'Sitio Grande':4,'Hacienda de la Riviera':1,'Villa Tzuchi':1 },
+    totalOdoo: 16237, totalWishup: 13350,
+    instTotalOdoo: 247, instTotalWishup: 251,
+  };
+
+  try {
+    let loaded = false;
+
+    // Intentar cargar desde URLs si están configuradas
+    if (CONCIL_URL) {
+      const res = await fetch(CONCIL_URL);
+      if (res.ok) {
+        const rows = parseCSV(await res.text());
+        // Parsear hoja 22_CONCILIACION generada por Apps Script
+        const etapas = {}, wishupEstados = {}, instOdoo = {}, instWishup = {};
+        let odooActivos = 0, wishupActivos = 0, totalOdoo = 0, totalWishup = 0;
+        let instTotalOdoo = 0, instTotalWishup = 0;
+        let fechaCorte = '—', seccion = '';
+
+        rows.forEach(r => {
+          const c0 = String(r[0]||'').trim();
+          const c1 = parseNum(r[1]);
+          if (c0.includes('ETAPAS ODOO')) { seccion = 'etapas'; return; }
+          if (c0.includes('ACTIVOS TOTALES')) { seccion = 'activos'; return; }
+          if (c0.includes('INSTALACIONES MES')) { seccion = 'inst'; return; }
+          if (c0.includes('DigiLife')) { fechaCorte = String(r[4]||r[2]||'').trim(); return; }
+          if (c0 === 'Odoo ERP' && seccion === 'activos')   { odooActivos = c1||0; totalOdoo = c1||0; }
+          if (c0 === 'Wishup'   && seccion === 'activos')   { wishupActivos = c1||0; totalWishup = c1||0; }
+          if (seccion === 'etapas' && c0 && c0 !== 'Grupo' && c0 !== 'Etapa' && c1 !== null) etapas[c0] = c1;
+          if (seccion === 'inst'  && c0 && c0 !== 'Proyecto' && c0 !== 'TOTAL' && c1 !== null) {
+            const w = parseNum(r[2]);
+            instOdoo[c0]   = c1;
+            instWishup[c0] = w||0;
+            instTotalOdoo   += c1;
+            instTotalWishup += (w||0);
+          }
+        });
+
+        if (Object.keys(etapas).length > 0) {
+          concilData = { loaded:true, etapas, wishupEstados, instOdoo, instWishup, odooActivos, wishupActivos, totalOdoo, totalWishup, instTotalOdoo, instTotalWishup, fechaCorte };
+          loaded = true;
+        }
+      }
+    }
+
+    // Usar seed si no se cargaron URLs
+    if (!loaded) {
+      const odooActivos = Object.entries(SEED.etapas)
+        .filter(([k]) => ETAPAS_FACTURA.has(k))
+        .reduce((a,[,v])=>a+v,0);
+      const wishupActivos = SEED.wishupEstados['Activo'] || 0;
+      concilData = { loaded:true, ...SEED, odooActivos, wishupActivos };
+    }
+
+    // Actualizar KPI_RESUMEN con base_erp desde Odoo si es más preciso
+    if (concilData.odooActivos > 0) {
+      kpiData.base_erp = concilData.odooActivos;
+      kpiData.ing_mora = kpiData.ing_mora; // recalcular con nueva base si aplica
+    }
+
+    console.log('[DigiLife] Concil loaded — Odoo activos:', concilData.odooActivos, '| Wishup:', concilData.wishupActivos);
+    rebuildConcilCharts();
+  } catch(e) { console.warn('[DigiLife] fetchConcil error:', e); }
+}
 function rebuildVendedorTable() {
   const tbody = document.getElementById('tbody-campo');
   if (!tbody) return;
@@ -2265,42 +2453,47 @@ function rebuildVentasCharts() {
   // Update labels
   ['ventas-mes-label','ventas-mes-s1','ventas-mes-s2','ventas-mes-s3','res-mes-label','res-mes-chart'].forEach(id => setEl(id, mesLabel));
 
-  // KPI cards — use Tabla C totals
+  // Instalaciones reales vienen de Wishup si está disponible
+  const instReal   = ventasData.totalInst      > 0 ? ventasData.totalInst      : dispInst;
+  const instZonas  = ventasData.fuenteWishup    ? ventasData.inst               : inst;
+  const fuenteInst = ventasData.fuenteWishup    ? '(Wishup)' : '(ERP)';
+
+  // KPI cards — ventas de Odoo, instalaciones de Wishup
   setEl('vc-ventas',    dispContratos > 0 ? fmtN(dispContratos) : '—');
-  setEl('vc-inst',      dispInst      > 0 ? fmtN(dispInst)      : '—');
+  setEl('vc-inst',      instReal      > 0 ? fmtN(instReal)      : '—');
   setEl('vc-bajas',     dispBajas     > 0 ? fmtN(dispBajas)     : '—');
-  setEl('vc-netos',     fmtN(netos));
-  setEl('vc-inst-sub',  `Instaladas ${mesLabel}`);
+  setEl('vc-netos',     fmtN(instReal - (dispBajas||0)));
+  setEl('vc-inst-sub',  `Instaladas ${mesLabel} ${fuenteInst}`);
   setEl('vc-bajas-sub', `Bajas ${mesLabel}`);
-  setEl('vc-netos-sub', `${fmtN(dispInst)} inst. − ${fmtN(dispBajas)} bajas`);
+  setEl('vc-netos-sub', `${fmtN(instReal)} inst. − ${fmtN(dispBajas)} bajas`);
 
   // Resumen page KPIs
   setEl('kpi-ventas-feb', fmtN(dispContratos));
-  setEl('kpi-inst-feb',   fmtN(dispInst));
+  setEl('kpi-inst-feb',   fmtN(instReal));
   setEl('kpi-bajas-feb',  fmtN(dispBajas));
 
   // Ventas label on resumen card
   const slblVentas = document.getElementById('res-mes-label');
   if (slblVentas) slblVentas.textContent = mesLabel;
 
-  // Update chart title
+  // Update chart title con fuente
   const titleEl = document.querySelector('#page-ventas-campo .ct');
-  if (titleEl && titleEl.childNodes[0]) titleEl.childNodes[0].textContent = `Ventas e instalaciones por zona · ${mesLabel}`;
+  if (titleEl && titleEl.childNodes[0]) titleEl.childNodes[0].textContent = `Ventas (Odoo) e Instalaciones (Wishup) · ${mesLabel}`;
 
   // Rebuild charts only if canvas exists in DOM
   if (document.getElementById('c-campo-zona')) {
     mkBar('c-campo-zona', zonas, [
-      {label:'Ventas',data:ventas,backgroundColor:'#0066FF',borderRadius:3},
-      {label:'Instalaciones',data:inst,backgroundColor:'#10B981',borderRadius:3},
-      {label:'Bajas',data:bajas,backgroundColor:'rgba(239,68,68,.7)',borderRadius:3}
-    ],{yFmt:v=>v});
+      {label:'Ventas Odoo',        data:ventas,    backgroundColor:'#0066FF',             borderRadius:3},
+      {label:'Inst. Wishup',       data:instZonas, backgroundColor:'rgba(16,185,129,.85)',borderRadius:3},
+      {label:'Bajas',              data:bajas,     backgroundColor:'rgba(239,68,68,.7)',  borderRadius:3}
+    ],{yFmt:v=>v, plugins:{legend:{display:true,labels:{font:{size:10},boxWidth:10}}}});
   }
   if (document.getElementById('c-ini-ventas')) {
     mkBar('c-ini-ventas', zonas, [
-      {label:'Ventas',data:ventas,backgroundColor:'#0066FF',borderRadius:3},
-      {label:'Instalaciones',data:inst,backgroundColor:'#10B981',borderRadius:3},
-      {label:'Bajas',data:bajas,backgroundColor:'rgba(239,68,68,.7)',borderRadius:3}
-    ],{yFmt:v=>v});
+      {label:'Ventas Odoo',  data:ventas,    backgroundColor:'#0066FF',             borderRadius:3},
+      {label:'Inst. Wishup', data:instZonas, backgroundColor:'rgba(16,185,129,.85)',borderRadius:3},
+      {label:'Bajas',        data:bajas,     backgroundColor:'rgba(239,68,68,.7)',  borderRadius:3}
+    ],{yFmt:v=>v, plugins:{legend:{display:true,labels:{font:{size:10},boxWidth:10}}}});
   }
 }
 
@@ -2423,7 +2616,7 @@ function build(id){
     'inicio':bInicio,'ventas-campo':bCampo,'ventas-televentas':bTV,
     'ventas-proyectos':bProyectos,'ventas-corp':bCorp,'ventas-pyme':bPyme,
     'ventas-proy':bProyH1,'cxc-cobr':bCobr,'cxc-aging':bAging,
-    'cxc-pl':bPL,'cxc-proy':bCxcProy,'retencion':bRetencion
+    'cxc-pl':bPL,'cxc-proy':bCxcProy,'cxc-concil':bConcil,'retencion':bRetencion
   };
   if(fn[id])fn[id]();
 }
@@ -2690,6 +2883,388 @@ function bCxcProy(){
   ],{yFmt:fmtK,yExtra:{min:220000}});
 }
 
+function bConcil(){ rebuildConcilCharts(); }
+
+function rebuildConcilCharts() {
+  const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+  const { etapas, wishupEstados, instOdoo, instWishup, odooActivos, wishupActivos,
+          totalOdoo, totalWishup, instTotalOdoo, instTotalWishup, fechaCorte } = concilData;
+
+  const ETAPAS_FACTURA = new Set([
+    'Activo (En progreso)','Activo (Pago anticipado)','Activo VIP',
+    'Cliente Payway','Clientes Pospagos','Arreglo de Pago','Pausado',
+    'Suspendido por falta de pago','Suspendido por Contrato Flexible'
+  ]);
+
+  setEl('concil-fecha-corte', fechaCorte);
+  setEl('concil-odoo-activos', fmtN(odooActivos));
+  setEl('concil-wishup-activos', fmtN(wishupActivos));
+
+  const diffActivos = odooActivos - wishupActivos;
+  const daEl = document.getElementById('concil-diff-activos');
+  if (daEl) {
+    daEl.textContent = (diffActivos > 0 ? '+' : '') + fmtN(diffActivos);
+    daEl.style.color = Math.abs(diffActivos) <= 20 ? 'var(--amber2)' : diffActivos > 0 ? 'var(--red2)' : 'var(--green2)';
+  }
+  setEl('concil-diff-sub', `Odoo ${fmtN(odooActivos)} vs Wishup ${fmtN(wishupActivos)}`);
+  setEl('concil-inst-odoo', fmtN(instTotalOdoo));
+  const diffInst = instTotalOdoo - instTotalWishup;
+  setEl('concil-inst-diff', `Wishup ${fmtN(instTotalWishup)} Δ${diffInst > 0 ? '+' : ''}${diffInst}`);
+  setEl('concil-total-odoo', fmtN(totalOdoo) + ' registros');
+  setEl('concil-total-wishup', fmtN(totalWishup) + ' registros');
+
+  // Tabla etapas Odoo
+  const tbodyE = document.getElementById('tbody-concil-etapas');
+  if (tbodyE) {
+    tbodyE.innerHTML = '';
+    const total = Object.values(etapas).reduce((a,b)=>a+b,0) || 1;
+    Object.entries(etapas).sort((a,b)=>b[1]-a[1]).forEach(([etapa, cnt]) => {
+      const factura = ETAPAS_FACTURA.has(etapa);
+      const pct = (cnt/total*100).toFixed(1);
+      const pill = factura ? '<span class="pill pill-green">Sí</span>' : '<span class="pill pill-red">No</span>';
+      tbodyE.innerHTML += `<tr>
+        <td>${etapa}</td><td>${pill}</td><td class="r"><strong>${fmtN(cnt)}</strong></td>
+        <td><div style="background:var(--surf3);border-radius:3px;height:5px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:${factura?'var(--brand2)':'var(--border2)'};border-radius:3px;"></div>
+        </div><span style="font-size:9px;color:var(--text3);font-family:var(--mono);">${pct}%</span></td>
+      </tr>`;
+    });
+  }
+
+  // Tabla Wishup estados
+  const tbodyW = document.getElementById('tbody-concil-wishup');
+  if (tbodyW) {
+    tbodyW.innerHTML = '';
+    Object.entries(wishupEstados).sort((a,b)=>b[1]-a[1]).forEach(([estado, cnt]) => {
+      const color = estado.toLowerCase().includes('activo') ? 'var(--green2)'
+                  : estado.toLowerCase().includes('cancel') ? 'var(--red2)'
+                  : estado.toLowerCase().includes('suspend') ? 'var(--amber2)' : 'var(--text3)';
+      tbodyW.innerHTML += `<tr><td><span style="color:${color};font-weight:600;">${estado}</span></td><td class="r">${fmtN(cnt)}</td></tr>`;
+    });
+  }
+
+  // Alertas automáticas
+  const alertasEl = document.getElementById('concil-alertas');
+  if (alertasEl) {
+    alertasEl.innerHTML = '';
+    const alertas = [];
+    if (Math.abs(diffActivos) > 20) alertas.push({ txt:`Diferencia de ${Math.abs(diffActivos)} activos entre sistemas — verificar`, color:'var(--red)' });
+    if (Math.abs(diffInst) > 5)     alertas.push({ txt:`Instalaciones del mes: Odoo ${instTotalOdoo} vs Wishup ${instTotalWishup} (Δ${diffInst})`, color:'var(--amber)' });
+    const dups = etapas['Suscripciones Duplicadas'] || 0;
+    if (dups > 0) alertas.push({ txt:`${fmtN(dups)} suscripciones duplicadas en Odoo — depurar`, color:'var(--red)' });
+    if (alertas.length === 0) alertas.push({ txt:'✓ Sin brechas críticas detectadas', color:'var(--green)' });
+    alertas.forEach(a => {
+      alertasEl.innerHTML += `<div style="padding:8px 10px;border-radius:6px;background:var(--surf2);border-left:3px solid ${a.color};font-size:11px;color:${a.color};font-weight:600;">${a.txt}</div>`;
+    });
+  }
+
+  // Tabla instalaciones por proyecto
+  const tbodyI = document.getElementById('tbody-concil-inst');
+  if (tbodyI) {
+    tbodyI.innerHTML = '';
+    const allProy = new Set([...Object.keys(instOdoo), ...Object.keys(instWishup)]);
+    let totO = 0, totW = 0;
+    [...allProy].sort((a,b) => (instOdoo[b]||0) - (instOdoo[a]||0)).forEach(p => {
+      const o = instOdoo[p]||0, w = instWishup[p]||0, d = o - w;
+      const dStyle = d===0?'color:var(--text3)':d>0?'color:var(--green2);font-weight:700':'color:var(--red2);font-weight:700';
+      const pill = d===0 ? '<span class="pill pill-green">✓</span>'
+                 : Math.abs(d)<=3 ? '<span class="pill pill-amber">Revisar</span>'
+                 : '<span class="pill pill-red">Brecha</span>';
+      tbodyI.innerHTML += `<tr><td>${p}</td><td class="r">${o}</td><td class="r">${w||'—'}</td><td class="r" style="${dStyle}">${d===0?'✓':d>0?'+'+d:d}</td><td>${pill}</td></tr>`;
+      totO+=o; totW+=w;
+    });
+    setEl('concil-tot-odoo', totO);
+    setEl('concil-tot-wishup', totW);
+    const totD = totO-totW;
+    const totEl = document.getElementById('concil-tot-diff');
+    if (totEl) { totEl.textContent = totD===0?'✓':totD>0?'+'+totD:totD; totEl.style.color = totD===0?'var(--green2)':Math.abs(totD)<=5?'var(--amber2)':'var(--red2)'; }
+  }
+
+  // Chart comparativo
+  const proyArr = Object.keys(instOdoo).sort((a,b)=>instOdoo[b]-instOdoo[a]);
+  const elC = document.getElementById('c-concil-proy');
+  if (elC) {
+    const exC = Chart.getChart(elC); if(exC) exC.destroy();
+    new Chart(elC, {
+      type:'bar',
+      data:{
+        labels: proyArr.map(p=>p.length>14?p.substring(0,14)+'.':p),
+        datasets:[
+          {label:'Odoo ERP', data:proyArr.map(p=>instOdoo[p]||0),  backgroundColor:'rgba(0,102,255,.75)',borderRadius:3},
+          {label:'Wishup',   data:proyArr.map(p=>instWishup[p]||0), backgroundColor:'rgba(16,185,129,.7)', borderRadius:3}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},
+        scales:{
+          x:{ticks:{font:{size:9},maxRotation:35},grid:{display:false}},
+          y:{ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}}
+        }
+      }
+    });
+  }
+} (hoja 23_VENTAS_BRUTAS del Apps Script) ────
+async function fetchOdooVentas() {
+  try {
+    if (!ODOO_VENTAS_URL) {
+      // Sin URL: los datos semilla de ventasData ya tienen los datos reales de Odoo
+      // Solo asegurar que kpiData.cx_brutas refleje el total Odoo
+      if (ventasData.totalContratos > 0) {
+        kpiData.cx_brutas = ventasData.totalContratos;
+      }
+      rebuildVentasCharts();
+      return;
+    }
+
+    const res = await fetch(ODOO_VENTAS_URL);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
+
+    let totalVentas = 0, totalBajas = 0, vd = 0, res_ = 0, interna = 0, externa = 0;
+    const byProy = {}, bajasByProy = {}, byDia = {};
+    let seccion = '', mesLabel = 'mes actual';
+
+    rows.forEach(r => {
+      const c0 = String(r[0]||'').trim();
+      const c1 = parseNum(r[1]);
+      const c2 = parseNum(r[2]);
+
+      // Detectar encabezado con mes
+      if (c0.includes('Ventas Brutas')) {
+        const m = c0.match(/(Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\s+\d{4}/i);
+        if (m) mesLabel = m[0].toLowerCase();
+      }
+
+      if (c0.includes('TOTALES')) { seccion='totales'; return; }
+      if (c0.includes('POR PROYECTO')) { seccion='proy'; return; }
+      if (c0.includes('POR DÍA')) { seccion='dia'; return; }
+
+      if (seccion === 'totales') {
+        if (c0.includes('Total ventas brutas'))  totalVentas  = c1||0;
+        if (c0.includes('Venta Directa'))        vd           = c1||0;
+        if (c0 === 'Reserva')                    res_         = c1||0;
+        if (c0 === 'Interna')                    interna      = c1||0;
+        if (c0 === 'Externa')                    externa      = c1||0;
+        if (c0.includes('Bajas mes'))            totalBajas   = c1||0;
+      }
+      if (seccion === 'proy' && c0 && c0 !== 'Proyecto' && c1 !== null) {
+        byProy[c0]      = c1;
+        bajasByProy[c0] = c2||0;
+      }
+      if (seccion === 'dia' && c1 !== null && !isNaN(parseInt(c0))) {
+        byDia[parseInt(c0)] = c1;
+      }
+    });
+
+    if (totalVentas > 0) {
+      // Reconstruir acumulado
+      const acumDia = [];
+      let s = 0;
+      for (let d = 1; d <= 31; d++) { s += (byDia[d]||0); acumDia.push(s); }
+
+      const sorted = Object.entries(byProy).sort((a,b)=>b[1]-a[1]).slice(0,12);
+      ventasData = {
+        zonas:  sorted.map(([z]) => z.length > 14 ? z.substring(0,14)+'.' : z),
+        ventas: sorted.map(([,v]) => v),
+        inst:   sorted.map(([,v]) => v),   // instalaciones = ventas con fecha inst
+        bajas:  sorted.map(([z]) => bajasByProy[z]||0),
+        mes:    mesLabel,
+        totalContratos: totalVentas,
+        totalInst:      totalVentas,
+        totalBajas,
+        venta_directa: vd, reserva: res_, interna, externa,
+        porDia: byDia, acumDia,
+        fuenteOdoo: true,
+      };
+
+      // Sincronizar cx_brutas con Odoo
+      kpiData.cx_brutas = totalVentas;
+
+      console.log('[DigiLife] OdooVentas loaded:', totalVentas, 'ventas,', totalBajas, 'bajas, mes:', mesLabel);
+      rebuildVentasCharts();
+    }
+  } catch(e) { console.warn('[DigiLife] fetchOdooVentas error:', e); }
+}
+
+// ── Fetch Instalaciones Wishup (fuente de verdad — activación real en red) ────
+async function fetchWishupInst() {
+  try {
+    if (!WISHUP_INST_URL) {
+      rebuildVentasCharts();
+      return;
+    }
+    const res = await fetch(WISHUP_INST_URL);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
+
+    let totalInst = 0;
+    const byProy = {}, byDia = {};
+    let seccion = '', mesLabel = 'mes actual';
+
+    rows.forEach(r => {
+      const c0 = String(r[0]||'').trim();
+      const c1 = parseNum(r[1]);
+      if (c0.includes('Instalaciones Wishup')) {
+        const m = c0.match(/(Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\s+\d{4}/i);
+        if (m) mesLabel = m[0].toLowerCase();
+      }
+      if (c0.includes('TOTAL INSTALACIONES')) { totalInst = c1||0; return; }
+      if (c0.includes('POR PROYECTO')) { seccion='proy'; return; }
+      if (c0.includes('POR DÍA'))      { seccion='dia';  return; }
+      if (c0.includes('PATRÓN'))       { seccion='';     return; }
+      if (seccion==='proy' && c0 && c0!=='Proyecto' && c1!==null) byProy[c0] = c1;
+      if (seccion==='dia'  && c1!==null && !isNaN(parseInt(c0))) byDia[parseInt(c0)] = c1;
+    });
+
+    if (totalInst > 0) {
+      const acumDiaInst = [];
+      let s = 0;
+      for (let d = 1; d <= 31; d++) { s += (byDia[d]||0); acumDiaInst.push(s); }
+
+      // Mapear instalaciones Wishup a zonas del ventasData (orden Odoo)
+      const instZonas = ventasData.zonas.map(z => {
+        const zn = z.replace('.','').toLowerCase();
+        const key = Object.keys(byProy).find(k =>
+          k.toLowerCase().includes(zn) || zn.includes(k.toLowerCase())
+        );
+        return key ? byProy[key] : 0;
+      });
+
+      ventasData.inst         = instZonas;
+      ventasData.totalInst    = totalInst;
+      ventasData.porDiaInst   = byDia;
+      ventasData.acumDiaInst  = acumDiaInst;
+      ventasData.fuenteWishup = true;
+
+      console.log('[DigiLife] WishupInst loaded:', totalInst, 'instalaciones, mes:', mesLabel);
+      rebuildVentasCharts();
+    }
+  } catch(e) { console.warn('[DigiLife] fetchWishupInst error:', e); }
+}
+  const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+  const { etapas, wishupEstados, instOdoo, instWishup, odooActivos, wishupActivos,
+          totalOdoo, totalWishup, instTotalOdoo, instTotalWishup, fechaCorte } = concilData;
+
+  const ETAPAS_FACTURA = new Set([
+    'Activo (En progreso)','Activo (Pago anticipado)','Activo VIP',
+    'Cliente Payway','Clientes Pospagos','Arreglo de Pago','Pausado',
+    'Suspendido por falta de pago','Suspendido por Contrato Flexible'
+  ]);
+
+  // KPI cards
+  setEl('concil-fecha-corte', fechaCorte);
+  setEl('concil-odoo-activos', fmtN(odooActivos));
+  setEl('concil-wishup-activos', fmtN(wishupActivos));
+  const diffActivos = odooActivos - wishupActivos;
+  const daEl = document.getElementById('concil-diff-activos');
+  if (daEl) {
+    daEl.textContent = (diffActivos > 0 ? '+' : '') + fmtN(diffActivos);
+    daEl.style.color = Math.abs(diffActivos) <= 20 ? 'var(--amber2)' : diffActivos > 0 ? 'var(--red2)' : 'var(--green2)';
+  }
+  setEl('concil-diff-sub', `Odoo ${fmtN(odooActivos)} vs Wishup ${fmtN(wishupActivos)}`);
+  setEl('concil-inst-odoo', fmtN(instTotalOdoo));
+  const diffInst = instTotalOdoo - instTotalWishup;
+  setEl('concil-inst-diff', `Wishup ${fmtN(instTotalWishup)} Δ${diffInst > 0 ? '+' : ''}${diffInst}`);
+
+  // Totales
+  setEl('concil-total-odoo', fmtN(totalOdoo) + ' registros');
+  setEl('concil-total-wishup', fmtN(totalWishup) + ' registros');
+
+  // Tabla etapas Odoo
+  const tbodyE = document.getElementById('tbody-concil-etapas');
+  if (tbodyE) {
+    tbodyE.innerHTML = '';
+    const total = Object.values(etapas).reduce((a,b)=>a+b,0) || 1;
+    Object.entries(etapas).sort((a,b)=>b[1]-a[1]).forEach(([etapa, cnt]) => {
+      const factura = ETAPAS_FACTURA.has(etapa);
+      const pct = (cnt/total*100).toFixed(1);
+      const pill = factura ? '<span class="pill pill-green">Sí</span>' : '<span class="pill pill-red">No</span>';
+      tbodyE.innerHTML += `<tr>
+        <td>${etapa}</td><td>${pill}</td><td class="r"><strong>${fmtN(cnt)}</strong></td>
+        <td><div style="background:var(--surf3);border-radius:3px;height:5px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:${factura?'var(--brand2)':'var(--border2)'};border-radius:3px;"></div>
+        </div><span style="font-size:9px;color:var(--text3);font-family:var(--mono);">${pct}%</span></td>
+      </tr>`;
+    });
+  }
+
+  // Tabla Wishup estados
+  const tbodyW = document.getElementById('tbody-concil-wishup');
+  if (tbodyW) {
+    tbodyW.innerHTML = '';
+    Object.entries(wishupEstados).sort((a,b)=>b[1]-a[1]).forEach(([estado, cnt]) => {
+      const color = estado.toLowerCase().includes('activo') ? 'var(--green2)'
+                  : estado.toLowerCase().includes('cancel') ? 'var(--red2)'
+                  : estado.toLowerCase().includes('suspend') ? 'var(--amber2)' : 'var(--text3)';
+      tbodyW.innerHTML += `<tr><td><span style="color:${color};font-weight:600;">${estado}</span></td><td class="r">${fmtN(cnt)}</td></tr>`;
+    });
+  }
+
+  // Alertas automáticas
+  const alertasEl = document.getElementById('concil-alertas');
+  if (alertasEl) {
+    alertasEl.innerHTML = '';
+    const alertas = [];
+    if (Math.abs(diffActivos) > 20) alertas.push({ txt:`Diferencia de ${Math.abs(diffActivos)} activos entre sistemas — verificar`, color:'var(--red)' });
+    if (Math.abs(diffInst) > 5)     alertas.push({ txt:`Instalaciones del mes: Odoo ${instTotalOdoo} vs Wishup ${instTotalWishup} (Δ${diffInst})`, color:'var(--amber)' });
+    const dups = etapas['Suscripciones Duplicadas'] || 0;
+    if (dups > 0) alertas.push({ txt:`${fmtN(dups)} suscripciones duplicadas en Odoo — depurar`, color:'var(--red)' });
+    if (alertas.length === 0) alertas.push({ txt:'✓ Sin brechas críticas detectadas', color:'var(--green)' });
+    alertas.forEach(a => {
+      alertasEl.innerHTML += `<div style="padding:8px 10px;border-radius:6px;background:var(--surf2);border-left:3px solid ${a.color};font-size:11px;color:${a.color};font-weight:600;">${a.txt}</div>`;
+    });
+  }
+
+  // Tabla instalaciones por proyecto
+  const tbodyI = document.getElementById('tbody-concil-inst');
+  if (tbodyI) {
+    tbodyI.innerHTML = '';
+    const allProy = new Set([...Object.keys(instOdoo), ...Object.keys(instWishup)]);
+    let totO = 0, totW = 0;
+    [...allProy].sort((a,b) => (instOdoo[b]||0) - (instOdoo[a]||0)).forEach(p => {
+      const o = instOdoo[p]||0, w = instWishup[p]||0;
+      const d = o - w;
+      const dClass = d===0 ? 'color:var(--text3)' : d>0 ? 'color:var(--green2);font-weight:700' : 'color:var(--red2);font-weight:700';
+      const pill = d===0 ? '<span class="pill pill-green">✓</span>'
+                 : Math.abs(d)<=3 ? '<span class="pill pill-amber">Revisar</span>'
+                 : '<span class="pill pill-red">Brecha</span>';
+      tbodyI.innerHTML += `<tr><td>${p}</td><td class="r">${o}</td><td class="r">${w||'—'}</td><td class="r" style="${dClass}">${d===0?'✓':d>0?'+'+d:d}</td><td>${pill}</td></tr>`;
+      totO+=o; totW+=w;
+    });
+    setEl('concil-tot-odoo', totO);
+    setEl('concil-tot-wishup', totW);
+    const totD = totO-totW;
+    const totEl = document.getElementById('concil-tot-diff');
+    if (totEl) { totEl.textContent = totD===0?'✓':totD>0?'+'+totD:totD; totEl.style.color = totD===0?'var(--green2)':Math.abs(totD)<=5?'var(--amber2)':'var(--red2)'; }
+  }
+
+  // Chart comparativo
+  const proyArr = Object.keys(instOdoo).sort((a,b)=>instOdoo[b]-instOdoo[a]);
+  const elC = document.getElementById('c-concil-proy');
+  if (elC) {
+    const exC = Chart.getChart(elC); if(exC) exC.destroy();
+    new Chart(elC, {
+      type:'bar',
+      data:{
+        labels: proyArr.map(p=>p.length>14?p.substring(0,14)+'.':p),
+        datasets:[
+          {label:'Odoo ERP', data:proyArr.map(p=>instOdoo[p]||0),  backgroundColor:'rgba(0,102,255,.75)',borderRadius:3},
+          {label:'Wishup',   data:proyArr.map(p=>instWishup[p]||0), backgroundColor:'rgba(16,185,129,.7)', borderRadius:3}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},
+        scales:{
+          x:{ticks:{font:{size:9},maxRotation:35},grid:{display:false}},
+          y:{ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}}
+        }
+      }
+    });
+  }
+}
+
 // ── Iniciar — todas las declaraciones están listas ────────────────────────────
 fetchSheets();
 fetchVentas();
@@ -2701,7 +3276,10 @@ fetchVDiario();
 fetchVendedores();
 fetchTV();
 fetchPL();
-setInterval(()=>{ fetchSheets(); fetchVentas(); fetchCobr(); fetchRenov(); fetchMora(); fetchProyectos(); fetchVDiario(); fetchVendedores(); fetchTV(); fetchPL(); }, 5 * 60 * 1000);
+fetchConcil();
+fetchOdooVentas();
+fetchWishupInst();
+setInterval(()=>{ fetchSheets(); fetchVentas(); fetchCobr(); fetchRenov(); fetchMora(); fetchProyectos(); fetchVDiario(); fetchVendedores(); fetchTV(); fetchPL(); fetchConcil(); fetchOdooVentas(); fetchWishupInst(); }, 5 * 60 * 1000);
 </script>
 </body>
 </html>
