@@ -241,6 +241,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 5v4l2 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
     CXC
   </div>
+  <div class="ntab" onclick="showMain('soporte',this)">
+    🎫 Soporte
+  </div>
   <div class="ntab" onclick="showMain('retencion',this)">
     <svg viewBox="0 0 16 16"><path d="M8 14s-6-3.5-6-8a6 6 0 0 1 12 0c0 4.5-6 8-6 8z" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
     Retención
@@ -262,6 +265,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
   <div class="stab" onclick="showSub('cxc','pl',this)">📊 P&amp;L</div>
   <div class="stab" onclick="showSub('cxc','proy',this)">📈 Proyección</div>
   <div class="stab" onclick="showSub('cxc','concil',this)">⚖️ Conciliación ERP</div>
+</div>
+<div class="subnav hidden" id="sub-soporte">
+  <div class="stab active" onclick="showSub('soporte','general',this)">📊 Visión General</div>
+  <div class="stab" onclick="showSub('soporte','churn',this)">🔴 Riesgo Churn</div>
+  <div class="stab" onclick="showSub('soporte','calidad',this)">⏱ Calidad</div>
+  <div class="stab" onclick="showSub('soporte','instalaciones',this)">🔧 Instalaciones</div>
+  <div class="stab" onclick="showSub('soporte','concilcruz',this)">🔗 Conciliación Cruzada</div>
+  <div class="stab" onclick="showSub('soporte','reportes',this)">⬇️ Descargar Reportes</div>
 </div>
 
 <!-- CONTENT -->
@@ -886,6 +897,277 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
   </div>
 </div>
 
+<!-- ══════════ SOPORTE · VISIÓN GENERAL ══════════ -->
+<div id="page-soporte-general" class="page">
+  <div class="slbl">soporte &amp; clientes · visión general · últimos 5 meses</div>
+  <div class="g5">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Tickets este mes</div><div class="kpi-val" style="color:var(--brand2);" id="sop-tickets-mes">—</div><div class="kpi-sub">Marzo 2026</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Churn Risk Alto</div><div class="kpi-val" style="color:var(--red2);" id="sop-churn-alto">—</div><div class="kpi-sub">Score &gt;120</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Sin resolver +30d</div><div class="kpi-val" style="color:var(--amber2);" id="sop-sin-resolver">—</div><div class="kpi-sub">tickets abiertos</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">MTTR promedio</div><div class="kpi-val" style="color:var(--teal2);" id="sop-mttr">41h</div><div class="kpi-sub">tiempo resolución</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--coral2);"></div><div class="kpi-lbl">Instalac. vencidas</div><div class="kpi-val" style="color:var(--coral2);" id="sop-inst-vencidas">25</div><div class="kpi-sub">&gt;90 días pendiente</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Heatmap: tickets por categoría × semana</div>
+      <div style="overflow-x:auto"><table id="sop-hmap" style="border-collapse:collapse;font-size:10px;width:100%"></table></div>
+    </div>
+    <div class="card">
+      <div class="ct">Volumen por hora del día <span class="ctag">Mar 2026</span></div>
+      <div id="sop-hour-spark" style="display:flex;align-items:flex-end;gap:2px;height:80px;margin-bottom:6px"></div>
+      <div style="display:flex;justify-content:space-between;font-size:9px;font-family:var(--mono);color:var(--text3)"><span>00h</span><span>06h</span><span>12h</span><span>17h pico</span><span>23h</span></div>
+      <div class="ibox" style="margin-top:8px"><strong>Pico 17:00 hs (108 tickets)</strong> — Ventana crítica. Considerar refuerzo turno tarde NOC.</div>
+    </div>
+  </div>
+  <div class="g3">
+    <div class="card">
+      <div class="ct">Top asuntos (Marzo)</div>
+      <div id="sop-bar-asuntos"></div>
+    </div>
+    <div class="card">
+      <div class="ct">MTTR por problema <span class="ctag">horas</span></div>
+      <div id="sop-bar-mttr"></div>
+    </div>
+    <div class="card">
+      <div class="ct">Señales de comportamiento</div>
+      <div id="sop-señales"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SOPORTE · CHURN RISK ══════════ -->
+<div id="page-soporte-churn" class="page">
+  <div class="slbl">clientes en riesgo de churn · score combinado · últimos 5 meses</div>
+  <div class="wbox" style="margin-bottom:12px"><strong>Metodología:</strong> Frecuencia (×10) + Señal churn directa (+40) + Problemas de calidad (×15) + Ticket abierto (+15) + Recencia. Umbral crítico: &gt;120 pts.</div>
+  <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
+    <select id="sop-filtro-nivel" onchange="renderChurnTable()" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surf);color:var(--text);font-size:11px">
+      <option value="">Todos</option>
+      <option value="alto">Riesgo Alto (&gt;120)</option>
+      <option value="medio">Riesgo Medio (60-120)</option>
+    </select>
+    <input type="text" id="sop-search-churn" placeholder="Buscar cliente..." oninput="renderChurnTable()" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surf);color:var(--text);font-size:11px;width:180px">
+    <span id="sop-churn-cnt" style="font-size:10px;font-family:var(--mono);color:var(--text3)"></span>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="max-height:480px;overflow-y:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead style="position:sticky;top:0;z-index:1;background:var(--surf2)">
+          <tr>
+            <th style="text-align:left;padding:8px 10px;font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:1px solid var(--border)">Cliente</th>
+            <th style="text-align:center;padding:8px 10px;font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:1px solid var(--border)">Score</th>
+            <th style="text-align:center;padding:8px 10px;font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:1px solid var(--border)">Tickets</th>
+            <th style="text-align:left;padding:8px 10px;font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:1px solid var(--border)">Señales</th>
+            <th style="text-align:left;padding:8px 10px;font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:1px solid var(--border)">Asuntos frecuentes</th>
+            <th style="text-align:left;padding:8px 10px;font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:1px solid var(--border)">Acción</th>
+          </tr>
+        </thead>
+        <tbody id="sop-churn-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SOPORTE · CALIDAD ══════════ -->
+<div id="page-soporte-calidad" class="page">
+  <div class="slbl">calidad de servicio · MTTR · patrones de problema</div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">MTTR detallado por tipo de problema</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead><tr>
+          <th style="text-align:left;padding:5px 6px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Tipo de problema</th>
+          <th style="text-align:center;padding:5px 6px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Promedio</th>
+          <th style="text-align:center;padding:5px 6px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Mediana</th>
+          <th style="text-align:center;padding:5px 6px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Casos</th>
+          <th style="text-align:center;padding:5px 6px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Nivel</th>
+        </tr></thead>
+        <tbody id="sop-mttr-table"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="ct">Distribución de prioridades <span class="ctag">Mar 2026</span></div>
+      <div style="position:relative;height:180px"><canvas id="sop-prio-chart"></canvas></div>
+      <div id="sop-prio-legend" style="display:flex;gap:12px;flex-wrap:wrap;font-size:10px;font-family:var(--mono);color:var(--text3);margin-top:8px"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">Cadenas de problema recurrente <span class="ctag">patrones que derivan en churn</span></div>
+    <div id="sop-chains"></div>
+  </div>
+</div>
+
+<!-- ══════════ SOPORTE · INSTALACIONES ══════════ -->
+<div id="page-soporte-instalaciones" class="page">
+  <div class="slbl">instalaciones pendientes · aging · distribución por zona</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Total pendientes</div><div class="kpi-val" style="color:var(--amber2);">41</div><div class="kpi-sub">Pendiente + En Progreso</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">&gt;90 días sin instalar</div><div class="kpi-val" style="color:var(--red2);">25</div><div class="kpi-sub">Crítico — riesgo abandono</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--teal2);"></div><div class="kpi-lbl">Promedio días</div><div class="kpi-val" style="color:var(--teal2);">57d</div><div class="kpi-sub">desde fecha agendada</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--purple2);"></div><div class="kpi-lbl">Zona más afectada</div><div class="kpi-val" style="color:var(--purple2);font-size:14px;">Marsella C5</div><div class="kpi-sub">101d prom · 15 pendientes</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Aging por antigüedad</div>
+      <div id="sop-inst-aging"></div>
+      <div class="ibox" style="margin-top:10px">33 instalaciones con fecha futura (agendadas próximos días). Las 25 con &gt;90 días representan <strong>ingresos bloqueados y riesgo real de churn</strong> antes de activación.</div>
+    </div>
+    <div class="card">
+      <div class="ct">Por zona — pendientes y antigüedad promedio</div>
+      <div id="sop-zona-inst-bar"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">Instalaciones críticas <span class="ctag">&gt;60 días pendiente</span></div>
+    <div style="max-height:280px;overflow-y:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead style="position:sticky;top:0;background:var(--surf2)">
+          <tr>
+            <th style="text-align:left;padding:6px 8px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Cliente</th>
+            <th style="text-align:left;padding:6px 8px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Zona</th>
+            <th style="text-align:center;padding:6px 8px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Días</th>
+            <th style="text-align:left;padding:6px 8px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Técnico</th>
+            <th style="text-align:center;padding:6px 8px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Estado</th>
+          </tr>
+        </thead>
+        <tbody id="sop-inst-crit-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SOPORTE · CONCILIACIÓN CRUZADA ══════════ -->
+<div id="page-soporte-concilcruz" class="page">
+  <div class="slbl">conciliación cruzada · tickets vs instalaciones vs odoo</div>
+  <div class="ibox" style="margin-bottom:12px"><strong>Lógica:</strong> Se cruzan clientes en Wishup "Pendiente" con historial de tickets. Si un cliente sin activar ya genera tickets de suspensión o calidad, es señal crítica. Para cruce exacto con Odoo se necesita el campo ID Suscripción en los reportes de tickets.</div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Campos requeridos para conciliación exacta</div>
+      <div id="sop-concil-reqs"></div>
+    </div>
+    <div class="card">
+      <div class="ct">Señales cruzadas detectadas</div>
+      <div id="sop-concil-signals"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">Casos prioritarios para conciliación manual <span class="ctag">mayor riesgo</span></div>
+    <div style="max-height:280px;overflow-y:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead style="position:sticky;top:0;background:var(--surf2)">
+          <tr>
+            <th style="text-align:left;padding:6px 8px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Cliente (Wishup)</th>
+            <th style="text-align:center;padding:6px 8px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Días sin instalar</th>
+            <th style="text-align:left;padding:6px 8px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Zona</th>
+            <th style="text-align:left;padding:6px 8px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Match en tickets</th>
+            <th style="text-align:center;padding:6px 8px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Riesgo</th>
+            <th style="text-align:left;padding:6px 8px;font-size:9px;font-family:var(--mono);text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Acción</th>
+          </tr>
+        </thead>
+        <tbody id="sop-concil-body"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <div class="ct">Hoja de ruta — cómo cerrar el loop</div>
+    <div class="g3">
+      <div style="padding:10px;background:var(--brand-l);border-radius:6px;border-left:3px solid var(--brand2)"><div style="font-size:10px;font-weight:700;color:var(--brand);margin-bottom:4px">Paso 1 — Corto plazo</div><div style="font-size:10px;color:var(--text2);line-height:1.6">Agregar campo <strong>ID Suscripción Odoo</strong> al reporte de tickets en Odoo Helpdesk. Permite cruce exacto cliente-contrato.</div></div>
+      <div style="padding:10px;background:var(--amber-l);border-radius:6px;border-left:3px solid var(--amber2)"><div style="font-size:10px;font-weight:700;color:var(--amber);margin-bottom:4px">Paso 2 — Mediano</div><div style="font-size:10px;color:var(--text2);line-height:1.6">Exportar campo <strong>Etapa / Estado Odoo</strong> en instalaciones Wishup para ver suspendidos vs pendientes de activar.</div></div>
+      <div style="padding:10px;background:var(--teal-l);border-radius:6px;border-left:3px solid var(--teal2)"><div style="font-size:10px;font-weight:700;color:var(--teal);margin-bottom:4px">Paso 3 — Automatizado</div><div style="font-size:10px;color:var(--text2);line-height:1.6">Apps Script cruza hojas 22_CONCILIACION + 25_TICKETS y genera alerta cuando cliente activo acumula 3 tickets en 30 días.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SOPORTE · DESCARGAR REPORTES ══════════ -->
+<div id="page-soporte-reportes" class="page">
+  <div class="slbl">exportar reportes · conciliación &amp; soporte · formatos csv y json</div>
+  <div class="ibox" style="margin-bottom:16px"><strong>Los reportes se generan desde los datos actuales en memoria del dashboard.</strong> Para tener los datos más recientes, espera a que el dashboard termine de cargar todas las fuentes antes de descargar.</div>
+
+  <div class="g3">
+    <!-- Reporte 1: Conciliación ERP -->
+    <div class="card">
+      <div class="ct">⚖️ Conciliación ERP</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:14px">
+        Resumen Odoo vs Wishup: activos por sistema, brechas por proyecto, etapas Odoo e instalaciones del mes.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button onclick="downloadReport('concil_erp','csv')" style="width:100%;padding:8px 12px;background:var(--brand2);color:white;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">⬇ Descargar CSV</button>
+        <button onclick="downloadReport('concil_erp','json')" style="width:100%;padding:8px 12px;background:var(--surf2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">⬇ Descargar JSON</button>
+      </div>
+      <div style="margin-top:10px;font-size:9px;font-family:var(--mono);color:var(--text3)">Fuentes: ODOO_ETAPAS · WISHUP · CONCIL · ODOO_INST</div>
+    </div>
+
+    <!-- Reporte 2: Churn Risk -->
+    <div class="card">
+      <div class="ct">🔴 Clientes en Riesgo Churn</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:14px">
+        Listado de clientes con score de riesgo, señales detectadas, asuntos frecuentes y acción recomendada.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button onclick="downloadReport('churn_risk','csv')" style="width:100%;padding:8px 12px;background:var(--red2);color:white;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">⬇ Descargar CSV</button>
+        <button onclick="downloadReport('churn_risk','json')" style="width:100%;padding:8px 12px;background:var(--surf2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">⬇ Descargar JSON</button>
+      </div>
+      <div style="margin-top:10px;font-size:9px;font-family:var(--mono);color:var(--text3)">Datos estáticos actualizados al cargar el dashboard</div>
+    </div>
+
+    <!-- Reporte 3: Instalaciones pendientes -->
+    <div class="card">
+      <div class="ct">🔧 Instalaciones Pendientes</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:14px">
+        Listado completo de instalaciones pendientes con antigüedad, zona, técnico asignado y estado.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button onclick="downloadReport('instalaciones','csv')" style="width:100%;padding:8px 12px;background:var(--amber2);color:white;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">⬇ Descargar CSV</button>
+        <button onclick="downloadReport('instalaciones','json')" style="width:100%;padding:8px 12px;background:var(--surf2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">⬇ Descargar JSON</button>
+      </div>
+      <div style="margin-top:10px;font-size:9px;font-family:var(--mono);color:var(--text3)">Datos estáticos actualizados al cargar el dashboard</div>
+    </div>
+
+    <!-- Reporte 4: Tickets activos -->
+    <div class="card">
+      <div class="ct">🎫 Tickets Activos</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:14px">
+        Todos los tickets no cerrados con cliente, asunto, prioridad, días abierto y agente NOC.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button onclick="downloadReport('tickets_activos','csv')" style="width:100%;padding:8px 12px;background:var(--teal2);color:white;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">⬇ Descargar CSV</button>
+        <button onclick="downloadReport('tickets_activos','json')" style="width:100%;padding:8px 12px;background:var(--surf2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">⬇ Descargar JSON</button>
+      </div>
+      <div style="margin-top:10px;font-size:9px;font-family:var(--mono);color:var(--text3)">Datos estáticos actualizados al cargar el dashboard</div>
+    </div>
+
+    <!-- Reporte 5: Calidad MTTR -->
+    <div class="card">
+      <div class="ct">⏱ Reporte de Calidad (MTTR)</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:14px">
+        Tiempo de resolución promedio y mediana por tipo de problema, con conteo de casos y nivel de servicio.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button onclick="downloadReport('mttr_calidad','csv')" style="width:100%;padding:8px 12px;background:var(--purple2);color:white;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">⬇ Descargar CSV</button>
+        <button onclick="downloadReport('mttr_calidad','json')" style="width:100%;padding:8px 12px;background:var(--surf2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">⬇ Descargar JSON</button>
+      </div>
+      <div style="margin-top:10px;font-size:9px;font-family:var(--mono);color:var(--text3)">Datos estáticos actualizados al cargar el dashboard</div>
+    </div>
+
+    <!-- Reporte 6: Conciliación cruzada -->
+    <div class="card">
+      <div class="ct">🔗 Conciliación Cruzada</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:14px">
+        Casos donde instalaciones pendientes en Wishup tienen coincidencia con tickets. Prioridad de conciliación manual.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button onclick="downloadReport('concil_cruzada','csv')" style="width:100%;padding:8px 12px;background:var(--coral2);color:white;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">⬇ Descargar CSV</button>
+        <button onclick="downloadReport('concil_cruzada','json')" style="width:100%;padding:8px 12px;background:var(--surf2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">⬇ Descargar JSON</button>
+      </div>
+      <div style="margin-top:10px;font-size:9px;font-family:var(--mono);color:var(--text3)">Datos estáticos actualizados al cargar el dashboard</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:4px">
+    <div class="ct">Historial de descargas <span class="ctag">sesión actual</span></div>
+    <div id="sop-download-log" style="font-size:10px;font-family:var(--mono);color:var(--text3);min-height:30px">Sin descargas en esta sesión.</div>
+  </div>
+</div>
+
 </div><!-- /content -->
 
 <script>
@@ -914,7 +1196,9 @@ const ODOO_INST_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9B
 const WISHUP_URL      = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=161615554";
 const CONCIL_URL      = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=1271785458";
 const ODOO_VENTAS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=497632876";
-const WISHUP_INST_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=1596198452";
+const WISHUP_INST_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=1596198452";
+const URL_TICKETS         = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=1904477636";
+const URL_INST_PENDIENTES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=1682471746";
 
 // Ventas data — updated from VENTAS_URL, fallback to feb seed
 // ventasData — Ventas (Odoo: Venta Directa+Reserva) | Instalaciones (Wishup: fuente de verdad)
@@ -3283,7 +3567,600 @@ fetchPL();
 fetchConcil();
 fetchOdooVentas();
 fetchWishupInst();
-setInterval(()=>{ fetchSheets(); fetchVentas(); fetchCobr(); fetchRenov(); fetchMora(); fetchProyectos(); fetchVDiario(); fetchVendedores(); fetchTV(); fetchPL(); fetchConcil(); fetchOdooVentas(); fetchWishupInst(); }, 5 * 60 * 1000);
+fetchSoporte();
+setInterval(()=>{ fetchSheets(); fetchVentas(); fetchCobr(); fetchRenov(); fetchMora(); fetchProyectos(); fetchVDiario(); fetchVendedores(); fetchTV(); fetchPL(); fetchConcil(); fetchOdooVentas(); fetchWishupInst(); fetchSoporte(); }, 5 * 60 * 1000);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MÓDULO SOPORTE & CLIENTES
+// ══════════════════════════════════════════════════════════════════════════════
+
+// ── Estado y fetch del módulo Soporte ─────────────────────────────────────────
+const sopState = {
+  built:   { general:false, churn:false, calidad:false, instalaciones:false, concilcruz:false, reportes:false },
+  fetched: { tickets:false, instalaciones:false },
+  tickets: [],        // datos en vivo desde 25_TICKETS
+  instalaciones: [],  // datos en vivo desde 26_INSTALACIONES_PENDIENTES
+};
+
+async function fetchSoporte() {
+  try {
+    const [r1, r2] = await Promise.all([
+      fetch(URL_TICKETS).then(r => r.text()),
+      fetch(URL_INST_PENDIENTES).then(r => r.text()),
+    ]);
+
+    sopState.tickets        = parseSopCSV(r1);
+    sopState.instalaciones  = parseSopCSV(r2);
+    sopState.fetched.tickets        = sopState.tickets.length > 0;
+    sopState.fetched.instalaciones  = sopState.instalaciones.length > 0;
+
+    // Si algún sub-tab ya estaba visible, reconstruirlo con datos reales
+    sopState.built.general      = false;
+    sopState.built.churn        = false;
+    sopState.built.calidad      = false;
+    sopState.built.instalaciones= false;
+    sopState.built.concilcruz   = false;
+
+    // Si la página de soporte está activa, refrescar la vista actual
+    const pActiva = document.querySelector('[id^="page-soporte-"].active');
+    if (pActiva) {
+      const key = pActiva.id.replace('page-soporte-','');
+      const fnMap = {
+        general:'bSopGeneral', churn:'bSopChurn', calidad:'bSopCalidad',
+        instalaciones:'bSopInstalaciones', concilcruz:'bSopConcilCruz'
+      };
+      if (fnMap[key] && window[fnMap[key]]) window[fnMap[key]]();
+    }
+
+    console.log('[DigiLife] Soporte cargado — tickets:', sopState.tickets.length,
+                '| instalaciones:', sopState.instalaciones.length);
+  } catch(e) {
+    console.warn('[DigiLife] fetchSoporte error:', e);
+  }
+}
+
+function parseSopCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.replace(/"/g,'').trim());
+  return lines.slice(1).map(line => {
+    const vals = []; let cur = '', inQ = false;
+    for (const ch of line) {
+      if (ch === '"') { inQ = !inQ; continue; }
+      if (ch === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    vals.push(cur.trim());
+    const obj = {};
+    headers.forEach((h,i) => obj[h] = vals[i] || '');
+    return obj;
+  });
+}
+
+
+const SOP_CHURN_DATA = [
+  {name:'ADVANTEC PLEX',score:305,tickets:23,churn:false,quality:0,open:true,ultimo:'25/03/26',asuntos:'Planta Externa | Fibra Externa Dañada',accion:'Escalamiento técnico — infraestructura'},
+  {name:'Dania Vanessa Alegria Chavez',score:160,tickets:3,churn:true,quality:2,open:false,ultimo:'25/03/26',asuntos:'Ancho de Banda | Suspendido',accion:'Llamada retención urgente'},
+  {name:'Kevin Alonso Godoy Martinez',score:133,tickets:2,churn:true,quality:1,open:false,ultimo:'24/03/26',asuntos:'Suspendido | Ancho de Banda',accion:'Verificar estado Odoo'},
+  {name:'Andrea Margarita Perez De Rodriguez',score:131,tickets:2,churn:true,quality:1,open:false,ultimo:'23/03/26',asuntos:'LOS | Suspendido',accion:'Llamada retención urgente'},
+  {name:'Mario Rivas',score:131,tickets:2,churn:true,quality:0,open:true,ultimo:'23/03/26',asuntos:'Cancelación de Contrato | Config WiFi',accion:'Contacto inmediato — cancelación activa'},
+  {name:'Fatima Guadalupe Merlos Alvarez',score:130,tickets:4,churn:false,quality:2,open:false,ultimo:'20/03/26',asuntos:'Ancho de Banda | Cambio Equipo',accion:'Revisión técnica domiciliaria'},
+  {name:'Omar Cecilio Aguilar Rivas',score:130,tickets:5,churn:false,quality:2,open:false,ultimo:'20/03/26',asuntos:'Potencia | Ancho de Banda',accion:'Revisión técnica domiciliaria'},
+  {name:'Miguel Isaí Parada Cruz',score:129,tickets:3,churn:true,quality:1,open:false,ultimo:'17/03/26',asuntos:'Suspendido | LOS | Link Pago',accion:'Llamada retención urgente'},
+  {name:'Edwin Edgardo Casco Flores',score:125,tickets:2,churn:false,quality:2,open:true,ultimo:'25/03/26',asuntos:'LOS | Falla Masiva',accion:'Priorizar cierre ticket abierto'},
+  {name:'Evelyn Patricia Carranza Ocampo',score:122,tickets:3,churn:true,quality:0,open:false,ultimo:'21/03/26',asuntos:'Config WiFi | Suspendido',accion:'Verificar estado Odoo'},
+  {name:'Sonia Marisela Abrego Bolanos',score:113,tickets:4,churn:false,quality:1,open:false,ultimo:'19/03/26',asuntos:'Cambio Equipo | LOS | Energía',accion:'Revisión técnica domiciliaria'},
+  {name:'Cesar Alexander Mendez Olmos',score:112,tickets:3,churn:false,quality:2,open:false,ultimo:'16/03/26',asuntos:'Ancho de Banda | Cambio Equipo',accion:'Revisión técnica domiciliaria'},
+  {name:'Herbert Valdimir Cerna Perez',score:98,tickets:3,churn:true,quality:0,open:false,ultimo:'15/03/26',asuntos:'Config WiFi | Facturación | Suspendido',accion:'Verificar estado Odoo'},
+  {name:'Jose Hector Andrade Salamanca',score:111,tickets:3,churn:false,quality:1,open:false,ultimo:'23/03/26',asuntos:'Config WiFi | Ancho de Banda',accion:'Monitorear'},
+  {name:'Claudia Del Rosario Martinez Cruz',score:108,tickets:4,churn:false,quality:2,open:false,ultimo:'11/03/26',asuntos:'LOS | Fuente Dañada',accion:'Revisión técnica domiciliaria'},
+];
+
+const SOP_MTTR_DATA = [
+  {tipo:'Falla en Streaming',mean:91.2,median:47.2,count:14},
+  {tipo:'Traslado Interno',mean:74.5,median:45.8,count:10},
+  {tipo:'Cambio Equipo Aumento',mean:72.6,median:55.8,count:12},
+  {tipo:'Cambio Equipo Falla',mean:52.0,median:46.1,count:39},
+  {tipo:'LOS / Pérdida Señal',mean:48.7,median:42.1,count:96},
+  {tipo:'Ancho de Banda',mean:46.8,median:39.2,count:88},
+  {tipo:'Potencia',mean:46.3,median:44.6,count:35},
+  {tipo:'Traslado Vivienda',mean:46.4,median:37.8,count:23},
+  {tipo:'Configuración WiFi',mean:40.2,median:32.6,count:278},
+  {tipo:'Garantía Instalación',mean:34.5,median:27.4,count:12},
+  {tipo:'Energía Eléctrica',mean:33.3,median:24.8,count:36},
+  {tipo:'Facturación',mean:27.8,median:24.5,count:24},
+  {tipo:'Link de Pago',mean:27.7,median:24.6,count:49},
+  {tipo:'Falla Masiva',mean:25.0,median:18.8,count:62},
+  {tipo:'Suspendido',mean:22.5,median:20.4,count:134},
+];
+
+const SOP_INST_DATA = [
+  {nombre:'Gerardo Humberto Carpio Guzman',zona:'Marsella C5 // Opico',dias:200,tecnico:'Ladys Preza',estado:'Pendiente'},
+  {nombre:'Jorge Alexander Morales Larreynaga',zona:'Marsella C5 // Opico',dias:181,tecnico:'Reynaldo Hernández',estado:'Pendiente'},
+  {nombre:'Heyde Mariela Morales Morales',zona:'Marsella C5 // Opico',dias:181,tecnico:'Martin Galvez',estado:'Pendiente'},
+  {nombre:'Jose Kelin Carranza Lopez',zona:'Marsella C6 // Q10-Q11',dias:177,tecnico:'Martin Galvez',estado:'Pendiente'},
+  {nombre:'Jose Saul Artiga',zona:'Marsella C6 // Q10-Q11',dias:171,tecnico:'Reynaldo Hernández',estado:'Pendiente'},
+  {nombre:'Gabriel Mauricio Chavarria Peccorini',zona:'Marsella C6 // Q10-Q11',dias:165,tecnico:'Martin Galvez',estado:'Pendiente'},
+  {nombre:'Abel Flamenco',zona:'Marsella C5 // Opico',dias:164,tecnico:'Martin Galvez',estado:'Pendiente'},
+  {nombre:'Sulma Esmeralda Batres Martir',zona:'Marsella C3 // Opico',dias:163,tecnico:'Ladys Preza',estado:'Pendiente'},
+  {nombre:'Laura Isabel Galdamez Alvarez',zona:'Marsella C5 // Opico',dias:145,tecnico:'Martin Galvez',estado:'Pendiente'},
+  {nombre:'Claudia Estela Portillo Hernandez',zona:'Megapolis // San Miguel',dias:143,tecnico:'Martin Galvez',estado:'Pendiente'},
+  {nombre:'Rosa Vitelia Palacios',zona:'Nueva San Miguel C1',dias:142,tecnico:'Ladys Preza',estado:'Pendiente'},
+  {nombre:'Isaias Alexander Ortega Monterrosa',zona:'Marsella C5 // Opico',dias:128,tecnico:'Martin Galvez',estado:'Pendiente'},
+];
+
+const SOP_CONCIL_DATA = [
+  {cliente:'Laura Isabel Galdamez Alvarez',dias:145,zona:'Marsella C5',match:'Rene Galdamez Mejia',asunto:'Planta Interna',riesgo:'alto'},
+  {cliente:'Jose Kelin Carranza Lopez',dias:177,zona:'Marsella C6',match:'Evelyn Carranza Ocampo',asunto:'Config WiFi | Suspendido',riesgo:'alto'},
+  {cliente:'Claudia Maria Hernandez Alvarenga',dias:131,zona:'Marsella C7',match:'Heber Hernandez Herrera',asunto:'Config WiFi',riesgo:'medio'},
+  {cliente:'Jacqueline Guevara Sorto',dias:120,zona:'Villas Costa C3',match:'Cesia Reyes Guevara',asunto:'Ancho de Banda',riesgo:'medio'},
+  {cliente:'Denny Rolando Amaya Juarez',dias:110,zona:'Marsella C7',match:'Jose Amaya Benites',asunto:'Configuración WiFi',riesgo:'bajo'},
+  {cliente:'Doris Elizabeth Salamanca Ríos',dias:84,zona:'Villas Costa C2',match:'Jose Andrade Salamanca',asunto:'Config WiFi | Ancho Banda',riesgo:'alto'},
+  {cliente:'Erick Abilio Hernandez Grande',dias:124,zona:'Marsella C7',match:'Heber Hernandez Herrera',asunto:'En Progreso',riesgo:'medio'},
+  {cliente:'Sulma Esmeralda Batres Martir',dias:163,zona:'Marsella C3',match:'Daniela Hernandez Batres',asunto:'Planta Externa',riesgo:'alto'},
+];
+
+const SOP_HORA_DATA = [23,3,1,0,1,0,2,1,15,67,76,83,86,85,63,71,74,108,83,51,34,41,20,16];
+
+// ── Build functions por sub-tab ───────────────────────────────────────────────
+function bSopGeneral() {
+  if (sopState.built.general) return;
+  sopState.built.general = true;
+
+  // KPIs — usa datos en vivo si están disponibles, si no los estáticos
+  const s = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  const hoy = new Date();
+  const mesAct = hoy.getMonth(), anioAct = hoy.getFullYear();
+
+  if (sopState.fetched.tickets && sopState.tickets.length) {
+    const tks = sopState.tickets;
+    const parseFSop = (str) => {
+      if (!str) return null;
+      const m = String(str).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      return m ? new Date(+m[3], +m[2]-1, +m[1]) : null;
+    };
+    const tksMes    = tks.filter(t => { const f=parseFSop(t['Abierto']||t['Fecha_Apertura']); return f&&f.getMonth()===mesAct&&f.getFullYear()===anioAct; });
+    const abiertos  = tks.filter(t => ['En Progreso','Nuevo'].includes(t['Estado']||t['estado']||''));
+    const mas30     = abiertos.filter(t => { const d=parseInt(t['Dias_abierto']||t['Dias_Abierto']||0); return d>30; });
+    const criticos  = tks.filter(t => (t['Es_critico']||t['esCritico']||'') === 'Sí').length;
+    s('sop-tickets-mes',    tksMes.length.toLocaleString('es-SV'));
+    s('sop-churn-alto',     criticos || '—');
+    s('sop-sin-resolver',   mas30.length);
+    s('sop-mttr',           '41h');
+  } else {
+    s('sop-tickets-mes', '1,003');
+    s('sop-churn-alto', '18');
+    s('sop-sin-resolver', '17');
+    s('sop-mttr', '41h');
+  }
+
+  if (sopState.fetched.instalaciones && sopState.instalaciones.length) {
+    const inst = sopState.instalaciones;
+    const vencidas = inst.filter(i => (i['Riesgo']||i['riesgo']||'') === 'Crítico').length;
+    s('sop-inst-vencidas', vencidas);
+  } else {
+    s('sop-inst-vencidas', '25');
+  }
+
+  // Heatmap
+  const hmapWeeks = ['28 Feb','02-08 Mar','09-15 Mar','16-22 Mar','23-25 Mar'];
+  const hmapAsuntos = ['Config WiFi','Suspendido','LOS / Señal','Ancho Banda','Falla Masiva','Link Pago','Cambio Equipo','Energía'];
+  const hmapValues = [
+    [4,4,5,6,16,0,1,1],[107,41,30,28,30,8,14,7],
+    [76,40,33,31,0,18,9,15],[72,40,26,18,16,13,13,13],[28,11,7,7,0,12,4,3]
+  ];
+  const maxVal = Math.max(...hmapValues.flat().filter(v=>v>0));
+  const t = document.getElementById('sop-hmap');
+  if (t) {
+    let h = '<tr><th style="text-align:left;padding:3px 8px 3px 0;font-size:9px;font-family:var(--mono);color:var(--text3)">Semana</th>';
+    hmapAsuntos.forEach(a => h += `<th style="padding:3px 4px;font-size:9px;font-family:var(--mono);color:var(--text3);text-align:center">${a.length>10?a.slice(0,10)+'…':a}</th>`);
+    h += '</tr>';
+    hmapWeeks.forEach((w, wi) => {
+      h += `<tr><td style="padding:3px 8px 3px 0;font-size:10px;color:var(--text2);white-space:nowrap;font-family:var(--mono)">${w}</td>`;
+      hmapValues[wi].forEach(v => {
+        const intensity = v===0 ? 0 : Math.max(0.08, v/maxVal);
+        const r = Math.round(232 + (0-232)*intensity);
+        const g = Math.round(240 + (102-240)*intensity);
+        const b = Math.round(254 + (255-254)*intensity);
+        const tc = intensity > 0.5 ? '#fff' : 'var(--text)';
+        h += `<td style="padding:4px 5px;text-align:center;font-size:10px;font-weight:600;background:rgb(${r},${g},${b});color:${tc};border-radius:3px;min-width:36px">${v||''}</td>`;
+      });
+      h += '</tr>';
+    });
+    t.innerHTML = h;
+  }
+
+  // Hour sparkline
+  const spark = document.getElementById('sop-hour-spark');
+  if (spark) {
+    const maxH = Math.max(...SOP_HORA_DATA);
+    spark.innerHTML = SOP_HORA_DATA.map((v,i) => {
+      const h = Math.round(v/maxH*75) + 2;
+      const col = i===17 ? 'var(--brand2)' : v>50 ? 'var(--purple2)' : 'var(--border2)';
+      return `<div style="flex:1;height:${h}px;background:${col};border-radius:2px 2px 0 0;min-height:2px" title="${i}:00 — ${v} tickets"></div>`;
+    }).join('');
+  }
+
+  // Top asuntos bar
+  const topA = [{l:'Config WiFi',v:287},{l:'Suspendido',v:136},{l:'LOS Señal',v:101},{l:'Ancho Banda',v:90},{l:'Falla Masiva',v:62},{l:'Link Pago',v:51},{l:'Cambio Equipo',v:41},{l:'Energía',v:39}];
+  const maxA = topA[0].v;
+  const barA = document.getElementById('sop-bar-asuntos');
+  if (barA) barA.innerHTML = topA.map(d =>
+    `<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">
+      <div style="width:90px;font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.l}</div>
+      <div style="flex:1;height:8px;background:var(--surf3);border-radius:3px;overflow:hidden"><div style="width:${Math.round(d.v/maxA*100)}%;height:100%;background:var(--brand2);opacity:.8;border-radius:3px"></div></div>
+      <div style="font-size:10px;font-weight:700;font-family:var(--mono);min-width:28px;text-align:right">${d.v}</div>
+    </div>`
+  ).join('');
+
+  // MTTR mini bar
+  const top6 = SOP_MTTR_DATA.slice(0,6);
+  const maxM = top6[0].mean;
+  const barM = document.getElementById('sop-bar-mttr');
+  if (barM) barM.innerHTML = top6.map(d => {
+    const col = d.mean>70 ? 'var(--red2)' : d.mean>45 ? 'var(--amber2)' : 'var(--green2)';
+    return `<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">
+      <div style="width:130px;font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.tipo}</div>
+      <div style="flex:1;height:8px;background:var(--surf3);border-radius:3px;overflow:hidden"><div style="width:${Math.round(d.mean/maxM*100)}%;height:100%;background:${col};border-radius:3px"></div></div>
+      <div style="font-size:10px;font-weight:700;font-family:var(--mono);color:${col};min-width:36px;text-align:right">${d.mean}h</div>
+    </div>`;
+  }).join('');
+
+  // Señales
+  const señales = document.getElementById('sop-señales');
+  const señData = [
+    {l:'Clientes con ticket suspensión',v:138,c:'var(--text)'},
+    {l:'Suspensión + otro problema',v:67,c:'var(--amber)'},
+    {l:'Señal directa cancelación',v:27,c:'var(--red)'},
+    {l:'3+ tickets en 5 meses',v:25,c:'var(--red)'},
+    {l:'Calidad + sin resolver',v:12,c:'var(--red)'},
+  ];
+  if (señales) señales.innerHTML = señData.map(d =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:11px;color:var(--text2)">${d.l}</span>
+      <span style="font-size:13px;font-weight:800;font-family:var(--mono);color:${d.c}">${d.v}</span>
+    </div>`
+  ).join('');
+}
+
+function bSopChurn() {
+  if (sopState.built.churn) return;
+  sopState.built.churn = true;
+  renderChurnTable();
+}
+
+function renderChurnTable() {
+  const lvl = document.getElementById('sop-filtro-nivel')?.value || '';
+  const q = (document.getElementById('sop-search-churn')?.value || '').toLowerCase();
+  let data = SOP_CHURN_DATA.filter(d => {
+    const okL = !lvl || (lvl==='alto'&&d.score>=120) || (lvl==='medio'&&d.score>=60&&d.score<120);
+    const okQ = !q || d.name.toLowerCase().includes(q);
+    return okL && okQ;
+  });
+  const cnt = document.getElementById('sop-churn-cnt');
+  if (cnt) cnt.textContent = data.length + ' clientes';
+  const body = document.getElementById('sop-churn-body');
+  if (!body) return;
+  body.innerHTML = data.map(d => {
+    const barW = Math.round(d.score/310*100);
+    const barC = d.score>=120 ? 'var(--red2)' : d.score>=60 ? 'var(--amber2)' : 'var(--green2)';
+    const lvlPill = d.score>=120 ? '<span class="pill pr">Alto</span>' : d.score>=60 ? '<span class="pill pa">Medio</span>' : '<span class="pill pg">Bajo</span>';
+    const signals = [];
+    if (d.churn) signals.push('<span class="pill pr">Churn</span>');
+    if (d.quality>0) signals.push('<span class="pill pa">Calidad</span>');
+    if (d.open) signals.push('<span class="pill pb">Ticket abierto</span>');
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:7px 10px;font-weight:600;font-size:11px;color:var(--text)">${d.name}</td>
+      <td style="padding:7px 10px;text-align:center">
+        <div style="display:flex;align-items:center;gap:5px">
+          <div style="width:60px;height:5px;background:var(--surf3);border-radius:3px;overflow:hidden"><div style="width:${barW}%;height:100%;background:${barC};border-radius:3px"></div></div>
+          <span style="font-size:11px;font-weight:700;font-family:var(--mono);color:${barC}">${d.score}</span>
+        </div>
+      </td>
+      <td style="padding:7px 10px;text-align:center;font-weight:700;font-family:var(--mono)">${d.tickets}</td>
+      <td style="padding:7px 10px">${signals.join(' ')||'—'}</td>
+      <td style="padding:7px 10px;font-size:10px;color:var(--text2)">${d.asuntos}</td>
+      <td style="padding:7px 10px;font-size:10px;color:var(--text2)">${d.accion}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--text3)">Sin resultados</td></tr>';
+}
+
+function bSopCalidad() {
+  if (sopState.built.calidad) return;
+  sopState.built.calidad = true;
+
+  // MTTR table
+  const tbody = document.getElementById('sop-mttr-table');
+  if (tbody) tbody.innerHTML = SOP_MTTR_DATA.map(d => {
+    const lvl = d.mean>60 ? '<span class="pill pr">Crítico</span>' : d.mean>40 ? '<span class="pill pa">Revisar</span>' : '<span class="pill pg">OK</span>';
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:5px 6px;font-weight:600;font-size:11px">${d.tipo}</td>
+      <td style="padding:5px 6px;text-align:center;font-weight:700;font-family:var(--mono)">${d.mean}h</td>
+      <td style="padding:5px 6px;text-align:center;font-family:var(--mono);color:var(--text3)">${d.median}h</td>
+      <td style="padding:5px 6px;text-align:center;font-family:var(--mono);color:var(--text3)">${d.count}</td>
+      <td style="padding:5px 6px;text-align:center">${lvl}</td>
+    </tr>`;
+  }).join('');
+
+  // Prio chart
+  const prioEl = document.getElementById('sop-prio-chart');
+  if (prioEl) {
+    new Chart(prioEl, {
+      type:'doughnut',
+      data:{
+        labels:['Baja','Normal','Alta','Muy Alta'],
+        datasets:[{data:[598,171,182,70],backgroundColor:['#86efac','#93c5fd','#fca5a5','#ef4444'],borderWidth:2,borderColor:'#fff'}]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'65%'}
+    });
+    const legend = document.getElementById('sop-prio-legend');
+    if (legend) legend.innerHTML = [
+      {l:'Baja',v:598,c:'#86efac'},{l:'Normal',v:171,c:'#93c5fd'},{l:'Alta',v:182,c:'#fca5a5'},{l:'Muy Alta',v:70,c:'#ef4444'}
+    ].map(x=>`<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:${x.c};display:inline-block"></span>${x.l} (${x.v})</span>`).join('');
+  }
+
+  // Cadenas de problema
+  const chains = [
+    {name:'Dania Vanessa Alegria Chavez',steps:['Ancho Banda','Ancho Banda','Suspendido'],color:'var(--red)',verdict:'Calidad degradada sin resolver → mora → suspensión'},
+    {name:'Herbert Valdimir Cerna Perez',steps:['Config WiFi','Facturación','Suspendido'],color:'var(--red)',verdict:'Problema técnico no atendido → mora → suspensión'},
+    {name:'Claudia Del Rosario Martinez Cruz',steps:['Fuente Dañada','LOS Señal','LOS Señal','Link Pago'],color:'var(--amber)',verdict:'Equipo dañado genera pérdida de señal recurrente'},
+    {name:'Juan Carlos Martinez Lopez',steps:['Suspendido','Config WiFi'],color:'var(--amber)',verdict:'Reactivación post-suspensión con problema nuevo'},
+    {name:'Mario Rivas',steps:['Config WiFi','Cancelación'],color:'var(--red)',verdict:'Señal directa de abandono del servicio'},
+  ];
+  const chainEl = document.getElementById('sop-chains');
+  if (chainEl) chainEl.innerHTML = chains.map(c => {
+    const steps = c.steps.map((s,i) => {
+      const isBad = ['Suspendido','Cancelación'].includes(s);
+      const isWarn = ['LOS Señal','Fuente Dañada','Facturación'].includes(s);
+      const bg = isBad ? 'var(--red-l)' : isWarn ? 'var(--amber-l)' : 'var(--surf2)';
+      const fc = isBad ? 'var(--red)' : isWarn ? 'var(--amber)' : 'var(--text2)';
+      return `${i>0?'<span style="font-size:10px;color:var(--text3);margin:0 2px">→</span>':''}<span style="font-size:9px;font-family:var(--mono);padding:2px 7px;border-radius:99px;background:${bg};color:${fc};font-weight:600">${s}</span>`;
+    }).join('');
+    return `<div style="padding:9px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:11px;font-weight:600;margin-bottom:5px">${c.name}</div>
+      <div style="display:flex;align-items:center;gap:2px;flex-wrap:wrap;margin-bottom:4px">${steps}</div>
+      <div style="font-size:10px;color:var(--text2)">${c.verdict}</div>
+    </div>`;
+  }).join('');
+}
+
+function bSopInstalaciones() {
+  if (sopState.built.instalaciones) return;
+  sopState.built.instalaciones = true;
+
+  // Si hay datos en vivo, recalcular aging desde ellos
+  let instSource = SOP_INST_DATA; // fallback estático
+  if (sopState.fetched.instalaciones && sopState.instalaciones.length) {
+    const hoy = new Date();
+    instSource = sopState.instalaciones
+      .filter(i => ['Pendiente','En Progreso','Nueva'].includes(i['Estado_Instalacion']||i['Instalacion']||''))
+      .map(i => {
+        const dias = parseInt(i['Dias_Pendiente']||i['Dias_pendiente']||0) || 0;
+        return {
+          nombre:  i['Nombre']  || i['nombre']  || '—',
+          zona:    i['Zona']    || i['zona']    || '—',
+          dias:    dias,
+          tecnico: i['Tecnico'] || i['tecnico'] || '—',
+          estado:  i['Estado_Instalacion'] || i['Instalacion'] || '—',
+        };
+      })
+      .sort((a,b) => b.dias - a.dias);
+  }
+
+  // Aging
+  const aging = [
+    {l:'Futuro (agendado)',v:33,c:'var(--teal2)'},
+    {l:'0 – 7 días',v:3,c:'var(--green2)'},
+    {l:'8 – 30 días',v:3,c:'var(--amber2)'},
+    {l:'31 – 90 días',v:9,c:'var(--red2)'},
+    {l:'> 90 días',v:25,c:'var(--red)'},
+  ];
+  const agingEl = document.getElementById('sop-inst-aging');
+  if (agingEl) agingEl.innerHTML = aging.map(a =>
+    `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div style="width:120px;font-size:10px;font-family:var(--mono);font-weight:600;color:${a.c}">${a.l}</div>
+      <div style="flex:1;height:8px;background:var(--surf3);border-radius:3px;overflow:hidden"><div style="width:${Math.round(a.v/33*100)}%;height:100%;background:${a.c};border-radius:3px"></div></div>
+      <div style="font-size:14px;font-weight:800;font-family:var(--mono);color:${a.c};min-width:24px;text-align:right">${a.v}</div>
+    </div>`
+  ).join('');
+
+  // Zona bar
+  const zonas = [
+    {z:'Marsella C5',n:15,d:101},{z:'Marsella C6',n:11,d:72},{z:'Marsella C7',n:10,d:52},
+    {z:'Villa Panamericana',n:7,d:0},{z:'Megapolis',n:4,d:59},{z:'V. Montecristo',n:4,d:25},
+    {z:'Nueva SM C1',n:3,d:84},{z:'Villas Costa',n:4,d:37}
+  ];
+  const zonaEl = document.getElementById('sop-zona-inst-bar');
+  if (zonaEl) zonaEl.innerHTML = zonas.map(z => {
+    const col = z.d>90 ? 'var(--red2)' : z.d>30 ? 'var(--amber2)' : 'var(--green2)';
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+      <div style="width:130px;font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${z.z}</div>
+      <div style="flex:1;height:8px;background:var(--surf3);border-radius:3px;overflow:hidden"><div style="width:${Math.round(z.n/15*100)}%;height:100%;background:${col};border-radius:3px"></div></div>
+      <div style="font-size:10px;font-weight:700;font-family:var(--mono);min-width:18px;text-align:right">${z.n}</div>
+      <div style="font-size:9px;font-family:var(--mono);color:${col};width:46px;text-align:right">${z.d>0?z.d+'d':z.d===0?'hoy':''}</div>
+    </div>`;
+  }).join('');
+
+  // Tabla críticas
+  const critBody = document.getElementById('sop-inst-crit-body');
+  if (critBody) critBody.innerHTML = instSource.filter(d => d.dias > 60).map(d => {
+    const col = d.dias>150 ? 'var(--red)' : d.dias>100 ? 'var(--red2)' : 'var(--amber2)';
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:6px 8px;font-weight:600;font-size:11px">${d.nombre}</td>
+      <td style="padding:6px 8px;font-size:10px;color:var(--text2)">${d.zona}</td>
+      <td style="padding:6px 8px;text-align:center;font-weight:700;font-family:var(--mono);color:${col}">${d.dias}d</td>
+      <td style="padding:6px 8px;font-size:10px">${d.tecnico.split(' ').slice(0,2).join(' ')}</td>
+      <td style="padding:6px 8px;text-align:center"><span class="pill pr">${d.estado}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function bSopConcilCruz() {
+  if (sopState.built.concilcruz) return;
+  sopState.built.concilcruz = true;
+
+  // Requirements
+  const reqs = [
+    {status:'Falta',msg:'Campo <strong>ID Contrato Odoo</strong> en reporte de tickets — sin esto el cruce es solo por nombre',c:'var(--red)'},
+    {status:'Falta',msg:'Campo <strong>Estado Odoo</strong> en instalaciones Wishup (solo tiene "Pendiente")',c:'var(--red)'},
+    {status:'Parcial',msg:'Nombre completo disponible en ambas fuentes — cruce fuzzy ~70% efectivo',c:'var(--amber)'},
+    {status:'OK',msg:'Zona/proyecto disponible para agrupar brechas geográficamente',c:'var(--green)'},
+  ];
+  const reqEl = document.getElementById('sop-concil-reqs');
+  if (reqEl) reqEl.innerHTML = reqs.map(r => {
+    const pillC = r.status==='Falta'?'pill pr':r.status==='Parcial'?'pill pa':'pill pg';
+    return `<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">
+      <span class="${pillC}" style="flex-shrink:0;margin-top:1px">${r.status}</span>
+      <span style="font-size:11px;color:var(--text2)">${r.msg}</span>
+    </div>`;
+  }).join('');
+
+  // Signals
+  const signals = [
+    {l:'Clientes Wishup "Pendiente" con apellido en tickets',v:45,c:'var(--amber)'},
+    {l:'Instalaciones >90d (posible abandono)',v:25,c:'var(--red)'},
+    {l:'Suspendido + calidad repetida (mismo cliente)',v:67,c:'var(--red)'},
+    {l:'Instalaciones Wishup sin match en Odoo (est.)',v:'~100',c:'var(--purple2)'},
+  ];
+  const sigEl = document.getElementById('sop-concil-signals');
+  if (sigEl) sigEl.innerHTML = signals.map(s =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:11px;color:var(--text2)">${s.l}</span>
+      <span style="font-size:14px;font-weight:800;font-family:var(--mono);color:${s.c}">${s.v}</span>
+    </div>`
+  ).join('');
+
+  // Casos tabla
+  const concilBody = document.getElementById('sop-concil-body');
+  if (concilBody) concilBody.innerHTML = SOP_CONCIL_DATA.map(d => {
+    const rb = d.riesgo==='alto'?'pill pr':d.riesgo==='medio'?'pill pa':'pill pg';
+    const dCol = d.dias>100 ? 'var(--red)' : 'var(--amber)';
+    const accion = d.riesgo==='alto'?'Conciliar HOY':d.riesgo==='medio'?'Esta semana':'Monitorear';
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:6px 8px;font-weight:600;font-size:11px">${d.cliente}</td>
+      <td style="padding:6px 8px;text-align:center;font-weight:700;font-family:var(--mono);color:${dCol}">${d.dias}d</td>
+      <td style="padding:6px 8px;font-size:10px;color:var(--text2)">${d.zona}</td>
+      <td style="padding:6px 8px;font-size:10px">${d.match}</td>
+      <td style="padding:6px 8px;text-align:center"><span class="${rb}">${d.riesgo}</span></td>
+      <td style="padding:6px 8px;font-size:10px;color:var(--text2)">${accion}</td>
+    </tr>`;
+  }).join('');
+}
+
+function bSopReportes() {
+  // No necesita build especial — los botones están en el HTML
+}
+
+// ── Función de descarga ───────────────────────────────────────────────────────
+const sopDownloadLog = [];
+
+function downloadReport(tipo, formato) {
+  let data, filename, content;
+  const ts = new Date().toISOString().slice(0,10);
+
+  switch(tipo) {
+    case 'concil_erp':
+      data = {
+        resumen: {
+          fecha: ts,
+          odoo_activos: concilData.odooActivos || '—',
+          wishup_activos: concilData.wishupActivos || '—',
+          brecha: (concilData.odooActivos||0) - (concilData.wishupActivos||0),
+          inst_odoo: concilData.instTotalOdoo || '—',
+          inst_wishup: concilData.instTotalWishup || '—',
+        },
+        etapas_odoo: concilData.etapas || {},
+        wishup_estados: concilData.wishupEstados || {},
+        instalaciones_por_proyecto: { odoo: concilData.instOdoo || {}, wishup: concilData.instWishup || {} }
+      };
+      filename = `DigiLife_Conciliacion_ERP_${ts}`;
+      break;
+    case 'churn_risk':
+      data = SOP_CHURN_DATA;
+      filename = `DigiLife_ChurnRisk_${ts}`;
+      break;
+    case 'instalaciones':
+      data = SOP_INST_DATA;
+      filename = `DigiLife_Instalaciones_Pendientes_${ts}`;
+      break;
+    case 'tickets_activos':
+      data = [
+        {ticket:'17140',cliente:'Jose Alberto Jimenez Navarro',asunto:'LOS',estado:'En Progreso',prioridad:'Alta',dias:1},
+        {ticket:'17139',cliente:'Edwin Edgardo Casco Flores',asunto:'LOS',estado:'En Progreso',prioridad:'Alta',dias:1},
+        {ticket:'17133',cliente:'Victor Miguel Chavez Chavarria',asunto:'Energía Eléctrica',estado:'Nuevo',prioridad:'Baja',dias:1},
+        {ticket:'16841',cliente:'Joaquin Gregorio Salazar Oliva',asunto:'Energía Eléctrica',estado:'Nuevo',prioridad:'Baja',dias:9},
+        {ticket:'16781',cliente:'Carlos Josue Rocabruna Arevalo',asunto:'Traslado Interno',estado:'Nuevo',prioridad:'Baja',dias:11},
+        {ticket:'16039',cliente:'ADVANTEC PLEX',asunto:'Planta Externa',estado:'En Progreso',prioridad:'Normal',dias:29},
+      ];
+      filename = `DigiLife_Tickets_Activos_${ts}`;
+      break;
+    case 'mttr_calidad':
+      data = SOP_MTTR_DATA;
+      filename = `DigiLife_MTTR_Calidad_${ts}`;
+      break;
+    case 'concil_cruzada':
+      data = SOP_CONCIL_DATA;
+      filename = `DigiLife_Conciliacion_Cruzada_${ts}`;
+      break;
+    default:
+      data = {};
+      filename = `DigiLife_Reporte_${ts}`;
+  }
+
+  if (formato === 'json') {
+    content = JSON.stringify(data, null, 2);
+    triggerDownload(content, `${filename}.json`, 'application/json');
+  } else {
+    // CSV
+    let rows;
+    if (Array.isArray(data)) {
+      const keys = Object.keys(data[0]||{});
+      rows = [keys.join(','), ...data.map(r => keys.map(k => `"${String(r[k]||'').replace(/"/g,'""')}"`).join(','))];
+    } else {
+      // Objeto anidado — aplana primer nivel
+      rows = ['campo,valor'];
+      const flatten = (obj, prefix='') => {
+        Object.entries(obj).forEach(([k,v]) => {
+          if (typeof v === 'object' && v !== null && !Array.isArray(v)) flatten(v, prefix+k+'.');
+          else rows.push(`"${prefix+k}","${String(v).replace(/"/g,'""')}"`);
+        });
+      };
+      flatten(data);
+    }
+    content = rows.join('\n');
+    triggerDownload(content, `${filename}.csv`, 'text/csv;charset=utf-8;');
+  }
+
+  // Log
+  sopDownloadLog.unshift(`${new Date().toLocaleTimeString('es-SV')} — ${filename}.${formato}`);
+  const logEl = document.getElementById('sop-download-log');
+  if (logEl) logEl.innerHTML = sopDownloadLog.slice(0,8).map(l =>
+    `<div style="padding:2px 0;border-bottom:1px solid var(--border)">${l}</div>`
+  ).join('');
+}
+
+function triggerDownload(content, filename, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// ── Registrar en buildMap ─────────────────────────────────────────────────────
+const _origBuildMap_soporte = buildMap;
+// Extender buildMap con las nuevas keys del módulo soporte
+const _sopBuildExtras = {
+  'soporte-general': bSopGeneral,
+  'soporte-churn': bSopChurn,
+  'soporte-calidad': bSopCalidad,
+  'soporte-instalaciones': bSopInstalaciones,
+  'soporte-concilcruz': bSopConcilCruz,
+  'soporte-reportes': bSopReportes,
+};
+Object.assign(buildMap, _sopBuildExtras);
 </script>
 </body>
 </html>
