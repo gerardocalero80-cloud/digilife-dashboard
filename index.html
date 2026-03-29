@@ -1213,7 +1213,7 @@ let ventasData = {
   bajas:  [35,  8,  5,  0,  5,  2, 2, 3, 1, 0],
   mes:    'marzo 2026',
   totalContratos:    230,   // Odoo: Venta Directa 177 + Reserva 53
-  totalInst:         251,   // Wishup: activaciones reales en red
+  totalInst:         274,   // Wishup: activaciones reales en red
   totalBajas:         64,
   venta_directa:     177,
   reserva:            53,
@@ -1224,7 +1224,7 @@ let ventasData = {
   acumDia:    [11,20,31,42,48,61,77,83,94,104,111,121,131,142,150,151,160,173,182,193,203,210,216,225,226,226,227,229,230,230,230],
   // Diario Wishup (instalaciones reales por día)
   porDiaInst: {1:13,2:11,3:10,4:14,5:5,6:14,7:17,8:7,9:11,10:10,11:7,12:15,13:11,14:11,15:7,16:4,17:9,18:15,19:9,20:15,21:10,22:7,23:7,24:12},
-  acumDiaInst:[13,24,34,48,53,67,84,91,102,112,119,134,145,156,163,167,176,191,200,215,225,232,239,251,251,251,251,251,251,251,251],
+  acumDiaInst:[13,24,34,48,53,67,84,91,102,112,119,134,145,156,163,167,176,191,200,215,225,232,239,251,255,260,265,269,271,274,274],
   fuenteOdoo:   true,
   fuenteWishup: true,
 };
@@ -2277,9 +2277,9 @@ async function fetchConcil() {
     },
     wishupEstados: { 'Activo':9233,'Suspendido':1648,'Cancelado':2465,'Gratis':4 },
     instOdoo:   { 'Marsella':70,'Ecoterra':37,'Marsella II':30,'Nueva San Miguel':28,'Villa Panamericana':28,'Villas de la Costa':13,'Acrópoli':9,'Mediterráneo':9,'Montecristo':6,'Ciudad Versailles':5,'Megápolis':5,'Sitio Grande':4,'Hacienda de la Riviera':1,'Villa Tzuchi':1 },
-    instWishup: { 'Marsella':99,'Ecoterra':37,'Nueva San Miguel':28,'Villa Panamericana':32,'Villas de la Costa':13,'Acrópoli':9,'Mediterráneo':9,'Montecristo':7,'Ciudad Versailles':5,'Megápolis':6,'Sitio Grande':4,'Hacienda de la Riviera':1,'Villa Tzuchi':1 },
+    instWishup: { 'Marsella':114,'Ecoterra':37,'Nueva San Miguel':31,'Villa Panamericana':37,'Villas de la Costa':13,'Acrópoli':9,'Mediterráneo':9,'Montecristo':7,'Ciudad Versailles':5,'Megápolis':6,'Sitio Grande':4,'Hacienda de la Riviera':1,'Villa Tzuchi':1 },
     totalOdoo: 16237, totalWishup: 13350,
-    instTotalOdoo: 247, instTotalWishup: 251,
+    instTotalOdoo: 247, instTotalWishup: 274,
   };
 
   try {
@@ -2299,24 +2299,64 @@ async function fetchConcil() {
         rows.forEach(r => {
           const c0 = String(r[0]||'').trim();
           const c1 = parseNum(r[1]);
-          if (c0.includes('ETAPAS ODOO')) { seccion = 'etapas'; return; }
-          if (c0.includes('ACTIVOS TOTALES')) { seccion = 'activos'; return; }
-          if (c0.includes('INSTALACIONES MES')) { seccion = 'inst'; return; }
-          if (c0.includes('DigiLife')) { fechaCorte = String(r[4]||r[2]||'').trim(); return; }
-          if (c0 === 'Odoo ERP' && seccion === 'activos')   { odooActivos = c1||0; totalOdoo = c1||0; }
-          if (c0 === 'Wishup'   && seccion === 'activos')   { wishupActivos = c1||0; totalWishup = c1||0; }
-          if (seccion === 'etapas' && c0 && c0 !== 'Grupo' && c0 !== 'Etapa' && c1 !== null) etapas[c0] = c1;
-          if (seccion === 'inst'  && c0 && c0 !== 'Proyecto' && c0 !== 'TOTAL' && c1 !== null) {
-            const w = parseNum(r[2]);
-            instOdoo[c0]   = c1;
-            instWishup[c0] = w||0;
-            instTotalOdoo   += c1;
-            instTotalWishup += (w||0);
+
+          // ── Formato Apps Script v3.0: 22_CONCILIACION ──
+          // Columnas: Proyecto | Inst. Odoo | Inst. Wishup | Diferencia | Estado |
+          //           Activos Odoo (total) | Activos Wishup (total) | Brecha activos | Fecha corte
+          // Fila 1 = headers, Fila 2 = TOTAL GLOBAL, Fila 3+ = por proyecto
+
+          if (c0 === 'Proyecto' || c0 === '') return; // header o vacía
+
+          if (c0 === 'TOTAL GLOBAL') {
+            instTotalOdoo   = parseNum(r[1]) || 0;
+            instTotalWishup = parseNum(r[2]) || 0;
+            odooActivos     = parseNum(r[5]) || 0;
+            wishupActivos   = parseNum(r[6]) || 0;
+            totalOdoo       = odooActivos;
+            totalWishup     = wishupActivos;
+            fechaCorte      = String(r[8]||'').trim() || '—';
+            return;
           }
+
+          // Filas de proyectos
+          const instO = parseNum(r[1]);
+          const instW = parseNum(r[2]);
+          if (c0 && instO !== null) {
+            instOdoo[c0]   = instO || 0;
+            instWishup[c0] = instW || 0;
+          }
+
+          // ── Formato legacy (secciones con keywords) ── por compatibilidad
+          if (c0.includes('ETAPAS ODOO'))      { seccion = 'etapas'; return; }
+          if (c0.includes('ACTIVOS TOTALES'))  { seccion = 'activos'; return; }
+          if (c0.includes('INSTALACIONES MES')){ seccion = 'inst'; return; }
+          if (c0.includes('DigiLife'))         { fechaCorte = String(r[4]||r[2]||'').trim(); return; }
+          if (c0 === 'Odoo ERP'  && seccion === 'activos') { odooActivos  = c1||0; totalOdoo  = c1||0; }
+          if (c0 === 'Wishup'    && seccion === 'activos') { wishupActivos= c1||0; totalWishup= c1||0; }
+          if (seccion === 'etapas' && c0 && c0 !== 'Grupo' && c0 !== 'Etapa' && c1 !== null) etapas[c0] = c1;
         });
 
-        if (Object.keys(etapas).length > 0) {
-          concilData = { loaded:true, etapas, wishupEstados, instOdoo, instWishup, odooActivos, wishupActivos, totalOdoo, totalWishup, instTotalOdoo, instTotalWishup, fechaCorte };
+        // Aceptar si tiene etapas (formato legacy) O si tiene instalaciones (formato v3)
+        const tieneEtapas = Object.keys(etapas).length > 0;
+        const tieneInst   = instTotalOdoo > 0 || Object.keys(instOdoo).length > 0;
+
+        console.log('[DigiLife] Concil parse — etapas:', Object.keys(etapas).length,
+          '| proyectos:', Object.keys(instOdoo).length,
+          '| instOdoo:', instTotalOdoo, '| instWishup:', instTotalWishup,
+          '| odooActivos:', odooActivos, '| wishupActivos:', wishupActivos);
+
+        if (tieneEtapas || tieneInst) {
+          // Si v3 no trajo etapas, usar las del SEED como respaldo
+          const etapasFinal = tieneEtapas ? etapas : SEED.etapas;
+          const wishupFinal = Object.keys(wishupEstados).length > 0 ? wishupEstados : SEED.wishupEstados;
+          const odooFinal   = odooActivos  > 0 ? odooActivos  : Object.entries(etapasFinal).filter(([k])=>ETAPAS_FACTURA.has(k)).reduce((a,[,v])=>a+v,0);
+          const wishFinal   = wishupActivos > 0 ? wishupActivos : (wishupFinal['Activo']||0);
+          concilData = {
+            loaded:true, etapas:etapasFinal, wishupEstados:wishupFinal,
+            instOdoo, instWishup, odooActivos:odooFinal, wishupActivos:wishFinal,
+            totalOdoo:totalOdoo||odooFinal, totalWishup:totalWishup||wishFinal,
+            instTotalOdoo, instTotalWishup, fechaCorte
+          };
           loaded = true;
         }
       }
@@ -2900,7 +2940,10 @@ function build(id){
     'inicio':bInicio,'ventas-campo':bCampo,'ventas-televentas':bTV,
     'ventas-proyectos':bProyectos,'ventas-corp':bCorp,'ventas-pyme':bPyme,
     'ventas-proy':bProyH1,'cxc-cobr':bCobr,'cxc-aging':bAging,
-    'cxc-pl':bPL,'cxc-proy':bCxcProy,'cxc-concil':bConcil,'retencion':bRetencion
+    'cxc-pl':bPL,'cxc-proy':bCxcProy,'cxc-concil':bConcil,'retencion':bRetencion,
+    'soporte-general':bSopGeneral,'soporte-churn':bSopChurn,
+    'soporte-calidad':bSopCalidad,'soporte-instalaciones':bSopInstalaciones,
+    'soporte-concilcruz':bSopConcilCruz,'soporte-reportes':bSopReportes
   };
   if(fn[id])fn[id]();
 }
@@ -3391,6 +3434,17 @@ async function fetchWishupInst() {
     rows.forEach(r => {
       const c0 = String(r[0]||'').trim();
       const c1 = parseNum(r[1]);
+
+      // ── Formato Apps Script v3.0: 24_WISHUP_INSTALACIONES ──
+      // Columnas: Proyecto | Instalaciones mes | Fuente
+      if (c0 === 'Proyecto' || c0 === 'TOTAL' || c0 === '') return;
+      if (c0 && c1 !== null && !c0.includes('Instalaciones') && !c0.includes('POR')) {
+        byProy[c0] = c1;
+        totalInst += c1;
+        return;
+      }
+
+      // ── Formato legacy (secciones) ── por compatibilidad
       if (c0.includes('Instalaciones Wishup')) {
         const m = c0.match(/(Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\s+\d{4}/i);
         if (m) mesLabel = m[0].toLowerCase();
@@ -4149,18 +4203,7 @@ function triggerDownload(content, filename, mime) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-// ── Registrar en buildMap ─────────────────────────────────────────────────────
-const _origBuildMap_soporte = buildMap;
-// Extender buildMap con las nuevas keys del módulo soporte
-const _sopBuildExtras = {
-  'soporte-general': bSopGeneral,
-  'soporte-churn': bSopChurn,
-  'soporte-calidad': bSopCalidad,
-  'soporte-instalaciones': bSopInstalaciones,
-  'soporte-concilcruz': bSopConcilCruz,
-  'soporte-reportes': bSopReportes,
-};
-Object.assign(buildMap, _sopBuildExtras);
+// Soporte sub-tabs registrados en función build() directamente
 </script>
 </body>
 </html>
