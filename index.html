@@ -265,6 +265,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
   <div class="stab" onclick="showSub('cxc','pl',this)">📊 P&amp;L</div>
   <div class="stab" onclick="showSub('cxc','proy',this)">📈 Proyección</div>
   <div class="stab" onclick="showSub('cxc','concil',this)">⚖️ Conciliación ERP</div>
+  <div class="stab" onclick="showSub('cxc','mora60',this)">🔴 Mora Temprana</div>
 </div>
 <div class="subnav hidden" id="sub-soporte">
   <div class="stab active" onclick="showSub('soporte','general',this)">📊 Visión General</div>
@@ -897,6 +898,95 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
   </div>
 </div>
 
+<!-- ══════════ CXC · MORA TEMPRANA 60D ══════════ -->
+<div id="page-cxc-mora60" class="page">
+  <div class="slbl">mora temprana · instalados últimos 60 días · estado actual en wishup · <span id="mora60-fecha">—</span></div>
+
+  <!-- KPIs -->
+  <div class="g5">
+    <div class="kpi">
+      <div class="kpi-bar" style="background:var(--brand2);"></div>
+      <div class="kpi-lbl">Instalados 60 días</div>
+      <div class="kpi-val" style="color:var(--brand2);" id="mora60-total">—</div>
+      <div class="kpi-sub">Clientes nuevos en período</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-bar" style="background:var(--green2);"></div>
+      <div class="kpi-lbl">Activos</div>
+      <div class="kpi-val" style="color:var(--green2);" id="mora60-activos">—</div>
+      <div class="kpi-sub">Sin problemas de pago</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-bar" style="background:var(--amber2);"></div>
+      <div class="kpi-lbl">Suspendidos</div>
+      <div class="kpi-val" style="color:var(--amber2);" id="mora60-susp">—</div>
+      <div class="kpi-sub" id="mora60-tasa-susp">tasa —%</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-bar" style="background:var(--red2);"></div>
+      <div class="kpi-lbl">Susp. Tempranos &lt;30d</div>
+      <div class="kpi-val" style="color:var(--red2);" id="mora60-susp-temp">—</div>
+      <div class="kpi-sub">Señal de mala venta</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-bar" style="background:var(--red2);"></div>
+      <div class="kpi-lbl">Cancelados</div>
+      <div class="kpi-val" style="color:var(--red2);" id="mora60-canc">—</div>
+      <div class="kpi-sub" id="mora60-tasa-canc">tasa —%</div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center;">
+    <select id="mora60-filtro-riesgo" onchange="renderMora60()" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surf);color:var(--text);font-size:11px">
+      <option value="">Todos</option>
+      <option value="CRITICO">Solo Críticos</option>
+      <option value="ALTO">Críticos + Altos</option>
+    </select>
+    <select id="mora60-filtro-zona" onchange="renderMora60()" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surf);color:var(--text);font-size:11px">
+      <option value="">Todas las zonas</option>
+    </select>
+    <input type="text" id="mora60-search" placeholder="Buscar cliente..." oninput="renderMora60()" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surf);color:var(--text);font-size:11px;width:180px">
+    <span id="mora60-cnt" style="font-size:10px;font-family:var(--mono);color:var(--text3)"></span>
+  </div>
+
+  <!-- Tabla principal -->
+  <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
+    <div style="max-height:400px;overflow-y:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead style="position:sticky;top:0;z-index:1;background:var(--surf2)">
+          <tr>
+            <th style="text-align:left;padding:8px 10px;font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:1px solid var(--border)">Cliente</th>
+            <th style="text-align:left;padding:8px 10px;font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:1px solid var(--border)">Zona</th>
+            <th style="text-align:left;padding:8px 10px;font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:1px solid var(--border)">Plan</th>
+            <th style="text-align:center;padding:8px 10px;font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:1px solid var(--border)">Estado</th>
+            <th style="text-align:left;padding:8px 10px;font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:1px solid var(--border)">F. Instalación</th>
+            <th style="text-align:center;padding:8px 10px;font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:1px solid var(--border)">Días</th>
+            <th style="text-align:left;padding:8px 10px;font-size:9px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:1px solid var(--border)">Riesgo</th>
+          </tr>
+        </thead>
+        <tbody id="mora60-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Gráficos resumen -->
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Suspendidos por zona <span class="ctag">últimos 60 días</span></div>
+      <div id="mora60-bar-zona"></div>
+    </div>
+    <div class="card">
+      <div class="ct">Días hasta suspensión <span class="ctag">distribución</span></div>
+      <div style="position:relative;height:160px"><canvas id="mora60-chart-dias"></canvas></div>
+    </div>
+  </div>
+
+  <div class="abox">
+    <strong>Interpretación:</strong> Suspendidos en primeros 30 días indican posible mala calificación crediticia en la venta o problemas de calidad del servicio en instalación. Suspendidos entre 31-60 días son mora temprana — revisar si recibieron primer cobro.
+  </div>
+</div>
+
 <!-- ══════════ SOPORTE · VISIÓN GENERAL ══════════ -->
 <div id="page-soporte-general" class="page">
   <div class="slbl">soporte &amp; clientes · visión general · últimos 5 meses</div>
@@ -1199,6 +1289,7 @@ const ODOO_VENTAS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9B
 const WISHUP_INST_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=1596198452";
 const URL_TICKETS         = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=1904477636";
 const URL_INST_PENDIENTES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=1682471746";
+const URL_CONCIL_CXC60D   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=277524538";
 
 // Ventas data — updated from VENTAS_URL, fallback to feb seed
 // ventasData — Ventas (Odoo: Venta Directa+Reserva) | Instalaciones (Wishup: fuente de verdad)
@@ -2941,6 +3032,7 @@ function build(id){
     'ventas-proyectos':bProyectos,'ventas-corp':bCorp,'ventas-pyme':bPyme,
     'ventas-proy':bProyH1,'cxc-cobr':bCobr,'cxc-aging':bAging,
     'cxc-pl':bPL,'cxc-proy':bCxcProy,'cxc-concil':bConcil,'retencion':bRetencion,
+    'cxc-mora60':bMora60,
     'soporte-general':bSopGeneral,'soporte-churn':bSopChurn,
     'soporte-calidad':bSopCalidad,'soporte-instalaciones':bSopInstalaciones,
     'soporte-concilcruz':bSopConcilCruz,'soporte-reportes':bSopReportes
@@ -3419,50 +3511,77 @@ async function fetchOdooVentas() {
 // ── Fetch Instalaciones Wishup (fuente de verdad — activación real en red) ────
 async function fetchWishupInst() {
   try {
-    if (!WISHUP_INST_URL) {
-      rebuildVentasCharts();
-      return;
-    }
+    if (!WISHUP_INST_URL) { rebuildVentasCharts(); return; }
     const res = await fetch(WISHUP_INST_URL);
     if (!res.ok) return;
     const rows = parseCSV(await res.text());
+    if (!rows.length) return;
+
+    // Detectar formato por los headers de la primera fila
+    const header0 = String(rows[0][0]||'').trim().toLowerCase();
+    const header2 = String(rows[0][2]||'').trim().toLowerCase();
 
     let totalInst = 0;
     const byProy = {}, byDia = {};
-    let seccion = '', mesLabel = 'mes actual';
+    let mesLabel = 'mes actual';
 
-    rows.forEach(r => {
-      const c0 = String(r[0]||'').trim();
-      const c1 = parseNum(r[1]);
+    // ── Formato v3: detalle de clientes (Cliente | Usuario | Proyecto | Fecha) ──
+    if (header0 === 'cliente' || header0 === 'nombre') {
+      // Agrupar contando registros por Proyecto
+      const colProy  = rows[0].findIndex(h => /proyecto|zona|comunidad/i.test(String(h)));
+      const colFecha = rows[0].findIndex(h => /fecha/i.test(String(h)));
+      const proyIdx  = colProy  >= 0 ? colProy  : 2;
+      const fechaIdx = colFecha >= 0 ? colFecha : 3;
 
-      // ── Formato Apps Script v3.0: 24_WISHUP_INSTALACIONES ──
-      // Columnas: Proyecto | Instalaciones mes | Fuente
-      if (c0 === 'Proyecto' || c0 === 'TOTAL' || c0 === '') return;
-      if (c0 && c1 !== null && !c0.includes('Instalaciones') && !c0.includes('POR')) {
-        byProy[c0] = c1;
-        totalInst += c1;
-        return;
-      }
+      rows.slice(1).forEach(r => {
+        const proy  = String(r[proyIdx] ||'').trim();
+        const fecha = String(r[fechaIdx]||'').trim();
+        if (!proy) return;
+        byProy[proy] = (byProy[proy]||0) + 1;
+        totalInst++;
+        // Acumular por día
+        const m = fecha.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+        if (m) { const d = parseInt(m[1]); byDia[d] = (byDia[d]||0) + 1; }
+      });
 
-      // ── Formato legacy (secciones) ── por compatibilidad
-      if (c0.includes('Instalaciones Wishup')) {
-        const m = c0.match(/(Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\s+\d{4}/i);
-        if (m) mesLabel = m[0].toLowerCase();
-      }
-      if (c0.includes('TOTAL INSTALACIONES')) { totalInst = c1||0; return; }
-      if (c0.includes('POR PROYECTO')) { seccion='proy'; return; }
-      if (c0.includes('POR DÍA'))      { seccion='dia';  return; }
-      if (c0.includes('PATRÓN'))       { seccion='';     return; }
-      if (seccion==='proy' && c0 && c0!=='Proyecto' && c1!==null) byProy[c0] = c1;
-      if (seccion==='dia'  && c1!==null && !isNaN(parseInt(c0))) byDia[parseInt(c0)] = c1;
-    });
+      console.log('[DigiLife] WishupInst v3 (detalle) — proyectos:', Object.keys(byProy).length, '| total:', totalInst, '| byProy:', JSON.stringify(byProy));
+
+    // ── Formato v3 resumen: Proyecto | Instalaciones mes | Fuente ──
+    } else if (header0 === 'proyecto' || header2 === 'fuente') {
+      rows.slice(1).forEach(r => {
+        const c0 = String(r[0]||'').trim();
+        const c1 = parseNum(r[1]);
+        if (c0 && c0 !== 'TOTAL' && c1 !== null) {
+          byProy[c0] = c1;
+          totalInst += c1;
+        }
+      });
+
+    // ── Formato legacy (secciones con keywords) ──
+    } else {
+      let seccion = '';
+      rows.forEach(r => {
+        const c0 = String(r[0]||'').trim();
+        const c1 = parseNum(r[1]);
+        if (c0.includes('Instalaciones Wishup')) {
+          const m = c0.match(/(Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\s+\d{4}/i);
+          if (m) mesLabel = m[0].toLowerCase();
+        }
+        if (c0.includes('TOTAL INSTALACIONES')) { totalInst = c1||0; return; }
+        if (c0.includes('POR PROYECTO')) { seccion='proy'; return; }
+        if (c0.includes('POR DÍA'))      { seccion='dia';  return; }
+        if (c0.includes('PATRÓN'))       { seccion='';     return; }
+        if (seccion==='proy' && c0 && c0!=='Proyecto' && c1!==null) byProy[c0] = c1;
+        if (seccion==='dia'  && c1!==null && !isNaN(parseInt(c0))) byDia[parseInt(c0)] = c1;
+      });
+    }
 
     if (totalInst > 0) {
       const acumDiaInst = [];
       let s = 0;
       for (let d = 1; d <= 31; d++) { s += (byDia[d]||0); acumDiaInst.push(s); }
 
-      // Mapear instalaciones Wishup a zonas del ventasData (orden Odoo)
+      // Mapear a zonas del ventasData
       const instZonas = ventasData.zonas.map(z => {
         const zn = z.replace('.','').toLowerCase();
         const key = Object.keys(byProy).find(k =>
@@ -3479,6 +3598,8 @@ async function fetchWishupInst() {
 
       console.log('[DigiLife] WishupInst loaded:', totalInst, 'instalaciones, mes:', mesLabel);
       rebuildVentasCharts();
+    } else {
+      console.warn('[DigiLife] WishupInst — hoja vacía o sin datos del mes. Usando seed data.');
     }
   } catch(e) { console.warn('[DigiLife] fetchWishupInst error:', e); }
 }
@@ -3622,7 +3743,8 @@ fetchConcil();
 fetchOdooVentas();
 fetchWishupInst();
 fetchSoporte();
-setInterval(()=>{ fetchSheets(); fetchVentas(); fetchCobr(); fetchRenov(); fetchMora(); fetchProyectos(); fetchVDiario(); fetchVendedores(); fetchTV(); fetchPL(); fetchConcil(); fetchOdooVentas(); fetchWishupInst(); fetchSoporte(); }, 5 * 60 * 1000);
+fetchMora60();
+setInterval(()=>{ fetchSheets(); fetchVentas(); fetchCobr(); fetchRenov(); fetchMora(); fetchProyectos(); fetchVDiario(); fetchVendedores(); fetchTV(); fetchPL(); fetchConcil(); fetchOdooVentas(); fetchWishupInst(); fetchSoporte(); fetchMora60(); }, 5 * 60 * 1000);
 
 // ══════════════════════════════════════════════════════════════════════════════
 // MÓDULO SOPORTE & CLIENTES
@@ -4201,6 +4323,119 @@ function triggerDownload(content, filename, mime) {
   document.body.appendChild(a); a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MÓDULO CXC: MORA TEMPRANA — instalados 60 días con estado actual
+// ══════════════════════════════════════════════════════════════════════════════
+
+let mora60Data = {
+  loaded: false, registros: [],
+  resumen: { total60d:0, activos:0, suspendidos:0, suspTemprano:0, cancelados:0, tasaSusp:'0%', tasaCanc:'0%' },
+  fecha: '—',
+};
+
+async function fetchMora60() {
+  if (!URL_CONCIL_CXC60D) { buildMora60Seed(); return; }
+  try {
+    const res = await fetch(URL_CONCIL_CXC60D);
+    if (!res.ok) { buildMora60Seed(); return; }
+    const rows = parseCSV(await res.text());
+    if (!rows.length) { buildMora60Seed(); return; }
+    const meta = {}, registros = [];
+    let enDatos = false;
+    rows.forEach(r => {
+      const c0 = String(r[0]||'').trim();
+      if (c0.startsWith('##')) { meta[c0.replace(/##/g,'').trim()] = String(r[1]||'').trim(); return; }
+      if (c0 === 'Cliente') { enDatos = true; return; }
+      if (!enDatos || !c0) return;
+      registros.push({ nombre:c0, usuario:String(r[1]||'').trim(), zona:String(r[2]||'').trim(),
+        plan:String(r[3]||'').trim(), estado:String(r[4]||'').trim(), fecha:String(r[5]||'').trim(),
+        dias:parseInt(r[6]||0)||0, riesgo:String(r[7]||'Normal').trim(), ip:String(r[8]||'').trim() });
+    });
+    mora60Data = { loaded:true, registros,
+      resumen:{ total60d:parseInt(meta['TOTAL_60D']||0), activos:parseInt(meta['ACTIVOS']||0),
+        suspendidos:parseInt(meta['SUSPENDIDOS']||0), suspTemprano:parseInt(meta['SUSP_TEMPRANO']||0),
+        cancelados:parseInt(meta['CANCELADOS']||0), tasaSusp:meta['TASA_SUSPENSION']||'0%', tasaCanc:meta['TASA_CANCELACION']||'0%' },
+      fecha: new Date().toLocaleDateString('es-SV') };
+    console.log('[DigiLife] Mora60 loaded — total:', mora60Data.resumen.total60d, '| susp:', mora60Data.resumen.suspendidos);
+    if (document.getElementById('page-cxc-mora60')?.classList.contains('active')) bMora60();
+  } catch(e) { console.warn('[DigiLife] fetchMora60 error:', e); buildMora60Seed(); }
+}
+
+function buildMora60Seed() {
+  // Seed basado en análisis real de Lista_Clientes_Wishup 29/03/2026
+  // 666 instalados últimos 60d · 647 activos · 19 suspendidos · 3 tempranos
+  mora60Data = { loaded:true, registros:[],
+    resumen:{ total60d:666, activos:647, suspendidos:19, suspTemprano:3, cancelados:0, tasaSusp:'2.9%', tasaCanc:'0.0%' },
+    fecha:'29/03/2026 (seed)' };
+}
+
+function bMora60() {
+  if (!mora60Data.loaded) { fetchMora60(); return; }
+  const s = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  const r = mora60Data.resumen;
+  s('mora60-fecha',mora60Data.fecha); s('mora60-total',fmtN(r.total60d));
+  s('mora60-activos',fmtN(r.activos)); s('mora60-susp',fmtN(r.suspendidos));
+  s('mora60-susp-temp',fmtN(r.suspTemprano)); s('mora60-canc',fmtN(r.cancelados));
+  s('mora60-tasa-susp','tasa '+r.tasaSusp); s('mora60-tasa-canc','tasa '+r.tasaCanc);
+
+  const zonaSelect=document.getElementById('mora60-filtro-zona');
+  if(zonaSelect&&zonaSelect.options.length<=1){
+    [...new Set(mora60Data.registros.map(x=>x.zona).filter(Boolean))].sort()
+      .forEach(z=>{const o=document.createElement('option');o.value=z;o.textContent=z.length>40?z.slice(0,40)+'…':z;zonaSelect.appendChild(o);});
+  }
+
+  const zonaCnt={};
+  mora60Data.registros.filter(x=>x.estado!=='Activo').forEach(x=>{zonaCnt[x.zona]=(zonaCnt[x.zona]||0)+1;});
+  const topZ=Object.entries(zonaCnt).sort((a,b)=>b[1]-a[1]).slice(0,8), maxZ=topZ[0]?.[1]||1;
+  document.getElementById('mora60-bar-zona').innerHTML=topZ.length
+    ?topZ.map(([z,n])=>`<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px"><div style="width:160px;font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${z}">${z.length>25?z.slice(0,25)+'…':z}</div><div style="flex:1;height:8px;background:var(--surf3);border-radius:3px;overflow:hidden"><div style="width:${Math.round(n/maxZ*100)}%;height:100%;background:var(--red2);border-radius:3px"></div></div><div style="font-size:10px;font-weight:700;font-family:var(--mono);min-width:16px;text-align:right;color:var(--red2)">${n}</div></div>`).join('')
+    :'<div style="font-size:10px;color:var(--text3);padding:8px 0">Sin datos — ejecuta procesarTodo() en Apps Script</div>';
+
+  const susp=mora60Data.registros.filter(x=>x.estado!=='Activo');
+  const elC=document.getElementById('mora60-chart-dias');
+  if(elC&&susp.length){
+    const ex=Chart.getChart(elC);if(ex)ex.destroy();
+    const bins=[0,0,0,0,0,0];
+    susp.forEach(x=>{const b=Math.min(Math.floor(x.dias/10),5);bins[b]++;});
+    new Chart(elC,{type:'bar',data:{labels:['0-10d','11-20d','21-30d','31-40d','41-50d','51-60d'],
+      datasets:[{data:bins,backgroundColor:['#ef4444','#ef4444','#f59e0b','#f59e0b','#94a3b8','#94a3b8'],borderRadius:3}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9},stepSize:1}}}}});
+  }
+  renderMora60();
+}
+
+function renderMora60() {
+  const rf=(document.getElementById('mora60-filtro-riesgo')?.value||'');
+  const zf=(document.getElementById('mora60-filtro-zona')?.value||'');
+  const q=(document.getElementById('mora60-search')?.value||'').toLowerCase();
+  let rows=mora60Data.registros;
+  if(rf==='CRITICO') rows=rows.filter(x=>x.riesgo.includes('CRITICO'));
+  if(rf==='ALTO')    rows=rows.filter(x=>x.riesgo.includes('CRITICO')||x.riesgo.includes('ALTO'));
+  if(zf) rows=rows.filter(x=>x.zona===zf);
+  if(q)  rows=rows.filter(x=>x.nombre.toLowerCase().includes(q));
+  const cnt=document.getElementById('mora60-cnt');
+  if(cnt)cnt.textContent=rows.length+' clientes';
+  const tbody=document.getElementById('mora60-tbody');
+  if(!tbody)return;
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text3)">Sin registros con estos filtros</td></tr>';return;}
+  tbody.innerHTML=rows.map(x=>{
+    const ok=x.estado==='Activo',crit=x.riesgo.includes('CRITICO'),alto=x.riesgo.includes('ALTO');
+    const pill=ok?'<span class="pill pg">Activo</span>':crit?'<span class="pill pr">'+x.estado+'</span>':'<span class="pill pa">'+x.estado+'</span>';
+    const dCol=(!ok&&x.dias<=30)?'color:var(--red2);font-weight:700':(!ok&&x.dias<=60)?'color:var(--amber2);font-weight:700':'color:var(--text3)';
+    const rb=crit?`<span style="font-size:9px;font-family:var(--mono);color:var(--red);font-weight:700">${x.riesgo}</span>`:alto?`<span style="font-size:9px;font-family:var(--mono);color:var(--amber);font-weight:700">${x.riesgo}</span>`:`<span style="font-size:9px;color:var(--text3)">Normal</span>`;
+    return `<tr style="border-bottom:1px solid var(--border)${crit?' background:var(--red-l)':''}">
+      <td style="padding:6px 10px;font-weight:600;font-size:11px">${x.nombre}</td>
+      <td style="padding:6px 10px;font-size:10px;color:var(--text2);max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${x.zona}">${x.zona.length>28?x.zona.slice(0,28)+'…':x.zona}</td>
+      <td style="padding:6px 10px;font-size:10px;color:var(--text2)">${x.plan}</td>
+      <td style="padding:6px 10px;text-align:center">${pill}</td>
+      <td style="padding:6px 10px;font-size:10px;color:var(--text2)">${x.fecha.slice(0,10)}</td>
+      <td style="padding:6px 10px;text-align:center;font-family:var(--mono);font-size:11px;${dCol}">${x.dias}d</td>
+      <td style="padding:6px 10px">${rb}</td>
+    </tr>`;
+  }).join('');
 }
 
 // Soporte sub-tabs registrados en función build() directamente
