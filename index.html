@@ -488,7 +488,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
       <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;">BAJAS POR DIRECCIÓN</div>
       <div style="max-height:320px;overflow-y:auto;">
         <table class="tbl" style="font-size:11px;">
-          <thead><tr><th>Dirección / Sector</th><th class="r">Bajas</th><th class="r">% del total</th><th>Patrón</th><th>Oportunidad</th></tr></thead>
+          <thead><tr><th>Código Odoo</th><th>Cliente</th><th>Dirección / Sector</th><th class="r">Bajas</th><th>Patrón</th><th>Oportunidad</th></tr></thead>
           <tbody id="drill-bajas-tbody"></tbody>
         </table>
       </div>
@@ -883,7 +883,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     </div>
     <div style="max-height:320px;overflow-y:auto;">
       <table class="tbl" style="font-size:11px;">
-        <thead><tr><th>Proyecto</th><th>Zona/Sector</th><th>Contratos</th><th>Vencimiento</th><th>Días</th><th>MRR</th><th>Riesgo</th><th>Acción</th></tr></thead>
+        <thead><tr><th>Código Odoo</th><th>Cliente</th><th>Proyecto</th><th>Zona/Sector</th><th class="r">Contratos</th><th>Vencimiento</th><th class="r">MRR</th><th>Riesgo</th><th>Acción</th></tr></thead>
         <tbody id="ret-tbody-criticos"></tbody>
       </table>
     </div>
@@ -3284,83 +3284,90 @@ function bCampo(){
 // Cuando tengamos el campo "Dirección" en el export de Odoo, esto se cargará dinámicamente
 const bajasPorDireccion = {
   'Marsella': [
-    {dir:'Pol. Q7 - Calle Principal', bajas:8, causa:'Retiro servicio', comp:true},
-    {dir:'Pol. Q5 - Av. Los Almendros', bajas:6, causa:'Retiro servicio', comp:true},
-    {dir:'Pol. Q3 - Calle El Roble', bajas:5, causa:'Competencia', comp:true},
-    {dir:'Pol. Q9 - Res. Las Palmas', bajas:4, causa:'Retiro servicio', comp:false},
-    {dir:'Pol. Q8 - Calle Los Cedros', bajas:3, causa:'Cobertura', comp:false},
-    {dir:'Pol. Q10 - Av. Central', bajas:3, causa:'Retiro servicio', comp:false},
-    {dir:'Core 1 - Diversas', bajas:3, causa:'Terminación', comp:false},
-    {dir:'Core 3 - Diversas', bajas:2, causa:'Insatisfacción', comp:false},
-    {dir:'Mall Marsella - Comercial', bajas:1, causa:'Terminación', comp:false},
+    {cod:'SUB-10234',cli:'María López',dir:'Pol. Q7 - Calle Principal',causa:'Retiro servicio',comp:true},
+    {cod:'SUB-10251',cli:'Carlos Reyes',dir:'Pol. Q7 - Calle Principal',causa:'Competencia',comp:true},
+    {cod:'SUB-10289',cli:'Ana Martínez',dir:'Pol. Q7 - Calle Principal',causa:'Retiro servicio',comp:true},
+    {cod:'SUB-10312',cli:'José Hernández',dir:'Pol. Q5 - Av. Los Almendros',causa:'Retiro servicio',comp:true},
+    {cod:'SUB-10345',cli:'Rosa Pérez',dir:'Pol. Q5 - Av. Los Almendros',causa:'Competencia',comp:true},
+    {cod:'SUB-10378',cli:'Luis García',dir:'Pol. Q5 - Av. Los Almendros',causa:'Retiro servicio',comp:true},
+    {cod:'SUB-10401',cli:'Carmen Flores',dir:'Pol. Q3 - Calle El Roble',causa:'Competencia',comp:true},
+    {cod:'SUB-10423',cli:'Miguel Torres',dir:'Pol. Q3 - Calle El Roble',causa:'Competencia',comp:true},
+    {cod:'SUB-10456',cli:'Elena Ramos',dir:'Pol. Q9 - Res. Las Palmas',causa:'Retiro servicio',comp:false},
+    {cod:'SUB-10478',cli:'Pedro Castillo',dir:'Pol. Q9 - Res. Las Palmas',causa:'Retiro servicio',comp:false},
+    {cod:'SUB-10501',cli:'Sofía Méndez',dir:'Pol. Q8 - Calle Los Cedros',causa:'Cobertura',comp:false},
+    {cod:'SUB-10534',cli:'Ricardo Vega',dir:'Pol. Q10 - Av. Central',causa:'Retiro servicio',comp:false},
+    {cod:'SUB-10567',cli:'Laura Escobar',dir:'Core 1 - Diversas',causa:'Terminación',comp:false},
+    {cod:'SUB-10589',cli:'Fernando Díaz',dir:'Core 3 - Diversas',causa:'Insatisfacción',comp:false},
+    {cod:'SUB-10612',cli:'Patricia Molina',dir:'Mall Marsella - Comercial',causa:'Terminación',comp:false},
   ],
   'Ecoterra': [
-    {dir:'Core 1 - Pol. 71-75', bajas:3, causa:'Retiro servicio', comp:false},
-    {dir:'Core 1 - Pol. 76-80', bajas:2, causa:'Competencia', comp:true},
-    {dir:'Cluster 3 - Sector Norte', bajas:2, causa:'Retiro servicio', comp:false},
-    {dir:'Core 1 - Pol. 81-85', bajas:1, causa:'Cobertura', comp:false},
+    {cod:'SUB-11023',cli:'Roberto Aguilar',dir:'Core 1 - Pol. 71-75',causa:'Retiro servicio',comp:false},
+    {cod:'SUB-11045',cli:'Sandra Portillo',dir:'Core 1 - Pol. 71-75',causa:'Retiro servicio',comp:false},
+    {cod:'SUB-11067',cli:'Alejandro Cruz',dir:'Core 1 - Pol. 76-80',causa:'Competencia',comp:true},
+    {cod:'SUB-11089',cli:'Marta Figueroa',dir:'Core 1 - Pol. 76-80',causa:'Competencia',comp:true},
+    {cod:'SUB-11102',cli:'Daniel Orellana',dir:'Cluster 3 - Sector Norte',causa:'Retiro servicio',comp:false},
+    {cod:'SUB-11134',cli:'Isabel Guzmán',dir:'Cluster 3 - Sector Norte',causa:'Retiro servicio',comp:false},
+    {cod:'SUB-11156',cli:'Óscar Pineda',dir:'Core 1 - Pol. 81-85',causa:'Cobertura',comp:false},
   ],
   'Villa Panamericana': [
-    {dir:'Cluster 1 - Av. Principal', bajas:2, causa:'Retiro servicio', comp:false},
-    {dir:'Cluster 1 - Calle 3a', bajas:2, causa:'Competencia', comp:true},
-    {dir:'Cluster 2 - Sector Sur', bajas:1, causa:'Terminación', comp:false},
+    {cod:'SUB-12001',cli:'Claudia Rivera',dir:'Cluster 1 - Av. Principal',causa:'Retiro servicio',comp:false},
+    {cod:'SUB-12023',cli:'Jorge Amaya',dir:'Cluster 1 - Av. Principal',causa:'Retiro servicio',comp:false},
+    {cod:'SUB-12045',cli:'Verónica Chávez',dir:'Cluster 1 - Calle 3a',causa:'Competencia',comp:true},
+    {cod:'SUB-12067',cli:'Ernesto Luna',dir:'Cluster 2 - Sector Sur',causa:'Terminación',comp:false},
   ],
   'Marsella II': [
-    {dir:'Pol. Q14 - Calle Nueva', bajas:2, causa:'Retiro servicio', comp:false},
-    {dir:'Pol. Q13 - Av. Los Pinos', bajas:2, causa:'Competencia', comp:true},
-    {dir:'Pol. Q12 - Diversas', bajas:1, causa:'Cobertura', comp:false},
+    {cod:'SUB-13001',cli:'Adriana Solís',dir:'Pol. Q14 - Calle Nueva',causa:'Retiro servicio',comp:false},
+    {cod:'SUB-13023',cli:'Héctor Mejía',dir:'Pol. Q13 - Av. Los Pinos',causa:'Competencia',comp:true},
+    {cod:'SUB-13045',cli:'Gabriela Montes',dir:'Pol. Q13 - Av. Los Pinos',causa:'Competencia',comp:true},
+    {cod:'SUB-13067',cli:'Raúl Beltrán',dir:'Pol. Q12 - Diversas',causa:'Cobertura',comp:false},
   ],
   'Villas de la Costa': [
-    {dir:'Cluster 2 - Sector Centro', bajas:1, causa:'Retiro servicio', comp:false},
-    {dir:'Cluster 1 - Av. Costera', bajas:1, causa:'Competencia', comp:true},
+    {cod:'SUB-14001',cli:'Lucía Vargas',dir:'Cluster 2 - Sector Centro',causa:'Retiro servicio',comp:false},
+    {cod:'SUB-14023',cli:'Andrés Palacios',dir:'Cluster 1 - Av. Costera',causa:'Competencia',comp:true},
   ],
   'Acrópoli': [
-    {dir:'Sector A - Calle 1a', bajas:1, causa:'Retiro servicio', comp:false},
-    {dir:'Sector B - Av. Sonsonate', bajas:1, causa:'Competencia', comp:true},
+    {cod:'SUB-15001',cli:'Teresa Navarrete',dir:'Sector A - Calle 1a',causa:'Retiro servicio',comp:false},
+    {cod:'SUB-15023',cli:'Mario Quintanilla',dir:'Sector B - Av. Sonsonate',causa:'Competencia',comp:true},
   ],
   'Mediterráneo': [
-    {dir:'Sector Principal', bajas:2, causa:'Retiro servicio', comp:false},
-    {dir:'Sector Ahuachapán Sur', bajas:1, causa:'Cobertura', comp:false},
+    {cod:'SUB-16001',cli:'Beatriz Cárcamo',dir:'Sector Principal',causa:'Retiro servicio',comp:false},
+    {cod:'SUB-16023',cli:'Enrique Padilla',dir:'Sector Principal',causa:'Retiro servicio',comp:false},
+    {cod:'SUB-16045',cli:'Norma Sandoval',dir:'Sector Ahuachapán Sur',causa:'Cobertura',comp:false},
   ],
   'Montecristo': [
-    {dir:'Sector Metapán Centro', bajas:1, causa:'Retiro servicio', comp:false},
+    {cod:'SUB-17001',cli:'Armando Zelaya',dir:'Sector Metapán Centro',causa:'Retiro servicio',comp:false},
   ],
 };
 
 function openBajasDrill(proyecto) {
-  const dirs = bajasPorDireccion[proyecto];
-  if (!dirs || dirs.length === 0) return;
+  const clientes = bajasPorDireccion[proyecto];
+  if (!clientes || clientes.length === 0) return;
 
   const modal = document.getElementById('modal-bajas-drill');
-  const totalBajas = dirs.reduce((a,d) => a+d.bajas, 0);
-  const totalDirs = dirs.length;
-  const compDirs = dirs.filter(d => d.comp);
-  const compBajas = compDirs.reduce((a,d) => a+d.bajas, 0);
+  const totalBajas = clientes.length;
+  const uniqueDirs = [...new Set(clientes.map(c=>c.dir))].length;
+  const compClientes = clientes.filter(d => d.comp);
+  const compBajas = compClientes.length;
   const pctComp = totalBajas > 0 ? Math.round(compBajas/totalBajas*100) : 0;
 
-  // Determinar patrón
-  const maxDir = dirs.reduce((a,d) => d.bajas > a.bajas ? d : a, dirs[0]);
-  const concentrado = maxDir.bajas >= totalBajas * 0.3; // >30% en una sola dirección
+  // Agrupar por dirección para detectar concentración
+  const byDir = {};
+  clientes.forEach(c => { byDir[c.dir] = (byDir[c.dir]||0) + 1; });
+  const maxDirEntry = Object.entries(byDir).sort((a,b)=>b[1]-a[1])[0];
+  const concentrado = maxDirEntry && maxDirEntry[1] >= totalBajas * 0.25;
   const esCompetencia = pctComp >= 40;
 
   const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
   setEl('drill-bajas-title', `Bajas — ${proyecto}`);
-  setEl('drill-bajas-sub', `Desglose por dirección · ${ventasData.mes || 'marzo 2026'}`);
+  setEl('drill-bajas-sub', `${totalBajas} clientes · ${uniqueDirs} direcciones · ${ventasData.mes || 'marzo 2026'}`);
   setEl('drill-bajas-total', totalBajas);
-  setEl('drill-bajas-dirs', totalDirs);
+  setEl('drill-bajas-dirs', uniqueDirs);
 
   const concEl = document.getElementById('drill-bajas-concentracion');
   if (concEl) {
-    if (esCompetencia) {
-      concEl.textContent = '⚠ Competencia';
-      concEl.style.color = 'var(--red)';
-    } else if (concentrado) {
-      concEl.textContent = 'Concentrado';
-      concEl.style.color = 'var(--amber)';
-    } else {
-      concEl.textContent = 'Disperso';
-      concEl.style.color = 'var(--text3)';
-    }
+    if (esCompetencia) { concEl.textContent = '⚠ Competencia'; concEl.style.color = 'var(--red)'; }
+    else if (concentrado) { concEl.textContent = 'Concentrado'; concEl.style.color = 'var(--amber)'; }
+    else { concEl.textContent = 'Disperso'; concEl.style.color = 'var(--text3)'; }
   }
   setEl('drill-bajas-tipo', esCompetencia ? 'Avance de competencia detectado' : concentrado ? 'Bajas concentradas en sector' : 'Retiros individuales dispersos');
 
@@ -3369,38 +3376,42 @@ function openBajasDrill(proyecto) {
   if (alertaEl) {
     if (esCompetencia) {
       alertaEl.innerHTML = `<div style="padding:10px 12px;border-radius:8px;background:#FEF2F2;border-left:3px solid var(--red);font-size:11px;">
-        <strong style="color:var(--red);">⚠ Alerta de competencia:</strong> <span style="color:var(--text2);">${compBajas} bajas (${pctComp}%) asociadas a avance de competencia en ${compDirs.length} direcciones de ${proyecto}. Requiere acción inmediata del equipo de ventas.</span>
+        <strong style="color:var(--red);">⚠ Alerta de competencia:</strong> <span style="color:var(--text2);">${compBajas} clientes (${pctComp}%) asociados a migración por competencia en ${proyecto}. Requiere acción inmediata del equipo de ventas en estas direcciones.</span>
       </div>`;
     } else if (concentrado) {
       alertaEl.innerHTML = `<div style="padding:10px 12px;border-radius:8px;background:#FFFBEB;border-left:3px solid var(--amber);font-size:11px;">
-        <strong style="color:var(--amber);">📍 Concentración detectada:</strong> <span style="color:var(--text2);">${maxDir.bajas} bajas en "${maxDir.dir}" (${Math.round(maxDir.bajas/totalBajas*100)}% del total). Verificar causa raíz en esa zona.</span>
+        <strong style="color:var(--amber);">📍 Concentración:</strong> <span style="color:var(--text2);">${maxDirEntry[1]} bajas en "${maxDirEntry[0]}" (${Math.round(maxDirEntry[1]/totalBajas*100)}%). Verificar causa raíz.</span>
       </div>`;
     } else {
       alertaEl.innerHTML = `<div style="padding:10px 12px;border-radius:8px;background:var(--surf2);border-left:3px solid var(--green);font-size:11px;">
-        <strong style="color:var(--green);">✓ Sin concentración crítica:</strong> <span style="color:var(--text2);">Las bajas están distribuidas entre ${totalDirs} direcciones. No se detecta patrón geográfico de competencia.</span>
+        <strong style="color:var(--green);">✓ Sin concentración crítica:</strong> <span style="color:var(--text2);">Bajas distribuidas en ${uniqueDirs} direcciones.</span>
       </div>`;
     }
   }
 
-  // Tabla
+  // Tabla cliente por cliente
   const tbody = document.getElementById('drill-bajas-tbody');
   if (tbody) {
     tbody.innerHTML = '';
-    dirs.sort((a,b) => b.bajas - a.bajas).forEach(d => {
-      const pct = (d.bajas/totalBajas*100).toFixed(0);
+    // Ordenar: competencia primero, luego por dirección
+    clientes.sort((a,b) => {
+      if (a.comp !== b.comp) return a.comp ? -1 : 1;
+      return a.dir.localeCompare(b.dir);
+    }).forEach(d => {
       const patron = d.comp
         ? '<span class="pill pill-red">Competencia</span>'
         : d.causa === 'Cobertura' ? '<span class="pill pill-amber">Cobertura</span>'
         : d.causa === 'Terminación' ? '<span class="pill" style="background:#F3E8FF;color:#7C3AED;">Terminación</span>'
-        : '<span class="pill" style="background:var(--surf3);color:var(--text3);">Retiro individual</span>';
+        : d.causa === 'Insatisfacción' ? '<span class="pill" style="background:#FEF3C7;color:#92400E;">Insatisfacción</span>'
+        : '<span class="pill" style="background:var(--surf3);color:var(--text3);">Retiro</span>';
       const oportunidad = d.comp
         ? '<span style="color:var(--green);font-weight:600;">🎯 Recuperar</span>'
-        : d.bajas >= 3 ? '<span style="color:var(--amber);font-weight:600;">📋 Seguimiento</span>'
-        : '<span style="color:var(--text3);">—</span>';
+        : '<span style="color:var(--text3);">Seguimiento</span>';
       tbody.innerHTML += `<tr>
+        <td><code style="font-size:10px;background:var(--surf2);padding:1px 4px;border-radius:3px;">${d.cod}</code></td>
+        <td>${d.cli}</td>
         <td>${d.dir}</td>
-        <td class="r"><strong>${d.bajas}</strong></td>
-        <td class="r">${pct}%</td>
+        <td class="r">1</td>
         <td>${patron}</td>
         <td>${oportunidad}</td>
       </tr>`;
@@ -3411,11 +3422,12 @@ function openBajasDrill(proyecto) {
   const accionEl = document.getElementById('drill-bajas-accion');
   const accionTxt = document.getElementById('drill-bajas-accion-txt');
   if (accionEl && accionTxt) {
-    const oportunidades = dirs.filter(d => d.comp || d.bajas >= 3);
+    const oportunidades = clientes.filter(d => d.comp);
     if (oportunidades.length > 0) {
       accionEl.style.display = 'block';
-      const dirList = oportunidades.map(d => `<strong>${d.dir}</strong> (${d.bajas} bajas)`).join(', ');
-      accionTxt.innerHTML = `Se identifican <strong>${oportunidades.length} sectores prioritarios</strong> para seguimiento de ventas: ${dirList}. Asignar vendedor de campo para visita y captación de clientes que dejaron el servicio o que fueron captados por la competencia.`;
+      const cliList = oportunidades.slice(0,5).map(d => `<strong>${d.cod}</strong> ${d.cli}`).join(', ');
+      const extra = oportunidades.length > 5 ? ` y ${oportunidades.length-5} más` : '';
+      accionTxt.innerHTML = `<strong>${oportunidades.length} clientes</strong> perdidos por competencia para seguimiento de ventas: ${cliList}${extra}. Asignar vendedor para visita de recuperación en las direcciones afectadas.`;
     } else {
       accionEl.style.display = 'none';
     }
@@ -3848,25 +3860,58 @@ function bRetencion(){
   }
 
   // ── Tabla de contratos críticos ──
+  // Generador de código Odoo ejemplo para seed
+  let _codSeq = 20001;
+  const genCod = () => 'SUB-' + (_codSeq++);
+  const nombresEj = ['A. García','M. López','J. Hernández','R. Pérez','C. Flores','L. Torres','E. Ramos','P. Castillo','S. Méndez','F. Díaz','G. Molina','H. Mejía','I. Solís','K. Vargas','N. Aguilar','O. Portillo','Q. Cruz','T. Navarrete','U. Rivera','V. Chávez'];
+  let _nomIdx = 0;
+  const genNom = () => nombresEj[(_nomIdx++) % nombresEj.length];
+
   window._retCriticosData = [];
   proys.forEach(([nombre, p]) => {
     p.sectores.forEach(s => {
       const sinRen = s.vencidos - s.renovados;
       if (sinRen > 0) {
-        window._retCriticosData.push({
-          proyecto:nombre, zona:s.zona, contratos:sinRen,
-          vencimiento:'Vencido', dias:-15, mrr:Math.round(sinRen*ARPU),
-          riesgo: s.comp ? 'Competencia' : sinRen >= 10 ? 'Alto' : 'Medio',
-          comp: s.comp
-        });
+        // Generar registros individuales por cliente
+        for (let i = 0; i < Math.min(sinRen, 5); i++) {
+          window._retCriticosData.push({
+            cod: genCod(), cli: genNom(),
+            proyecto:nombre, zona:s.zona, contratos:1,
+            vencimiento:'Vencido', dias: -Math.round(Math.random()*30+1), mrr:Math.round(ARPU),
+            riesgo: s.comp ? 'Competencia' : 'Alto',
+            comp: s.comp
+          });
+        }
+        // Si hay más de 5, agrupar el resto
+        if (sinRen > 5) {
+          window._retCriticosData.push({
+            cod: '—', cli: `+${sinRen-5} clientes más`,
+            proyecto:nombre, zona:s.zona, contratos:sinRen-5,
+            vencimiento:'Vencido', dias:-15, mrr:Math.round((sinRen-5)*ARPU),
+            riesgo: s.comp ? 'Competencia' : sinRen >= 10 ? 'Alto' : 'Medio',
+            comp: s.comp
+          });
+        }
       }
       if (s.vence30 > 0) {
-        window._retCriticosData.push({
-          proyecto:nombre, zona:s.zona, contratos:s.vence30,
-          vencimiento:'Próx. 30d', dias:15, mrr:Math.round(s.vence30*ARPU),
-          riesgo: s.comp ? 'Competencia' : s.vence30 >= 8 ? 'Alto' : 'Medio',
-          comp: s.comp
-        });
+        for (let i = 0; i < Math.min(s.vence30, 5); i++) {
+          window._retCriticosData.push({
+            cod: genCod(), cli: genNom(),
+            proyecto:nombre, zona:s.zona, contratos:1,
+            vencimiento:'Próx. 30d', dias: Math.round(Math.random()*28+1), mrr:Math.round(ARPU),
+            riesgo: s.comp ? 'Competencia' : 'Medio',
+            comp: s.comp
+          });
+        }
+        if (s.vence30 > 5) {
+          window._retCriticosData.push({
+            cod: '—', cli: `+${s.vence30-5} clientes más`,
+            proyecto:nombre, zona:s.zona, contratos:s.vence30-5,
+            vencimiento:'Próx. 30d', dias:15, mrr:Math.round((s.vence30-5)*ARPU),
+            riesgo: s.comp ? 'Competencia' : s.vence30 >= 8 ? 'Alto' : 'Medio',
+            comp: s.comp
+          });
+        }
       }
     });
   });
@@ -3910,7 +3955,8 @@ function renderRetCriticos() {
   const filtro = document.getElementById('ret-filter-estado')?.value || 'todos';
 
   const filtered = data.filter(d => {
-    if (search && !d.proyecto.toLowerCase().includes(search) && !d.zona.toLowerCase().includes(search)) return false;
+    if (search && !d.proyecto.toLowerCase().includes(search) && !d.zona.toLowerCase().includes(search)
+        && !d.cod.toLowerCase().includes(search) && !d.cli.toLowerCase().includes(search)) return false;
     if (filtro === 'vencido' && d.vencimiento !== 'Vencido') return false;
     if (filtro === 'por_vencer' && d.vencimiento !== 'Próx. 30d') return false;
     if (filtro === 'competencia' && !d.comp) return false;
@@ -3920,23 +3966,28 @@ function renderRetCriticos() {
   const tbody = document.getElementById('ret-tbody-criticos');
   if (!tbody) return;
   tbody.innerHTML = '';
-  filtered.forEach(d => {
-    const rColor = d.riesgo==='Competencia' ? 'var(--red)' : d.riesgo==='Alto' ? 'var(--amber)' : 'var(--text3)';
+  filtered.slice(0, 100).forEach(d => {
     const rBadge = d.riesgo==='Competencia' ? '<span class="pill pill-red">🎯 Competencia</span>'
                  : d.riesgo==='Alto' ? '<span class="pill pill-amber">Alto</span>'
                  : '<span class="pill" style="background:var(--surf3);color:var(--text3);">Medio</span>';
     const accion = d.comp ? '<span style="color:var(--red);font-weight:600;">Visita urgente</span>'
-                 : d.contratos >= 8 ? '<span style="color:var(--amber);font-weight:600;">Contactar</span>'
+                 : d.contratos >= 5 ? '<span style="color:var(--amber);font-weight:600;">Contactar</span>'
                  : '<span style="color:var(--text3);">Seguimiento</span>';
     const vBadge = d.vencimiento === 'Vencido'
       ? '<span class="pill pill-red">Vencido</span>'
       : '<span class="pill pill-amber">30 días</span>';
+    const codCell = d.cod === '—' ? '<td style="color:var(--text3);">—</td>'
+      : `<td><code style="font-size:10px;background:var(--surf2);padding:1px 4px;border-radius:3px;">${d.cod}</code></td>`;
     tbody.innerHTML += `<tr>
-      <td>${d.proyecto}</td><td>${d.zona}</td><td class="r"><strong>${d.contratos}</strong></td>
-      <td>${vBadge}</td><td class="r" style="color:${d.dias<0?'var(--red)':'var(--amber)'}">${d.dias<0?d.dias:'+'+d.dias}d</td>
+      ${codCell}<td>${d.cli}</td><td>${d.proyecto}</td><td>${d.zona}</td>
+      <td class="r"><strong>${d.contratos}</strong></td>
+      <td>${vBadge}</td>
       <td class="r">$${fmtN(d.mrr)}</td><td>${rBadge}</td><td>${accion}</td>
     </tr>`;
   });
+  if (filtered.length > 100) {
+    tbody.innerHTML += `<tr><td colspan="9" style="text-align:center;color:var(--text3);font-size:10px;padding:8px;">Mostrando 100 de ${filtered.length} registros — usa el filtro para refinar</td></tr>`;
+  }
 }
 
 // ── Drill-down modal para vencimientos ──
