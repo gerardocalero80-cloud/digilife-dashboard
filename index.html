@@ -287,7 +287,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
   <div class="g5">
     <div class="skpi g">
       <div class="skpi-area">Ventas campo</div>
-      <div class="skpi-lbl">Ventas brutas <span id="res-mes-label">mes</span></div>
+      <div class="skpi-lbl">Ventas totales <span id="res-mes-label">mes</span></div>
       <div class="skpi-val" id="kpi-ventas-feb">—</div>
       <div class="skpi-d wn">Inst: <span id="kpi-inst-feb">—</span> · Bajas: <span id="kpi-bajas-feb">—</span></div>
     </div>
@@ -397,7 +397,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 <div id="page-ventas-campo" class="page">
   <div class="slbl" id="slbl-ventas-campo">ventas campo · agencias · freelance · digital · referidos · <span id="ventas-mes-label">cargando...</span></div>
   <div class="g4">
-    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Ventas brutas <span id="ventas-mes-s1">mes</span></div><div class="kpi-val" id="vc-ventas">—</div><div class="kpi-sub">Ventas + Reservas por zona</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Ventas totales <span id="ventas-mes-s1">mes</span></div><div class="kpi-val" id="vc-ventas">—</div><div class="kpi-sub">Venta Directa + Reserva + Entrega de Llave</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Instalaciones <span id="ventas-mes-s2">mes</span></div><div class="kpi-val" style="color:var(--green);" id="vc-inst">—</div><div class="kpi-sub" id="vc-inst-sub">—</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Bajas <span id="ventas-mes-s3">mes</span></div><div class="kpi-val" style="color:var(--red);" id="vc-bajas">—</div><div class="kpi-sub" id="vc-bajas-sub">—</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Netos reales</div><div class="kpi-val" style="color:var(--amber);" id="vc-netos">—</div><div class="kpi-sub" id="vc-netos-sub">inst. − bajas</div><div class="kpi-fx">Factor conv. a pagante: 77%</div></div>
@@ -1292,27 +1292,28 @@ const URL_INST_PENDIENTES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQ
 const URL_CONCIL_CXC60D   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=277524538";
 
 // Ventas data — updated from VENTAS_URL, fallback to feb seed
-// ventasData — Ventas (Odoo: Venta Directa+Reserva) | Instalaciones (Wishup: fuente de verdad)
-// Semilla: exports 24/03/2026
+// ventasData — Ventas totales Odoo (Venta Directa + Reserva + Entrega de Llave) | Instalaciones (Wishup: fuente de verdad)
+// Semilla: exports 28/03/2026
 let ventasData = {
   // Proyectos — unión de ambas fuentes, ordenados por ventas Odoo
   zonas:  ['Marsella','Ecoterra','Villa Panamericana','Nueva San Miguel','Marsella II','Villas de la Costa','Acrópoli','Mediterráneo','Montecristo','Megápolis'],
-  // Ventas brutas Odoo: Venta Directa + Reserva con fecha instalación marzo
+  // Ventas totales Odoo: Venta Directa + Reserva + Entrega de Llave con fecha instalación marzo
   ventas: [59, 37, 28, 28, 24, 13, 9, 9, 6, 5],
   // Instalaciones Wishup: fecha activación en red (fuente de verdad)
   inst:   [99, 37, 32, 28,  0, 13, 9, 9, 7, 6],
   bajas:  [35,  8,  5,  0,  5,  2, 2, 3, 1, 0],
   mes:    'marzo 2026',
-  totalContratos:    230,   // Odoo: Venta Directa 177 + Reserva 53
+  totalContratos:    261,   // Odoo: Venta Directa 179 + Reserva 65 + Entrega de Llave 17
   totalInst:           0,   // 0 = forzar uso de Wishup (313 en marzo 2026)
-  totalBajas:         64,
-  venta_directa:     177,
-  reserva:            53,
+  totalBajas:         65,
+  venta_directa:     179,
+  reserva:            65,
+  entrega_llave:      17,
   interna:           170,
   externa:            60,
-  // Diario Odoo (ventas/contratos por día)
-  porDia:     {1:11,2:9,3:11,4:11,5:6,6:13,7:16,8:6,9:11,10:10,11:7,12:10,13:10,14:11,15:8,16:1,17:9,18:13,19:9,20:11,21:10,22:7,23:6,24:9,25:1,27:1,28:2,29:1},
-  acumDia:    [11,20,31,42,48,61,77,83,94,104,111,121,131,142,150,151,160,173,182,193,203,210,216,225,226,226,227,229,230,230,230],
+  // Diario Odoo (ventas totales por día — de tabla dinámica Odoo 28/03/2026)
+  porDia:     {1:12,2:11,3:11,4:13,5:6,6:13,7:15,8:6,9:11,10:9,11:6,12:13,13:10,14:8,15:7,16:1,17:9,18:13,19:5,20:10,21:9,22:5,23:6,24:12,25:8,26:10,27:9,28:10,29:2,30:1},
+  acumDia:    [12,23,34,47,53,66,81,87,98,107,113,126,136,144,151,152,161,174,179,189,198,203,209,221,229,239,248,258,260,261,261],
   // Diario Wishup (instalaciones reales por día)
   porDiaInst: {1:13,2:11,3:10,4:14,5:5,6:14,7:17,8:7,9:11,10:10,11:7,12:15,13:11,14:11,15:7,16:4,17:9,18:15,19:9,20:15,21:10,22:7,23:7,24:12},
   acumDiaInst:[13,24,34,48,53,67,84,91,102,112,119,134,145,156,163,167,176,191,200,215,225,232,239,251,255,260,265,269,271,274,274],
@@ -2387,32 +2388,34 @@ async function fetchConcil() {
         let instTotalOdoo = 0, instTotalWishup = 0;
         let fechaCorte = '—', seccion = '';
 
+        // Categorías genéricas que NO son proyectos reales (vienen del CSV como resumen)
+        const CATEGORIAS_NO_PROYECTO = new Set(['total','total global','residenciales','corporativos','pyme','otros','corporativo']);
+
         rows.forEach(r => {
           const c0 = String(r[0]||'').trim();
+          const c0L = c0.toLowerCase();
           const c1 = parseNum(r[1]);
 
-          // ── Formato Apps Script v3.0: 22_CONCILIACION ──
-          // Columnas: Proyecto | Inst. Odoo | Inst. Wishup | Diferencia | Estado |
-          //           Activos Odoo (total) | Activos Wishup (total) | Brecha activos | Fecha corte
-          // Fila 1 = headers, Fila 2 = TOTAL GLOBAL, Fila 3+ = por proyecto
+          // ── Skip headers y vacías
+          if (c0 === 'Proyecto' || c0 === '' || c0L.includes('proyecto')) return;
 
-          if (c0 === 'Proyecto' || c0 === '') return; // header o vacía
-
-          if (c0 === 'TOTAL GLOBAL') {
+          // ── Fila TOTAL / TOTAL GLOBAL — extraer totales globales
+          if (c0L === 'total' || c0L === 'total global') {
             instTotalOdoo   = parseNum(r[1]) || 0;
             instTotalWishup = parseNum(r[2]) || 0;
-            odooActivos     = parseNum(r[5]) || 0;
-            wishupActivos   = parseNum(r[6]) || 0;
-            totalOdoo       = odooActivos;
-            totalWishup     = wishupActivos;
-            fechaCorte      = String(r[8]||'').trim() || '—';
+            // Columnas 5/6 pueden tener activos Odoo/Wishup si el formato v3 las incluye
+            const col5 = parseNum(r[5]);
+            const col6 = parseNum(r[6]);
+            if (col5 > 0) { odooActivos = col5; totalOdoo = col5; }
+            if (col6 > 0) { wishupActivos = col6; totalWishup = col6; }
+            fechaCorte = String(r[8]||r[7]||'').trim() || fechaCorte;
             return;
           }
 
-          // Filas de proyectos
+          // ── Filas de datos — separar proyectos reales de categorías
           const instO = parseNum(r[1]);
           const instW = parseNum(r[2]);
-          if (c0 && instO !== null) {
+          if (c0 && instO !== null && !CATEGORIAS_NO_PROYECTO.has(c0L)) {
             instOdoo[c0]   = instO || 0;
             instWishup[c0] = instW || 0;
           }
@@ -2880,10 +2883,10 @@ function rebuildVentasCharts() {
   if (!zonas.length) return;
 
   // ── Lógica de KPIs según fuentes definidas ──────────────────────────────────
-  // Ventas brutas  = Venta Directa + Reserva del mes (Odoo) → totalContratos
+  // Ventas totales = Venta Directa + Reserva + Entrega de Llave del mes (Odoo) → totalContratos
   // Instalaciones  = activaciones confirmadas en Wishup → instReal
   // Bajas          = declaradas en Odoo del mes corriente → dispBajas
-  // Netos reales   = Ventas brutas Odoo − Bajas Odoo (no usa instalaciones Wishup)
+  // Netos reales   = Ventas totales Odoo − Bajas Odoo (no usa instalaciones Wishup)
 
   const dispContratos = totalContratos > 0 ? totalContratos : ventas.reduce((a,b)=>a+b,0);
   const dispBajas     = totalBajas     > 0 ? totalBajas     : bajas.reduce((a,b)=>a+b,0);
@@ -2895,7 +2898,7 @@ function rebuildVentasCharts() {
   const instZonas  = ventasData.fuenteWishup ? ventasData.inst : inst;
   const fuenteInst = ventasData.fuenteWishup ? '(Wishup)' : '(ERP)';
 
-  // Netos = ventas brutas Odoo - bajas Odoo
+  // Netos = ventas totales Odoo - bajas Odoo
   const netosReales = dispContratos - dispBajas;
   const mesLabel    = mes || 'mes actual';
 
@@ -3462,19 +3465,27 @@ async function fetchOdooVentas() {
   try {
     if (!ODOO_VENTAS_URL) {
       // Sin URL: los datos semilla de ventasData ya tienen los datos reales de Odoo
-      // Solo asegurar que kpiData.cx_brutas refleje el total Odoo
+      // Marcar fuenteOdoo para que fetchVentas no sobreescriba
+      ventasData.fuenteOdoo = true;
       if (ventasData.totalContratos > 0) {
         kpiData.cx_brutas = ventasData.totalContratos;
       }
+      console.log('[DigiLife] OdooVentas — sin URL, usando seed. totalContratos:', ventasData.totalContratos);
       rebuildVentasCharts();
       return;
     }
 
     const res = await fetch(ODOO_VENTAS_URL);
-    if (!res.ok) return;
+    if (!res.ok) {
+      // URL falló — usar seed y marcar fuenteOdoo
+      ventasData.fuenteOdoo = true;
+      console.log('[DigiLife] OdooVentas — URL error', res.status, ', usando seed. totalContratos:', ventasData.totalContratos);
+      rebuildVentasCharts();
+      return;
+    }
     const rows = parseCSV(await res.text());
 
-    let totalVentas = 0, totalBajas = 0, vd = 0, res_ = 0, interna = 0, externa = 0;
+    let totalVentas = 0, totalBajas = 0, vd = 0, res_ = 0, entLlave = 0, interna = 0, externa = 0;
     const byProy = {}, bajasByProy = {}, byDia = {};
     let seccion = '', mesLabel = 'mes actual';
 
@@ -3494,9 +3505,10 @@ async function fetchOdooVentas() {
       if (c0.includes('POR DÍA')) { seccion='dia'; return; }
 
       if (seccion === 'totales') {
-        if (c0.includes('Total ventas brutas'))  totalVentas  = c1||0;
+        if (c0.includes('Total ventas brutas') || c0.includes('Total ventas totales') || c0.includes('Total general'))  totalVentas  = c1||0;
         if (c0.includes('Venta Directa'))        vd           = c1||0;
         if (c0 === 'Reserva')                    res_         = c1||0;
+        if (c0.includes('Entrega de Llave') || c0.includes('Entrega de llave'))  entLlave = c1||0;
         if (c0 === 'Interna')                    interna      = c1||0;
         if (c0 === 'Externa')                    externa      = c1||0;
         if (c0.includes('Bajas mes'))            totalBajas   = c1||0;
@@ -3523,10 +3535,10 @@ async function fetchOdooVentas() {
         inst:   sorted.map(([,v]) => v),   // placeholder — será sobrescrito por fetchWishupInst
         bajas:  sorted.map(([z]) => bajasByProy[z]||0),
         mes:    mesLabel,
-        totalContratos: totalVentas,   // ventas brutas = Venta Directa + Reserva
+        totalContratos: totalVentas,   // ventas totales = VD + Reserva + Entrega de Llave
         totalInst:      0,             // 0 = forzar uso de Wishup cuando llegue
         totalBajas,                    // bajas declaradas en Odoo del mes
-        venta_directa: vd, reserva: res_, interna, externa,
+        venta_directa: vd, reserva: res_, entrega_llave: entLlave, interna, externa,
         porDia: byDia, acumDia,
         fuenteOdoo: true,
         fuenteWishup: false,           // se activa cuando fetchWishupInst carga
@@ -3537,8 +3549,18 @@ async function fetchOdooVentas() {
 
       console.log('[DigiLife] OdooVentas loaded:', totalVentas, 'ventas,', totalBajas, 'bajas, mes:', mesLabel);
       rebuildVentasCharts();
+    } else {
+      // Hoja respondió pero sin datos válidos — usar seed y marcar fuenteOdoo
+      ventasData.fuenteOdoo = true;
+      console.log('[DigiLife] OdooVentas — hoja vacía/sin totales, usando seed. totalContratos:', ventasData.totalContratos);
+      rebuildVentasCharts();
     }
-  } catch(e) { console.warn('[DigiLife] fetchOdooVentas error:', e); }
+  } catch(e) {
+    // Error de red — usar seed y marcar fuenteOdoo para proteger de fetchVentas
+    ventasData.fuenteOdoo = true;
+    console.warn('[DigiLife] fetchOdooVentas error:', e, '— usando seed. totalContratos:', ventasData.totalContratos);
+    rebuildVentasCharts();
+  }
 }
 
 // ── Fetch Instalaciones Wishup (fuente de verdad — activación real en red) ────
