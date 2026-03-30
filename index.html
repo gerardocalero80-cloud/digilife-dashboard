@@ -1304,7 +1304,7 @@ let ventasData = {
   bajas:  [35,  8,  5,  0,  5,  2, 2, 3, 1, 0],
   mes:    'marzo 2026',
   totalContratos:    230,   // Odoo: Venta Directa 177 + Reserva 53
-  totalInst:         274,   // Wishup: activaciones reales en red
+  totalInst:           0,   // 0 = forzar uso de Wishup (313 en marzo 2026)
   totalBajas:         64,
   venta_directa:     177,
   reserva:            53,
@@ -2856,12 +2856,25 @@ function rebuildVentasCharts() {
   const {zonas, ventas, inst, bajas, mes, totalContratos, totalInst, totalBajas} = ventasData;
   if (!zonas.length) return;
 
-  // Use Tabla C totals if available (more accurate — includes reservas)
+  // ── Lógica de KPIs según fuentes definidas ──────────────────────────────────
+  // Ventas brutas  = Venta Directa + Reserva del mes (Odoo) → totalContratos
+  // Instalaciones  = activaciones confirmadas en Wishup → instReal
+  // Bajas          = declaradas en Odoo del mes corriente → dispBajas
+  // Netos reales   = Ventas brutas Odoo − Bajas Odoo (no usa instalaciones Wishup)
+
   const dispContratos = totalContratos > 0 ? totalContratos : ventas.reduce((a,b)=>a+b,0);
-  const dispInst      = totalInst      > 0 ? totalInst      : inst.reduce((a,b)=>a+b,0);
   const dispBajas     = totalBajas     > 0 ? totalBajas     : bajas.reduce((a,b)=>a+b,0);
-  const netos         = dispInst - dispBajas;
-  const mesLabel      = mes || 'mes actual';
+
+  // Instalaciones: preferir Wishup si está disponible, si no usar Odoo
+  const instReal   = ventasData.fuenteWishup && ventasData.totalInst > 0
+                       ? ventasData.totalInst
+                       : (totalInst > 0 ? totalInst : inst.reduce((a,b)=>a+b,0));
+  const instZonas  = ventasData.fuenteWishup ? ventasData.inst : inst;
+  const fuenteInst = ventasData.fuenteWishup ? '(Wishup)' : '(ERP)';
+
+  // Netos = ventas brutas Odoo - bajas Odoo
+  const netosReales = dispContratos - dispBajas;
+  const mesLabel    = mes || 'mes actual';
 
   const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
 
@@ -2869,18 +2882,14 @@ function rebuildVentasCharts() {
   ['ventas-mes-label','ventas-mes-s1','ventas-mes-s2','ventas-mes-s3','res-mes-label','res-mes-chart'].forEach(id => setEl(id, mesLabel));
 
   // Instalaciones reales vienen de Wishup si está disponible
-  const instReal   = ventasData.totalInst      > 0 ? ventasData.totalInst      : dispInst;
-  const instZonas  = ventasData.fuenteWishup    ? ventasData.inst               : inst;
-  const fuenteInst = ventasData.fuenteWishup    ? '(Wishup)' : '(ERP)';
-
-  // KPI cards — ventas de Odoo, instalaciones de Wishup
+  // KPI cards — ventas de Odoo, instalaciones de Wishup, bajas de Odoo, netos = ventas - bajas
   setEl('vc-ventas',    dispContratos > 0 ? fmtN(dispContratos) : '—');
   setEl('vc-inst',      instReal      > 0 ? fmtN(instReal)      : '—');
   setEl('vc-bajas',     dispBajas     > 0 ? fmtN(dispBajas)     : '—');
-  setEl('vc-netos',     fmtN(instReal - (dispBajas||0)));
+  setEl('vc-netos',     fmtN(netosReales));
   setEl('vc-inst-sub',  `Instaladas ${mesLabel} ${fuenteInst}`);
-  setEl('vc-bajas-sub', `Bajas ${mesLabel}`);
-  setEl('vc-netos-sub', `${fmtN(instReal)} inst. − ${fmtN(dispBajas)} bajas`);
+  setEl('vc-bajas-sub', `Bajas ${mesLabel} (Odoo)`);
+  setEl('vc-netos-sub', `${fmtN(dispContratos)} ventas − ${fmtN(dispBajas)} bajas`);
 
   // Resumen page KPIs
   setEl('kpi-ventas-feb', fmtN(dispContratos));
@@ -3488,15 +3497,16 @@ async function fetchOdooVentas() {
       ventasData = {
         zonas:  sorted.map(([z]) => z.length > 14 ? z.substring(0,14)+'.' : z),
         ventas: sorted.map(([,v]) => v),
-        inst:   sorted.map(([,v]) => v),   // instalaciones = ventas con fecha inst
+        inst:   sorted.map(([,v]) => v),   // placeholder — será sobrescrito por fetchWishupInst
         bajas:  sorted.map(([z]) => bajasByProy[z]||0),
         mes:    mesLabel,
-        totalContratos: totalVentas,
-        totalInst:      totalVentas,
-        totalBajas,
+        totalContratos: totalVentas,   // ventas brutas = Venta Directa + Reserva
+        totalInst:      0,             // 0 = forzar uso de Wishup cuando llegue
+        totalBajas,                    // bajas declaradas en Odoo del mes
         venta_directa: vd, reserva: res_, interna, externa,
         porDia: byDia, acumDia,
         fuenteOdoo: true,
+        fuenteWishup: false,           // se activa cuando fetchWishupInst carga
       };
 
       // Sincronizar cx_brutas con Odoo
