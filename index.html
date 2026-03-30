@@ -2435,6 +2435,8 @@ async function fetchConcil() {
           '| proyectos:', Object.keys(instOdoo).length,
           '| instOdoo:', instTotalOdoo, '| instWishup:', instTotalWishup,
           '| odooActivos:', odooActivos, '| wishupActivos:', wishupActivos);
+        // Debug: mostrar primeras filas para verificar formato
+        console.log('[DigiLife] Concil CSV primeras 4 filas:', rows.slice(0,4).map(r=>r.slice(0,9)));
 
         if (tieneEtapas || tieneInst) {
           // Si v3 no trajo etapas, usar las del SEED como respaldo
@@ -2442,11 +2444,17 @@ async function fetchConcil() {
           const wishupFinal = Object.keys(wishupEstados).length > 0 ? wishupEstados : SEED.wishupEstados;
           const odooFinal   = odooActivos  > 0 ? odooActivos  : Object.entries(etapasFinal).filter(([k])=>ETAPAS_FACTURA.has(k)).reduce((a,[,v])=>a+v,0);
           const wishFinal   = wishupActivos > 0 ? wishupActivos : (wishupFinal['Activo']||0);
+          // Fallback a SEED para instalaciones si la hoja no trajo datos
+          const instOdooFinal   = Object.keys(instOdoo).length > 0 ? instOdoo : SEED.instOdoo;
+          const instWishupFinal = Object.keys(instWishup).length > 0 ? instWishup : SEED.instWishup;
+          const instTotOdooFinal   = instTotalOdoo   > 0 ? instTotalOdoo   : SEED.instTotalOdoo;
+          const instTotWishupFinal = instTotalWishup > 0 ? instTotalWishup : SEED.instTotalWishup;
           concilData = {
             loaded:true, etapas:etapasFinal, wishupEstados:wishupFinal,
-            instOdoo, instWishup, odooActivos:odooFinal, wishupActivos:wishFinal,
+            instOdoo:instOdooFinal, instWishup:instWishupFinal,
+            odooActivos:odooFinal, wishupActivos:wishFinal,
             totalOdoo:totalOdoo||odooFinal, totalWishup:totalWishup||wishFinal,
-            instTotalOdoo, instTotalWishup, fechaCorte
+            instTotalOdoo:instTotOdooFinal, instTotalWishup:instTotWishupFinal, fechaCorte
           };
           loaded = true;
         }
@@ -2832,19 +2840,34 @@ async function fetchVentas() {
       .sort((a,b) => b[1].vtas - a[1].vtas)
       .slice(0, 10);
 
-    ventasData = {
-      zonas:  sorted.map(([z]) => z.length > 12 ? z.substring(0,12)+'.' : z),
-      ventas: sorted.map(([,v]) => v.vtas),
-      inst:   sorted.map(([,v]) => v.inst),
-      bajas:  sorted.map(([,v]) => v.bajas),
-      mes:    mesLabel || 'mes actual',
-      totalContratos, totalInst, totalBajas
-    };
-
-    console.log('[DigiLife] Ventas loaded:', mesLabel,
-      '| contratos:', totalContratos, '| inst:', totalInst, '| bajas:', totalBajas);
-
-    rebuildVentasCharts();
+    // Si fetchOdooVentas ya cargó datos reales de Odoo, NO sobreescribir totales
+    // fetchVentas lee 03_VENTAS_MES que incluye TODAS las suscripciones (no solo Venta Directa + Reserva)
+    // fetchOdooVentas lee 23_VENTAS_BRUTAS que tiene los datos correctos filtrados
+    if (ventasData.fuenteOdoo && ventasData.totalContratos > 0) {
+      // Solo actualizar zonas/gráficos si hay datos más completos, pero NO tocar totalContratos
+      console.log('[DigiLife] fetchVentas — OdooVentas ya cargó datos reales, preservando totalContratos:', ventasData.totalContratos);
+      // Actualizar desglose por zona solo si hay más zonas
+      if (sorted.length > ventasData.zonas.length) {
+        ventasData.zonas  = sorted.map(([z]) => z.length > 12 ? z.substring(0,12)+'.' : z);
+        ventasData.ventas = sorted.map(([,v]) => v.vtas);
+        ventasData.bajas  = sorted.map(([,v]) => v.bajas);
+      }
+      rebuildVentasCharts();
+    } else {
+      ventasData = {
+        zonas:  sorted.map(([z]) => z.length > 12 ? z.substring(0,12)+'.' : z),
+        ventas: sorted.map(([,v]) => v.vtas),
+        inst:   sorted.map(([,v]) => v.inst),
+        bajas:  sorted.map(([,v]) => v.bajas),
+        mes:    mesLabel || 'mes actual',
+        totalContratos, totalInst, totalBajas,
+        fuenteOdoo: false,    // marcar como provisional — fetchOdooVentas sobreescribirá
+        fuenteWishup: false,
+      };
+      console.log('[DigiLife] Ventas loaded (provisional):', mesLabel,
+        '| contratos:', totalContratos, '| inst:', totalInst, '| bajas:', totalBajas);
+      rebuildVentasCharts();
+    }
 
   } catch(e) {
     console.warn('[DigiLife] fetchVentas error:', e);
@@ -3614,133 +3637,11 @@ async function fetchWishupInst() {
   } catch(e) { console.warn('[DigiLife] fetchWishupInst error:', e); }
 }
 
-function rebuildConcilCharts() {
-  const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
-  const { etapas, wishupEstados, instOdoo, instWishup, odooActivos, wishupActivos,
-          totalOdoo, totalWishup, instTotalOdoo, instTotalWishup, fechaCorte } = concilData;
-
-  const ETAPAS_FACTURA = new Set([
-    'Activo (En progreso)','Activo (Pago anticipado)','Activo VIP',
-    'Cliente Payway','Clientes Pospagos','Arreglo de Pago','Pausado',
-    'Suspendido por falta de pago','Suspendido por Contrato Flexible'
-  ]);
-
-  // KPI cards
-  setEl('concil-fecha-corte', fechaCorte);
-  setEl('concil-odoo-activos', fmtN(odooActivos));
-  setEl('concil-wishup-activos', fmtN(wishupActivos));
-  const diffActivos = odooActivos - wishupActivos;
-  const daEl = document.getElementById('concil-diff-activos');
-  if (daEl) {
-    daEl.textContent = (diffActivos > 0 ? '+' : '') + fmtN(diffActivos);
-    daEl.style.color = Math.abs(diffActivos) <= 20 ? 'var(--amber2)' : diffActivos > 0 ? 'var(--red2)' : 'var(--green2)';
-  }
-  setEl('concil-diff-sub', `Odoo ${fmtN(odooActivos)} vs Wishup ${fmtN(wishupActivos)}`);
-  setEl('concil-inst-odoo', fmtN(instTotalOdoo));
-  const diffInst = instTotalOdoo - instTotalWishup;
-  setEl('concil-inst-diff', `Wishup ${fmtN(instTotalWishup)} Δ${diffInst > 0 ? '+' : ''}${diffInst}`);
-
-  // Totales
-  setEl('concil-total-odoo', fmtN(totalOdoo) + ' registros');
-  setEl('concil-total-wishup', fmtN(totalWishup) + ' registros');
-
-  // Tabla etapas Odoo
-  const tbodyE = document.getElementById('tbody-concil-etapas');
-  if (tbodyE) {
-    tbodyE.innerHTML = '';
-    const total = Object.values(etapas).reduce((a,b)=>a+b,0) || 1;
-    Object.entries(etapas).sort((a,b)=>b[1]-a[1]).forEach(([etapa, cnt]) => {
-      const factura = ETAPAS_FACTURA.has(etapa);
-      const pct = (cnt/total*100).toFixed(1);
-      const pill = factura ? '<span class="pill pill-green">Sí</span>' : '<span class="pill pill-red">No</span>';
-      tbodyE.innerHTML += `<tr>
-        <td>${etapa}</td><td>${pill}</td><td class="r"><strong>${fmtN(cnt)}</strong></td>
-        <td><div style="background:var(--surf3);border-radius:3px;height:5px;overflow:hidden;">
-          <div style="width:${pct}%;height:100%;background:${factura?'var(--brand2)':'var(--border2)'};border-radius:3px;"></div>
-        </div><span style="font-size:9px;color:var(--text3);font-family:var(--mono);">${pct}%</span></td>
-      </tr>`;
-    });
-  }
-
-  // Tabla Wishup estados
-  const tbodyW = document.getElementById('tbody-concil-wishup');
-  if (tbodyW) {
-    tbodyW.innerHTML = '';
-    Object.entries(wishupEstados).sort((a,b)=>b[1]-a[1]).forEach(([estado, cnt]) => {
-      const color = estado.toLowerCase().includes('activo') ? 'var(--green2)'
-                  : estado.toLowerCase().includes('cancel') ? 'var(--red2)'
-                  : estado.toLowerCase().includes('suspend') ? 'var(--amber2)' : 'var(--text3)';
-      tbodyW.innerHTML += `<tr><td><span style="color:${color};font-weight:600;">${estado}</span></td><td class="r">${fmtN(cnt)}</td></tr>`;
-    });
-  }
-
-  // Alertas automáticas
-  const alertasEl = document.getElementById('concil-alertas');
-  if (alertasEl) {
-    alertasEl.innerHTML = '';
-    const alertas = [];
-    if (Math.abs(diffActivos) > 20) alertas.push({ txt:`Diferencia de ${Math.abs(diffActivos)} activos entre sistemas — verificar`, color:'var(--red)' });
-    if (Math.abs(diffInst) > 5)     alertas.push({ txt:`Instalaciones del mes: Odoo ${instTotalOdoo} vs Wishup ${instTotalWishup} (Δ${diffInst})`, color:'var(--amber)' });
-    const dups = etapas['Suscripciones Duplicadas'] || 0;
-    if (dups > 0) alertas.push({ txt:`${fmtN(dups)} suscripciones duplicadas en Odoo — depurar`, color:'var(--red)' });
-    if (alertas.length === 0) alertas.push({ txt:'✓ Sin brechas críticas detectadas', color:'var(--green)' });
-    alertas.forEach(a => {
-      alertasEl.innerHTML += `<div style="padding:8px 10px;border-radius:6px;background:var(--surf2);border-left:3px solid ${a.color};font-size:11px;color:${a.color};font-weight:600;">${a.txt}</div>`;
-    });
-  }
-
-  // Tabla instalaciones por proyecto
-  const tbodyI = document.getElementById('tbody-concil-inst');
-  if (tbodyI) {
-    tbodyI.innerHTML = '';
-    const allProy = new Set([...Object.keys(instOdoo), ...Object.keys(instWishup)]);
-    let totO = 0, totW = 0;
-    [...allProy].sort((a,b) => (instOdoo[b]||0) - (instOdoo[a]||0)).forEach(p => {
-      const o = instOdoo[p]||0, w = instWishup[p]||0;
-      const d = o - w;
-      const dClass = d===0 ? 'color:var(--text3)' : d>0 ? 'color:var(--green2);font-weight:700' : 'color:var(--red2);font-weight:700';
-      const pill = d===0 ? '<span class="pill pill-green">✓</span>'
-                 : Math.abs(d)<=3 ? '<span class="pill pill-amber">Revisar</span>'
-                 : '<span class="pill pill-red">Brecha</span>';
-      tbodyI.innerHTML += `<tr><td>${p}</td><td class="r">${o}</td><td class="r">${w||'—'}</td><td class="r" style="${dClass}">${d===0?'✓':d>0?'+'+d:d}</td><td>${pill}</td></tr>`;
-      totO+=o; totW+=w;
-    });
-    setEl('concil-tot-odoo', totO);
-    setEl('concil-tot-wishup', totW);
-    const totD = totO-totW;
-    const totEl = document.getElementById('concil-tot-diff');
-    if (totEl) { totEl.textContent = totD===0?'✓':totD>0?'+'+totD:totD; totEl.style.color = totD===0?'var(--green2)':Math.abs(totD)<=5?'var(--amber2)':'var(--red2)'; }
-  }
-
-  // Chart comparativo
-  const proyArr = Object.keys(instOdoo).sort((a,b)=>instOdoo[b]-instOdoo[a]);
-  const elC = document.getElementById('c-concil-proy');
-  if (elC) {
-    const exC = Chart.getChart(elC); if(exC) exC.destroy();
-    new Chart(elC, {
-      type:'bar',
-      data:{
-        labels: proyArr.map(p=>p.length>14?p.substring(0,14)+'.':p),
-        datasets:[
-          {label:'Odoo ERP', data:proyArr.map(p=>instOdoo[p]||0),  backgroundColor:'rgba(0,102,255,.75)',borderRadius:3},
-          {label:'Wishup',   data:proyArr.map(p=>instWishup[p]||0), backgroundColor:'rgba(16,185,129,.7)', borderRadius:3}
-        ]
-      },
-      options:{
-        responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},
-        scales:{
-          x:{ticks:{font:{size:9},maxRotation:35},grid:{display:false}},
-          y:{ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}}
-        }
-      }
-    });
-  }
-}
 
 // ── Iniciar — todas las declaraciones están listas ────────────────────────────
 fetchSheets();
-fetchVentas();
+// Cadena de ventas: OdooVentas (fuente real) → Ventas (complemento) → WishupInst (instalaciones)
+fetchOdooVentas().then(() => fetchVentas()).then(() => fetchWishupInst());
 fetchCobr();
 fetchRenov();
 fetchMora();
@@ -3750,11 +3651,9 @@ fetchVendedores();
 fetchTV();
 fetchPL();
 fetchConcil();
-fetchOdooVentas();
-fetchWishupInst();
 fetchSoporte();
 fetchMora60();
-setInterval(()=>{ fetchSheets(); fetchVentas(); fetchCobr(); fetchRenov(); fetchMora(); fetchProyectos(); fetchVDiario(); fetchVendedores(); fetchTV(); fetchPL(); fetchConcil(); fetchOdooVentas(); fetchWishupInst(); fetchSoporte(); fetchMora60(); }, 5 * 60 * 1000);
+setInterval(()=>{ fetchSheets(); fetchOdooVentas().then(()=>fetchVentas()).then(()=>fetchWishupInst()); fetchCobr(); fetchRenov(); fetchMora(); fetchProyectos(); fetchVDiario(); fetchVendedores(); fetchTV(); fetchPL(); fetchConcil(); fetchSoporte(); fetchMora60(); }, 5 * 60 * 1000);
 
 // ══════════════════════════════════════════════════════════════════════════════
 // MÓDULO SOPORTE & CLIENTES
