@@ -3401,14 +3401,27 @@ async function cargarBajasDetalle() {
   try {
     const res = await fetch(URL_BAJAS_DETALLE);
     if (!res.ok) return;
-    const rows = parseCSV(await res.text());
-    // Filtrar: ignorar fila de título y fila de headers, solo filas con Referencia real
-    bajasDetalleCache = rows.filter(r =>
-      r['Referencia'] &&
-      r['Referencia'] !== 'Referencia' &&
-      r['Referencia'].trim() !== '' &&
-      !r['Referencia'].startsWith('DigiLife')
-    );
+    const texto = await res.text();
+
+    // La hoja tiene fila 0 = título "DigiLife · Bajas...", fila 1 = headers reales
+    // parseCSV usa fila 0 como headers → hay que saltar la fila de título manualmente
+    const lineas = texto.split('\n').filter(function(l){ return l.trim() !== ''; });
+
+    // Detectar qué línea contiene los headers reales (buscar "Referencia")
+    let headerIdx = 0;
+    for (var i = 0; i < Math.min(lineas.length, 5); i++) {
+      if (lineas[i].includes('Referencia')) { headerIdx = i; break; }
+    }
+
+    // Reconstruir CSV desde la línea de headers reales
+    const csvLimpio = lineas.slice(headerIdx).join('\n');
+    const rows = parseCSV(csvLimpio);
+
+    bajasDetalleCache = rows.filter(function(r) {
+      return r['Referencia'] &&
+             r['Referencia'] !== 'Referencia' &&
+             r['Referencia'].trim() !== '';
+    });
     bajasDetalleCargado = true;
     console.log('[DigiLife] BajasDetalle loaded —', bajasDetalleCache.length, 'registros');
   } catch(e) {
@@ -3446,7 +3459,7 @@ function openBajasDrill(proyecto) {
     // Detectar competencia desde la etapa/causa del dato real
     clientes = clientes.map(r => ({
       ...r,
-      '_comp': /competencia|migr/i.test(r['Etapa'] || ''),
+      '_comp': /competencia|migr/i.test(r['Motivo'] || r['Etapa'] || ''),
     }));
   }
 
@@ -3502,7 +3515,7 @@ function openBajasDrill(proyecto) {
       return (a['Referencia'] || '').localeCompare(b['Referencia'] || '');
     }).forEach(c => {
       const esComp   = c['_comp'];
-      const etapa    = c['Etapa'] || 'Retiro';
+      const etapa    = c['Motivo'] || c['Etapa'] || 'Retiro';
       const patronHtml = esComp
         ? '<span class="pill pill-red">Competencia</span>'
         : etapa === 'Terminación' ? '<span class="pill" style="background:#F3E8FF;color:#7C3AED;">Terminación</span>'
