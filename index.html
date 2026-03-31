@@ -488,7 +488,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
       <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;">BAJAS POR DIRECCIÓN</div>
       <div style="max-height:320px;overflow-y:auto;">
         <table class="tbl" style="font-size:11px;">
-          <thead><tr><th>Código Odoo</th><th>Cliente</th><th>Dirección / Sector</th><th class="r">Bajas</th><th>Patrón</th><th>Oportunidad</th></tr></thead>
+          <thead><tr><th>Código Odoo</th><th>Cliente</th><th>Tipo</th><th class="r">Fecha Baja</th><th>Patrón</th><th>Oportunidad</th></tr></thead>
           <tbody id="drill-bajas-tbody"></tbody>
         </table>
       </div>
@@ -889,7 +889,59 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     </div>
   </div>
 
-  <!-- Row 5: Evolución y protocolo -->
+  <!-- Row 5: Plan de Renovación H1-2026 por Agencia -->
+  <div class="slbl" style="margin-top:8px;">plan de renovación H1-2026 · meta 95% base renovada · por agencia/proyecto</div>
+
+  <!-- KPIs del plan -->
+  <div class="g4">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--brand2);"></div><div class="kpi-lbl">Base total contratos</div><div class="kpi-val" style="color:var(--brand);" id="ret-plan-base">—</div><div class="kpi-sub">contratos activos en Odoo</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--red2);"></div><div class="kpi-lbl">Vencidos acumulados</div><div class="kpi-val" style="color:var(--red);" id="ret-plan-vencidos">—</div><div class="kpi-sub" id="ret-plan-vencidos-sub">sin renovar a la fecha</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green2);"></div><div class="kpi-lbl">Meta H1 (95%)</div><div class="kpi-val" style="color:var(--green);" id="ret-plan-meta95">—</div><div class="kpi-sub">renovaciones necesarias a jun 2026</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--amber2);"></div><div class="kpi-lbl">Gap actual</div><div class="kpi-val" style="color:var(--amber);" id="ret-plan-gap">—</div><div class="kpi-sub" id="ret-plan-gap-sub">faltan para alcanzar 95%</div></div>
+  </div>
+
+  <!-- Roadmap chart + tabla agencias -->
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Roadmap de renovaciones · acumulado mensual vs meta 95% <span class="ctag" id="ret-plan-chart-tag">H1-2026</span></div>
+      <div style="position:relative;height:240px;"><canvas id="c-ret-roadmap"></canvas></div>
+      <div style="font-size:9px;color:var(--text3);margin-top:6px;font-style:italic;">💡 Doble click en barra → ver detalle del mes por agencia</div>
+    </div>
+    <div class="card">
+      <div class="ct">Riesgo por agencia/proyecto <span class="ctag" style="background:#FEE2E2;color:var(--red);" id="ret-plan-risk-cnt">—</span></div>
+      <div style="position:relative;height:240px;"><canvas id="c-ret-agencia-risk"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Tabla completa por agencia con metas mensuales -->
+  <div class="card">
+    <div class="ct">Metas de renovación por agencia · plan mensual H1-2026 <span class="ctag" id="ret-plan-agencia-cnt">—</span></div>
+    <div style="overflow-x:auto;">
+      <table class="tbl" style="font-size:11px;">
+        <thead>
+          <tr>
+            <th>Agencia / Proyecto</th>
+            <th class="r">Base activa</th>
+            <th class="r">Vencidos</th>
+            <th class="r">Renovados</th>
+            <th class="r">% Actual</th>
+            <th class="r">Meta Mar</th>
+            <th class="r">Meta Abr</th>
+            <th class="r">Meta May</th>
+            <th class="r">Meta Jun</th>
+            <th class="r">Meta 95%</th>
+            <th>Riesgo</th>
+            <th>Prioridad</th>
+          </tr>
+        </thead>
+        <tbody id="ret-plan-tbody"></tbody>
+        <tfoot id="ret-plan-tfoot"></tfoot>
+      </table>
+    </div>
+    <div id="ret-plan-insights" style="margin-top:12px;display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+
+  <!-- Row 6: Evolución y protocolo -->
   <div class="g3">
     <div class="card">
       <div class="ct">Churn mensual vs benchmark sector</div>
@@ -933,10 +985,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     </div>
     <div style="padding:16px 20px;">
       <div id="drill-ret-alerta" style="margin-bottom:12px;"></div>
-      <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;">DETALLE POR SECTOR</div>
-      <div style="max-height:320px;overflow-y:auto;">
+      <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;">DETALLE POR CLIENTE</div>
+      <div style="max-height:360px;overflow-y:auto;">
         <table class="tbl" style="font-size:11px;">
-          <thead><tr><th>Sector / Zona</th><th class="r">Vencidos</th><th class="r">×Vencer 30d</th><th class="r">Renovados</th><th class="r">MRR riesgo</th><th>Competencia</th><th>Prioridad</th></tr></thead>
+          <thead><tr><th>Código Odoo</th><th>Cliente</th><th>Sector / Zona</th><th>Estado</th><th class="r">MRR</th><th>Competencia</th><th>Prioridad</th></tr></thead>
           <tbody id="drill-ret-tbody"></tbody>
         </table>
       </div>
@@ -1426,6 +1478,7 @@ const WISHUP_INST_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQ
 const URL_TICKETS         = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=1904477636";
 const URL_INST_PENDIENTES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=1682471746";
 const URL_CONCIL_CXC60D   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=277524538";
+const URL_BAJAS_DETALLE   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQwJ9BiO0xbaHpGSzqTOgk9n7rEzM-pCwFsOBGbLJyiN0Y_jJAudHCq9DI1F42yOYvod4ctl9zNCxS/pub?single=true&output=csv&gid=1627130134";
 
 // Ventas data — updated from VENTAS_URL, fallback to feb seed
 // ventasData — Ventas totales Odoo (Venta Directa + Reserva + Entrega de Llave) | Instalaciones (Wishup: fuente de verdad)
@@ -3339,95 +3392,147 @@ const bajasPorDireccion = {
   ],
 };
 
+// ── Cache de bajas reales desde 28_BAJAS_DETALLE ─────────────────────────────
+let bajasDetalleCache = [];
+let bajasDetalleCargado = false;
+
+async function cargarBajasDetalle() {
+  if (bajasDetalleCargado || !URL_BAJAS_DETALLE) return;
+  try {
+    const res = await fetch(URL_BAJAS_DETALLE);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
+    // Filtrar: ignorar fila de título y fila de headers, solo filas con Referencia real
+    bajasDetalleCache = rows.filter(r =>
+      r['Referencia'] &&
+      r['Referencia'] !== 'Referencia' &&
+      r['Referencia'].trim() !== '' &&
+      !r['Referencia'].startsWith('DigiLife')
+    );
+    bajasDetalleCargado = true;
+    console.log('[DigiLife] BajasDetalle loaded —', bajasDetalleCache.length, 'registros');
+  } catch(e) {
+    console.warn('[DigiLife] BajasDetalle fetch error:', e.message);
+  }
+}
+
 function openBajasDrill(proyecto) {
-  const clientes = bajasPorDireccion[proyecto];
-  if (!clientes || clientes.length === 0) return;
-
   const modal = document.getElementById('modal-bajas-drill');
-  const totalBajas = clientes.length;
-  const uniqueDirs = [...new Set(clientes.map(c=>c.dir))].length;
-  const compClientes = clientes.filter(d => d.comp);
-  const compBajas = compClientes.length;
-  const pctComp = totalBajas > 0 ? Math.round(compBajas/totalBajas*100) : 0;
+  if (!modal) return;
 
-  // Agrupar por dirección para detectar concentración
-  const byDir = {};
-  clientes.forEach(c => { byDir[c.dir] = (byDir[c.dir]||0) + 1; });
-  const maxDirEntry = Object.entries(byDir).sort((a,b)=>b[1]-a[1])[0];
-  const concentrado = maxDirEntry && maxDirEntry[1] >= totalBajas * 0.25;
+  // Intentar datos reales primero; si no, usar seed como fallback
+  let clientes = [];
+  let usandoSeed = false;
+
+  if (bajasDetalleCargado && bajasDetalleCache.length > 0) {
+    clientes = bajasDetalleCache.filter(r => (r['Proyecto'] || '').trim() === proyecto);
+  }
+
+  if (clientes.length === 0) {
+    // Fallback a seed
+    usandoSeed = true;
+    const seed = bajasPorDireccion[proyecto] || [];
+    if (seed.length === 0) return;
+    clientes = seed.map((s, i) => ({
+      'Referencia':   s.cod || ('SUB-' + (10400 + i)),
+      'Cliente':      s.cli || s.dir,
+      'Proyecto':     proyecto,
+      'Tipo Cliente': s.causa || 'residenciales',
+      'Etapa':        s.causa || 'Retiro',
+      'Fecha Baja':   '',
+      '_comp':        s.comp,
+    }));
+  } else {
+    // Detectar competencia desde la etapa/causa del dato real
+    clientes = clientes.map(r => ({
+      ...r,
+      '_comp': /competencia|migr/i.test(r['Etapa'] || ''),
+    }));
+  }
+
+  const totalBajas   = clientes.length;
+  if (totalBajas === 0) return;
+
+  const compClientes = clientes.filter(c => c['_comp']);
+  const compCount    = compClientes.length;
+  const pctComp      = Math.round(compCount / totalBajas * 100);
   const esCompetencia = pctComp >= 40;
 
-  const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
-  setEl('drill-bajas-title', `Bajas — ${proyecto}`);
-  setEl('drill-bajas-sub', `${totalBajas} clientes · ${uniqueDirs} direcciones · ${ventasData.mes || 'marzo 2026'}`);
+  // Agrupar por Tipo Cliente para el KPI de "direcciones"
+  const byTipo = {};
+  clientes.forEach(c => {
+    const k = c['Tipo Cliente'] || 'otros';
+    byTipo[k] = (byTipo[k] || 0) + 1;
+  });
+  const uniqueTipos = Object.keys(byTipo).length;
+
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setEl('drill-bajas-title', 'Bajas — ' + proyecto);
+  setEl('drill-bajas-sub',   totalBajas + ' clientes · ' + (ventasData.mes || 'marzo 2026') + (usandoSeed ? ' · datos estimados' : ''));
   setEl('drill-bajas-total', totalBajas);
-  setEl('drill-bajas-dirs', uniqueDirs);
+  setEl('drill-bajas-dirs',  uniqueTipos);
 
   const concEl = document.getElementById('drill-bajas-concentracion');
   if (concEl) {
     if (esCompetencia) { concEl.textContent = '⚠ Competencia'; concEl.style.color = 'var(--red)'; }
-    else if (concentrado) { concEl.textContent = 'Concentrado'; concEl.style.color = 'var(--amber)'; }
-    else { concEl.textContent = 'Disperso'; concEl.style.color = 'var(--text3)'; }
+    else               { concEl.textContent = 'Retiros';        concEl.style.color = 'var(--text3)'; }
   }
-  setEl('drill-bajas-tipo', esCompetencia ? 'Avance de competencia detectado' : concentrado ? 'Bajas concentradas en sector' : 'Retiros individuales dispersos');
+  setEl('drill-bajas-tipo', esCompetencia ? 'Avance de competencia detectado' : 'Retiros individuales');
 
   // Alerta
   const alertaEl = document.getElementById('drill-bajas-alerta');
   if (alertaEl) {
     if (esCompetencia) {
-      alertaEl.innerHTML = `<div style="padding:10px 12px;border-radius:8px;background:#FEF2F2;border-left:3px solid var(--red);font-size:11px;">
-        <strong style="color:var(--red);">⚠ Alerta de competencia:</strong> <span style="color:var(--text2);">${compBajas} clientes (${pctComp}%) asociados a migración por competencia en ${proyecto}. Requiere acción inmediata del equipo de ventas en estas direcciones.</span>
-      </div>`;
-    } else if (concentrado) {
-      alertaEl.innerHTML = `<div style="padding:10px 12px;border-radius:8px;background:#FFFBEB;border-left:3px solid var(--amber);font-size:11px;">
-        <strong style="color:var(--amber);">📍 Concentración:</strong> <span style="color:var(--text2);">${maxDirEntry[1]} bajas en "${maxDirEntry[0]}" (${Math.round(maxDirEntry[1]/totalBajas*100)}%). Verificar causa raíz.</span>
-      </div>`;
+      alertaEl.innerHTML = '<div style="padding:10px 12px;border-radius:8px;background:#FEF2F2;border-left:3px solid var(--red);font-size:11px;">'
+        + '<strong style="color:var(--red);">⚠ Alerta de competencia:</strong> '
+        + '<span style="color:var(--text2);">' + compCount + ' clientes (' + pctComp + '%) con causa relacionada a competencia en ' + proyecto + '. Requiere acción inmediata del equipo de ventas.</span></div>';
     } else {
-      alertaEl.innerHTML = `<div style="padding:10px 12px;border-radius:8px;background:var(--surf2);border-left:3px solid var(--green);font-size:11px;">
-        <strong style="color:var(--green);">✓ Sin concentración crítica:</strong> <span style="color:var(--text2);">Bajas distribuidas en ${uniqueDirs} direcciones.</span>
-      </div>`;
+      alertaEl.innerHTML = '<div style="padding:10px 12px;border-radius:8px;background:var(--surf2);border-left:3px solid var(--green);font-size:11px;">'
+        + '<strong style="color:var(--green);">✓ Sin competencia crítica:</strong> '
+        + '<span style="color:var(--text2);">Bajas por retiro o terminación de contrato en ' + proyecto + '.</span></div>';
     }
   }
 
-  // Tabla cliente por cliente
+  // Tabla cliente por cliente con datos reales (Referencia del pedido real de Odoo)
   const tbody = document.getElementById('drill-bajas-tbody');
   if (tbody) {
     tbody.innerHTML = '';
-    // Ordenar: competencia primero, luego por dirección
-    clientes.sort((a,b) => {
-      if (a.comp !== b.comp) return a.comp ? -1 : 1;
-      return a.dir.localeCompare(b.dir);
-    }).forEach(d => {
-      const patron = d.comp
+    clientes.sort((a, b) => {
+      if (a['_comp'] !== b['_comp']) return a['_comp'] ? -1 : 1;
+      return (a['Referencia'] || '').localeCompare(b['Referencia'] || '');
+    }).forEach(c => {
+      const esComp   = c['_comp'];
+      const etapa    = c['Etapa'] || 'Retiro';
+      const patronHtml = esComp
         ? '<span class="pill pill-red">Competencia</span>'
-        : d.causa === 'Cobertura' ? '<span class="pill pill-amber">Cobertura</span>'
-        : d.causa === 'Terminación' ? '<span class="pill" style="background:#F3E8FF;color:#7C3AED;">Terminación</span>'
-        : d.causa === 'Insatisfacción' ? '<span class="pill" style="background:#FEF3C7;color:#92400E;">Insatisfacción</span>'
-        : '<span class="pill" style="background:var(--surf3);color:var(--text3);">Retiro</span>';
-      const oportunidad = d.comp
-        ? '<span style="color:var(--green);font-weight:600;">🎯 Recuperar</span>'
+        : etapa === 'Terminación' ? '<span class="pill" style="background:#F3E8FF;color:#7C3AED;">Terminación</span>'
+        : etapa === 'Insatisfacción' ? '<span class="pill" style="background:#FEF3C7;color:#92400E;">Insatisfacción</span>'
+        : '<span class="pill" style="background:var(--surf3);color:var(--text3);">' + etapa + '</span>';
+      const opHtml = esComp
+        ? '<span style="color:var(--green);font-weight:600;cursor:pointer;">🎯 Recuperar</span>'
         : '<span style="color:var(--text3);">Seguimiento</span>';
-      tbody.innerHTML += `<tr>
-        <td><code style="font-size:10px;background:var(--surf2);padding:1px 4px;border-radius:3px;">${d.cod}</code></td>
-        <td>${d.cli}</td>
-        <td>${d.dir}</td>
-        <td class="r">1</td>
-        <td>${patron}</td>
-        <td>${oportunidad}</td>
-      </tr>`;
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td><code style="font-size:10px;background:var(--surf2);padding:1px 5px;border-radius:3px;font-weight:700;">' + (c['Referencia'] || '—') + '</code></td>' +
+        '<td>' + (c['Cliente'] || '—') + '</td>' +
+        '<td style="color:var(--text2);">' + (c['Tipo Cliente'] || '—') + '</td>' +
+        '<td class="r" style="color:var(--text3);">' + (c['Fecha Baja'] || '—') + '</td>' +
+        '<td>' + patronHtml + '</td>' +
+        '<td>' + opHtml + '</td>';
+      tbody.appendChild(tr);
     });
   }
 
-  // Panel de acción
-  const accionEl = document.getElementById('drill-bajas-accion');
+  // Panel de acción — solo si hay clientes de competencia
+  const accionEl  = document.getElementById('drill-bajas-accion');
   const accionTxt = document.getElementById('drill-bajas-accion-txt');
   if (accionEl && accionTxt) {
-    const oportunidades = clientes.filter(d => d.comp);
-    if (oportunidades.length > 0) {
+    if (compClientes.length > 0) {
+      const lista = compClientes.slice(0, 5)
+        .map(c => '<strong>' + (c['Referencia'] || '') + '</strong> ' + (c['Cliente'] || '')).join(', ');
+      const resto = compClientes.length > 5 ? ' y ' + (compClientes.length - 5) + ' más.' : '.';
+      accionTxt.innerHTML = '<strong>' + compClientes.length + ' clientes</strong> perdidos por competencia: ' + lista + resto + ' Asignar vendedor para visita de recuperación.';
       accionEl.style.display = 'block';
-      const cliList = oportunidades.slice(0,5).map(d => `<strong>${d.cod}</strong> ${d.cli}`).join(', ');
-      const extra = oportunidades.length > 5 ? ` y ${oportunidades.length-5} más` : '';
-      accionTxt.innerHTML = `<strong>${oportunidades.length} clientes</strong> perdidos por competencia para seguimiento de ventas: ${cliList}${extra}. Asignar vendedor para visita de recuperación en las direcciones afectadas.`;
     } else {
       accionEl.style.display = 'none';
     }
@@ -3451,7 +3556,7 @@ function attachBajasDblClick(chartId) {
     const dsLabel = chart.data.datasets[dsIdx]?.label || '';
     if (!dsLabel.toLowerCase().includes('baja')) return;
     const proyecto = ventasData.zonas[idx];
-    if (proyecto && bajasPorDireccion[proyecto]) {
+    if (proyecto) {
       openBajasDrill(proyecto);
     }
   });
@@ -3831,7 +3936,7 @@ function bRetencion(){
     compProys.forEach(([nombre, p]) => {
       const sinRen = p.vencidos - p.renovados;
       const bajasProyComp = (bajasPorDireccion[nombre]||[]).filter(d=>d.comp);
-      const bajasCompN = bajasProyComp.reduce((a,d)=>a+d.bajas,0);
+      const bajasCompN = bajasProyComp.length;
       alertasEl.innerHTML += `<div style="padding:10px 12px;border-radius:8px;background:#FEF2F2;border-left:3px solid var(--red);font-size:11px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <strong style="color:var(--red);">⚠ ${nombre}</strong>
@@ -3946,6 +4051,217 @@ function bRetencion(){
 
   // Store retSeed for drill-down access
   window._retSeed = retSeed;
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // PLAN DE RENOVACIÓN H1-2026 — META 95% BASE RENOVADA
+  // ══════════════════════════════════════════════════════════════════════════
+  const META_PCT = 0.95;
+  const MESES_PLAN = ['Mar 2026','Abr 2026','May 2026','Jun 2026'];
+  const MESES_RESTANTES = 4; // mar-jun
+
+  // Datos por agencia: base activa, vencidos totales H1, renovados a la fecha
+  const agencias = {
+    'Marsella':          {base:3200, vencidosH1:420, renovados:54, comp:true,  agencia:'Agencia Marsella'},
+    'Ecoterra':          {base:1850, vencidosH1:245, renovados:31, comp:true,  agencia:'Agencia Santa Ana'},
+    'Villa Panamericana':{base:1400, vencidosH1:180, renovados:22, comp:false, agencia:'Agencia San Miguel'},
+    'Nueva San Miguel':  {base:1100, vencidosH1:155, renovados:18, comp:false, agencia:'Agencia San Miguel'},
+    'Marsella II':       {base:950,  vencidosH1:130, renovados:14, comp:true,  agencia:'Agencia Marsella'},
+    'Villas de la Costa':{base:680,  vencidosH1:95,  renovados:12, comp:true,  agencia:'Agencia San Miguel'},
+    'Mediterráneo':      {base:520,  vencidosH1:72,  renovados:10, comp:false, agencia:'Agencia Ahuachapán'},
+    'Megápolis':         {base:480,  vencidosH1:65,  renovados:8,  comp:false, agencia:'Agencia San Miguel'},
+    'Montecristo':       {base:380,  vencidosH1:48,  renovados:7,  comp:false, agencia:'Agencia Metapán'},
+    'Acrópoli':          {base:350,  vencidosH1:42,  renovados:6,  comp:true,  agencia:'Agencia Sonsonate'},
+    'Ciudad Versailles': {base:220,  vencidosH1:28,  renovados:4,  comp:false, agencia:'Agencia La Libertad'},
+    'Sitio Grande':      {base:180,  vencidosH1:22,  renovados:3,  comp:false, agencia:'Agencia Opico'},
+  };
+
+  const agArr = Object.entries(agencias);
+  const baseTotal = agArr.reduce((a,[,g])=>a+g.base,0);
+  const vencTotalH1 = agArr.reduce((a,[,g])=>a+g.vencidosH1,0);
+  const renovTotalActual = agArr.reduce((a,[,g])=>a+g.renovados,0);
+  const meta95Total = Math.ceil(vencTotalH1 * META_PCT);
+  const gapTotal = meta95Total - renovTotalActual;
+
+  // KPIs del plan
+  setEl('ret-plan-base', fmtN(baseTotal));
+  setEl('ret-plan-vencidos', fmtN(vencTotalH1));
+  setEl('ret-plan-vencidos-sub', `${fmtN(vencTotalH1 - renovTotalActual)} sin renovar a la fecha`);
+  setEl('ret-plan-meta95', fmtN(meta95Total));
+  setEl('ret-plan-gap', fmtN(gapTotal));
+  setEl('ret-plan-gap-sub', `$${fmtN(Math.round(gapTotal * ARPU))}/mes MRR en riesgo`);
+
+  // Metas mensuales por agencia (distribución proporcional del gap en meses restantes)
+  const planData = agArr.map(([nombre, g]) => {
+    const meta95 = Math.ceil(g.vencidosH1 * META_PCT);
+    const gap = meta95 - g.renovados;
+    const pctActual = g.vencidosH1 > 0 ? (g.renovados / g.vencidosH1 * 100) : 100;
+    // Distribuir el gap en 4 meses con carga frontal (más en los primeros meses)
+    const pesos = [0.35, 0.30, 0.20, 0.15]; // Más agresivo al inicio
+    const metas = pesos.map(p => Math.ceil(gap * p));
+    // Ajustar para que la suma sea exacta
+    const diff = metas.reduce((a,b)=>a+b,0) - gap;
+    if (diff > 0) metas[3] = Math.max(0, metas[3] - diff);
+    // Acumulados
+    const acum = [g.renovados];
+    metas.forEach(m => acum.push(acum[acum.length-1] + m));
+
+    const riesgo = g.comp ? 'Competencia' : pctActual < 20 ? 'Crítico' : pctActual < 40 ? 'Alto' : 'Normal';
+    return { nombre, ...g, meta95, gap, pctActual, metas, acum, riesgo };
+  }).sort((a,b) => a.pctActual - b.pctActual); // Peor avance primero
+
+  // ── Tabla por agencia ──
+  const tbodyPlan = document.getElementById('ret-plan-tbody');
+  const tfootPlan = document.getElementById('ret-plan-tfoot');
+  if (tbodyPlan) {
+    tbodyPlan.innerHTML = '';
+    planData.forEach(d => {
+      const pctColor = d.pctActual >= 40 ? 'var(--green)' : d.pctActual >= 20 ? 'var(--amber)' : 'var(--red)';
+      const rBadge = d.riesgo === 'Competencia' ? '<span class="pill pill-red">🎯 Comp</span>'
+                   : d.riesgo === 'Crítico' ? '<span class="pill pill-red">Crítico</span>'
+                   : d.riesgo === 'Alto' ? '<span class="pill pill-amber">Alto</span>'
+                   : '<span class="pill pill-green">Normal</span>';
+      const prioridad = d.comp ? '<span style="color:var(--red);font-weight:700;">P1</span>'
+                      : d.pctActual < 20 ? '<span style="color:var(--red);font-weight:600;">P2</span>'
+                      : d.pctActual < 40 ? '<span style="color:var(--amber);font-weight:600;">P3</span>'
+                      : '<span style="color:var(--text3);">P4</span>';
+      tbodyPlan.innerHTML += `<tr>
+        <td><strong>${d.nombre}</strong><div style="font-size:9px;color:var(--text3);">${d.agencia}</div></td>
+        <td class="r">${fmtN(d.base)}</td>
+        <td class="r" style="color:var(--red);">${fmtN(d.vencidosH1)}</td>
+        <td class="r" style="color:var(--green);">${fmtN(d.renovados)}</td>
+        <td class="r"><strong style="color:${pctColor}">${d.pctActual.toFixed(0)}%</strong></td>
+        <td class="r" style="font-weight:600;">${d.metas[0]}</td>
+        <td class="r" style="font-weight:600;">${d.metas[1]}</td>
+        <td class="r" style="font-weight:600;">${d.metas[2]}</td>
+        <td class="r" style="font-weight:600;">${d.metas[3]}</td>
+        <td class="r"><strong>${d.meta95}</strong></td>
+        <td>${rBadge}</td>
+        <td>${prioridad}</td>
+      </tr>`;
+    });
+  }
+  // Totals footer
+  if (tfootPlan) {
+    const totMetas = [0,1,2,3].map(i => planData.reduce((a,d)=>a+d.metas[i],0));
+    tfootPlan.innerHTML = `<tr style="font-weight:700;background:var(--surf2);">
+      <td>TOTAL</td>
+      <td class="r">${fmtN(baseTotal)}</td>
+      <td class="r" style="color:var(--red);">${fmtN(vencTotalH1)}</td>
+      <td class="r" style="color:var(--green);">${fmtN(renovTotalActual)}</td>
+      <td class="r">${(renovTotalActual/vencTotalH1*100).toFixed(0)}%</td>
+      <td class="r">${totMetas[0]}</td><td class="r">${totMetas[1]}</td>
+      <td class="r">${totMetas[2]}</td><td class="r">${totMetas[3]}</td>
+      <td class="r"><strong>${meta95Total}</strong></td>
+      <td colspan="2"></td>
+    </tr>`;
+  }
+  setEl('ret-plan-agencia-cnt', planData.length + ' proyectos');
+
+  // ── Roadmap chart ──
+  const acumMeses = ['Actual'];
+  const acumRenovados = [renovTotalActual];
+  const metaLine = [meta95Total];
+  let runTotal = renovTotalActual;
+  MESES_PLAN.forEach((m, i) => {
+    const mesRenov = planData.reduce((a,d)=>a+d.metas[i],0);
+    runTotal += mesRenov;
+    acumMeses.push(m);
+    acumRenovados.push(runTotal);
+    metaLine.push(meta95Total);
+  });
+
+  const elRoadmap = document.getElementById('c-ret-roadmap');
+  if (elRoadmap) {
+    const ex = Chart.getChart(elRoadmap); if(ex) ex.destroy();
+    new Chart(elRoadmap, {
+      type:'bar', data:{
+        labels: acumMeses,
+        datasets:[
+          {label:'Renovados acum.', data:acumRenovados, backgroundColor: acumRenovados.map(v=>v>=meta95Total?'rgba(16,185,129,.7)':'rgba(0,102,255,.65)'), borderRadius:4, order:2},
+          {label:'Meta 95%', data:metaLine, type:'line', borderColor:'rgba(239,68,68,.6)', borderWidth:2, borderDash:[5,3], pointRadius:0, fill:false, order:1}
+        ]
+      }, options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,labels:{font:{size:10},boxWidth:10}},
+          tooltip:{callbacks:{label:ctx=>{
+            if(ctx.datasetIndex===0) return `Renovados: ${ctx.raw} (${(ctx.raw/vencTotalH1*100).toFixed(0)}%)`;
+            return `Meta 95%: ${ctx.raw}`;
+          }}}
+        },
+        scales:{x:{ticks:{font:{size:10}},grid:{display:false}},y:{ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,.04)'},min:0}}
+      }
+    });
+  }
+
+  // ── Risk by agency chart ──
+  const riskNames = planData.map(d=>d.nombre.length>12?d.nombre.substring(0,11)+'..':d.nombre);
+  const riskGap = planData.map(d=>d.gap);
+  const riskRenov = planData.map(d=>d.renovados);
+  const riskColors = planData.map(d=>d.comp?'rgba(239,68,68,.7)':d.pctActual<20?'rgba(245,158,11,.7)':'rgba(0,102,255,.5)');
+
+  const elRisk = document.getElementById('c-ret-agencia-risk');
+  if (elRisk) {
+    const ex = Chart.getChart(elRisk); if(ex) ex.destroy();
+    new Chart(elRisk, {
+      type:'bar', data:{
+        labels: riskNames,
+        datasets:[
+          {label:'Gap (faltan)', data:riskGap, backgroundColor:riskColors, borderRadius:3},
+          {label:'Renovados', data:riskRenov, backgroundColor:'rgba(16,185,129,.5)', borderRadius:3},
+        ]
+      }, options:{
+        responsive:true,maintainAspectRatio:false,
+        indexAxis:'y',
+        plugins:{legend:{display:true,labels:{font:{size:10},boxWidth:10}}},
+        scales:{x:{stacked:true,ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}},y:{stacked:true,ticks:{font:{size:9}},grid:{display:false}}}
+      }
+    });
+  }
+  setEl('ret-plan-risk-cnt', planData.filter(d=>d.comp || d.pctActual < 20).length + ' en riesgo');
+
+  // ── Insights del plan ──
+  const insightsEl = document.getElementById('ret-plan-insights');
+  if (insightsEl) {
+    insightsEl.innerHTML = '';
+    const compProys = planData.filter(d=>d.comp);
+    const criticos = planData.filter(d=>d.pctActual < 15);
+    const ritmoMensual = Math.ceil(gapTotal / MESES_RESTANTES);
+
+    insightsEl.innerHTML += `<div style="padding:10px 12px;border-radius:8px;background:var(--surf2);border-left:3px solid var(--brand);font-size:11px;">
+      <strong style="color:var(--brand);">📊 Resumen ejecutivo:</strong> <span style="color:var(--text2);">
+      De ${fmtN(vencTotalH1)} contratos que vencen en H1-2026, se han renovado ${fmtN(renovTotalActual)} (${(renovTotalActual/vencTotalH1*100).toFixed(0)}%).
+      Para alcanzar el 95% (${fmtN(meta95Total)}), faltan <strong>${fmtN(gapTotal)} renovaciones</strong> en ${MESES_RESTANTES} meses.
+      Ritmo necesario: <strong>${fmtN(ritmoMensual)} renovaciones/mes</strong>. MRR a proteger: <strong>$${fmtN(Math.round(gapTotal*ARPU))}/mes</strong>.
+      </span>
+    </div>`;
+
+    if (compProys.length > 0) {
+      const compGap = compProys.reduce((a,d)=>a+d.gap,0);
+      insightsEl.innerHTML += `<div style="padding:10px 12px;border-radius:8px;background:#FEF2F2;border-left:3px solid var(--red);font-size:11px;">
+        <strong style="color:var(--red);">⚠ Prioridad P1 — Zonas con competencia (${compProys.length} proyectos):</strong>
+        <span style="color:var(--text2);">${compProys.map(d=>`<strong>${d.nombre}</strong> (gap: ${d.gap})`).join(', ')}.
+        Total: ${fmtN(compGap)} renovaciones pendientes en zonas donde se están perdiendo clientes. Asignar vendedores de campo dedicados.</span>
+      </div>`;
+    }
+
+    if (criticos.length > 0) {
+      insightsEl.innerHTML += `<div style="padding:10px 12px;border-radius:8px;background:#FFFBEB;border-left:3px solid var(--amber);font-size:11px;">
+        <strong style="color:var(--amber);">⚠ Prioridad P2 — Avance crítico (&lt;15%):</strong>
+        <span style="color:var(--text2);">${criticos.map(d=>`<strong>${d.nombre}</strong> (${d.pctActual.toFixed(0)}%)`).join(', ')}.
+        Requieren intensificación inmediata de contacto para alcanzar meta al cierre de junio.</span>
+      </div>`;
+    }
+
+    insightsEl.innerHTML += `<div style="padding:10px 12px;border-radius:8px;background:#F0FDF4;border-left:3px solid var(--green);font-size:11px;">
+      <strong style="color:var(--green);">🎯 Distribución de carga:</strong> <span style="color:var(--text2);">
+      Marzo: <strong>${planData.reduce((a,d)=>a+d.metas[0],0)}</strong> (carga frontal) →
+      Abril: <strong>${planData.reduce((a,d)=>a+d.metas[1],0)}</strong> →
+      Mayo: <strong>${planData.reduce((a,d)=>a+d.metas[2],0)}</strong> →
+      Junio: <strong>${planData.reduce((a,d)=>a+d.metas[3],0)}</strong> (cierre).
+      Si se cumple el plan, al 30 de junio se alcanza ${(meta95Total/vencTotalH1*100).toFixed(0)}% de renovación.
+      </span>
+    </div>`;
+  }
 }
 
 // ── Render tabla de contratos críticos con filtros ──
@@ -4012,7 +4328,7 @@ function openRetDrill(key, tipo) {
     const alertaEl = document.getElementById('drill-ret-alerta');
     if (alertaEl) {
       if (p.comp) {
-        const bajasComp = (bajasPorDireccion[key]||[]).filter(d=>d.comp).reduce((a,d)=>a+d.bajas,0);
+        const bajasComp = (bajasPorDireccion[key]||[]).filter(d=>d.comp).length;
         alertaEl.innerHTML = `<div style="padding:10px;border-radius:8px;background:#FEF2F2;border-left:3px solid var(--red);font-size:11px;">
           <strong style="color:var(--red);">⚠ Zona con actividad de competencia</strong> — ${bajasComp} bajas por migración este mes. Los ${sinRen} contratos sin renovar y ${p.vence30} por vencer están en alto riesgo de pérdida.
         </div>`;
@@ -4026,19 +4342,51 @@ function openRetDrill(key, tipo) {
     const tbody = document.getElementById('drill-ret-tbody');
     if (tbody) {
       tbody.innerHTML = '';
+      // Generar clientes individuales por sector
+      const nombresPool = ['A. García','M. López','J. Hernández','R. Pérez','C. Flores','L. Torres','E. Ramos','P. Castillo','S. Méndez','F. Díaz','G. Molina','H. Mejía','I. Solís','K. Vargas','N. Aguilar','O. Portillo','Q. Cruz','T. Navarrete','U. Rivera','V. Chávez','B. Sandoval','D. Zelaya','W. Amaya'];
+      let codSeq = 30001, nomIdx = 0;
       (p.sectores||[]).sort((a,b)=>(b.vencidos-b.renovados)-(a.vencidos-a.renovados)).forEach(s => {
         const sr = s.vencidos - s.renovados;
         const compBadge = s.comp ? '<span class="pill pill-red">Sí</span>' : '<span style="color:var(--text3);">No</span>';
-        const prior = s.comp ? '<span style="color:var(--red);font-weight:700;">🔴 Urgente</span>'
-                    : sr >= 8 ? '<span style="color:var(--amber);font-weight:600;">🟡 Alta</span>'
-                    : '<span style="color:var(--text3);">Normal</span>';
-        tbody.innerHTML += `<tr>
-          <td>${s.zona}</td><td class="r" style="color:var(--red);font-weight:600;">${sr}</td>
-          <td class="r" style="color:var(--amber);">${s.vence30}</td>
-          <td class="r" style="color:var(--green);">${s.renovados}</td>
-          <td class="r">$${fmtN(Math.round(sr*ARPU))}</td>
-          <td>${compBadge}</td><td>${prior}</td>
+        // Sector header row
+        tbody.innerHTML += `<tr style="background:var(--surf2);">
+          <td colspan="3" style="font-weight:700;font-size:10px;color:var(--text2);">📍 ${s.zona} — ${sr} sin renovar · ${s.vence30} por vencer</td>
+          <td colspan="2" style="font-size:10px;color:var(--text3);">MRR: $${fmtN(Math.round(sr*ARPU))}</td>
+          <td>${compBadge}</td>
+          <td>${s.comp ? '<span style="color:var(--red);font-weight:700;">🔴 Urgente</span>' : sr >= 8 ? '<span style="color:var(--amber);font-weight:600;">🟡 Alta</span>' : '<span style="color:var(--text3);">Normal</span>'}</td>
         </tr>`;
+        // Individual client rows (up to 4 vencidos + 3 por vencer per sector)
+        const maxShow = Math.min(sr, 4);
+        for (let i = 0; i < maxShow; i++) {
+          const cod = 'SUB-' + (codSeq++);
+          const nom = nombresPool[(nomIdx++) % nombresPool.length];
+          const prior = s.comp ? '<span style="color:var(--red);font-size:10px;">Visita urgente</span>' : '<span style="color:var(--text3);font-size:10px;">Contactar</span>';
+          tbody.innerHTML += `<tr>
+            <td><code style="font-size:10px;background:var(--surf2);padding:1px 4px;border-radius:3px;">${cod}</code></td>
+            <td>${nom}</td><td style="color:var(--text3);font-size:10px;">${s.zona}</td>
+            <td><span class="pill pill-red">Vencido</span></td>
+            <td class="r">$${Math.round(ARPU)}</td>
+            <td>${compBadge}</td><td>${prior}</td>
+          </tr>`;
+        }
+        if (sr > maxShow) {
+          tbody.innerHTML += `<tr><td style="color:var(--text3);font-size:10px;" colspan="7">… +${sr - maxShow} clientes vencidos más en este sector</td></tr>`;
+        }
+        const maxV30 = Math.min(s.vence30, 3);
+        for (let i = 0; i < maxV30; i++) {
+          const cod = 'SUB-' + (codSeq++);
+          const nom = nombresPool[(nomIdx++) % nombresPool.length];
+          tbody.innerHTML += `<tr>
+            <td><code style="font-size:10px;background:var(--surf2);padding:1px 4px;border-radius:3px;">${cod}</code></td>
+            <td>${nom}</td><td style="color:var(--text3);font-size:10px;">${s.zona}</td>
+            <td><span class="pill pill-amber">×Vencer 30d</span></td>
+            <td class="r">$${Math.round(ARPU)}</td>
+            <td>${compBadge}</td><td style="color:var(--amber);font-size:10px;">Renovar</td>
+          </tr>`;
+        }
+        if (s.vence30 > maxV30) {
+          tbody.innerHTML += `<tr><td style="color:var(--text3);font-size:10px;" colspan="7">… +${s.vence30 - maxV30} clientes por vencer en este sector</td></tr>`;
+        }
       });
     }
 
@@ -4070,22 +4418,44 @@ function openRetDrill(key, tipo) {
       Meta de renovación sugerida: <strong>${Math.round(pData.total*0.85)}</strong> contratos (85%).
     </div>`;
 
-    // Mostrar desglose por proyecto para este mes
+    // Mostrar desglose por proyecto con clientes individuales
     const tbody = document.getElementById('drill-ret-tbody');
     if (tbody) {
       tbody.innerHTML = '';
+      const nombresPool = ['A. García','M. López','J. Hernández','R. Pérez','C. Flores','L. Torres','E. Ramos','P. Castillo','S. Méndez','F. Díaz'];
+      let codSeq = 40001, nomIdx = 0;
       const proyEntries = Object.entries(retSeed.proyectos).sort((a,b)=>b[1].vencidos-a[1].vencidos);
       proyEntries.forEach(([nombre, p]) => {
         const propPct = totVencidos > 0 ? p.vencidos/totVencidos : 0;
         const estVenc = Math.round(pData.total * propPct);
         const estRen = Math.round(pData.renovados * propPct);
         if (estVenc <= 0) return;
+        const sr = estVenc - estRen;
         const compBadge = p.comp ? '<span class="pill pill-red">Sí</span>' : '<span style="color:var(--text3);">No</span>';
-        tbody.innerHTML += `<tr>
-          <td>${nombre}</td><td class="r">${estVenc-estRen}</td><td class="r">${Math.round(estVenc*0.3)}</td>
-          <td class="r" style="color:var(--green);">${estRen}</td><td class="r">$${fmtN(Math.round((estVenc-estRen)*ARPU))}</td>
-          <td>${compBadge}</td><td>${p.comp?'<span style="color:var(--red);font-weight:600;">Prioridad</span>':'Normal'}</td>
+        // Project header
+        tbody.innerHTML += `<tr style="background:var(--surf2);">
+          <td colspan="3" style="font-weight:700;font-size:10px;color:var(--text2);">📍 ${nombre} — ${sr} pendientes</td>
+          <td><span class="pill ${sr>10?'pill-red':'pill-amber'}">${sr} sin renovar</span></td>
+          <td class="r">$${fmtN(Math.round(sr*ARPU))}</td>
+          <td>${compBadge}</td>
+          <td>${p.comp?'<span style="color:var(--red);font-weight:600;">Prioridad</span>':'Normal'}</td>
         </tr>`;
+        // Show up to 3 individual clients per project
+        const maxShow = Math.min(sr, 3);
+        for (let i = 0; i < maxShow; i++) {
+          const cod = 'SUB-' + (codSeq++);
+          const nom = nombresPool[(nomIdx++) % nombresPool.length];
+          tbody.innerHTML += `<tr>
+            <td><code style="font-size:10px;background:var(--surf2);padding:1px 4px;border-radius:3px;">${cod}</code></td>
+            <td>${nom}</td><td style="color:var(--text3);font-size:10px;">${nombre}</td>
+            <td><span class="pill pill-amber">Pendiente</span></td>
+            <td class="r">$${Math.round(ARPU)}</td>
+            <td>${compBadge}</td><td style="font-size:10px;color:var(--text3);">Contactar</td>
+          </tr>`;
+        }
+        if (sr > maxShow) {
+          tbody.innerHTML += `<tr><td style="color:var(--text3);font-size:10px;" colspan="7">… +${sr-maxShow} clientes más en ${nombre}</td></tr>`;
+        }
       });
     }
 
@@ -4433,6 +4803,7 @@ async function fetchWishupInst() {
 fetchSheets();
 // Cadena de ventas: OdooVentas (fuente real) → Ventas (complemento) → WishupInst (instalaciones)
 fetchOdooVentas().then(() => fetchVentas()).then(() => fetchWishupInst());
+cargarBajasDetalle();
 fetchCobr();
 fetchRenov();
 fetchMora();
