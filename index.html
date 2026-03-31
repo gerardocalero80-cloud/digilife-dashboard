@@ -3403,9 +3403,9 @@ async function cargarBajasDetalle() {
     if (!res.ok) return;
     const texto = await res.text();
 
-    // La hoja tiene fila 0 = título "DigiLife · Bajas...", fila 1 = headers reales
-    // parseCSV usa fila 0 como headers → hay que saltar la fila de título manualmente
-    const lineas = texto.split('\n').filter(function(l){ return l.trim() !== ''; });
+    // Normalizar saltos de línea (CRLF → LF) y separar líneas
+    const lineas = texto.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+                        .split('\n').filter(function(l){ return l.trim() !== ''; });
 
     // Detectar qué línea contiene los headers reales
     // La fila de headers empieza con "Referencia," — buscar esa línea específica
