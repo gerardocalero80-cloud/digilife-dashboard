@@ -3407,10 +3407,12 @@ async function cargarBajasDetalle() {
     // parseCSV usa fila 0 como headers → hay que saltar la fila de título manualmente
     const lineas = texto.split('\n').filter(function(l){ return l.trim() !== ''; });
 
-    // Detectar qué línea contiene los headers reales (buscar "Referencia")
+    // Detectar qué línea contiene los headers reales
+    // La fila de headers empieza con "Referencia," — buscar esa línea específica
     let headerIdx = 0;
     for (var i = 0; i < Math.min(lineas.length, 5); i++) {
-      if (lineas[i].includes('Referencia')) { headerIdx = i; break; }
+      const l = lineas[i].trim();
+      if (l.startsWith('Referencia,') || l.startsWith('"Referencia"')) { headerIdx = i; break; }
     }
 
     // Reconstruir CSV desde la línea de headers reales
