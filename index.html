@@ -5428,22 +5428,46 @@ async function fetchMora60() {
     if (!res.ok) { buildMora60Seed(); return; }
     const rows = parseCSV(await res.text());
     if (!rows.length) { buildMora60Seed(); return; }
-    const meta = {}, registros = [];
-    let enDatos = false;
-    rows.forEach(r => {
-      const c0 = String(r[0]||'').trim();
-      if (c0.startsWith('##')) { meta[c0.replace(/##/g,'').trim()] = String(r[1]||'').trim(); return; }
-      if (c0 === 'Cliente') { enDatos = true; return; }
-      if (!enDatos || !c0) return;
-      registros.push({ nombre:c0, usuario:String(r[1]||'').trim(), zona:String(r[2]||'').trim(),
-        plan:String(r[3]||'').trim(), estado:String(r[4]||'').trim(), fecha:String(r[5]||'').trim(),
-        dias:parseInt(r[6]||0)||0, riesgo:String(r[7]||'Normal').trim(), ip:String(r[8]||'').trim() });
+
+    // Formato real del Apps Script v3.5:
+    // Headers: Cliente, Usuario, Proyecto, Estado, Fecha_Inst, Dias_Instalado, Suspendido, Es_Temprano
+    const registros = [];
+    let total60d = 0, activos = 0, suspendidos = 0, suspTemprano = 0, cancelados = 0;
+
+    rows.forEach(function(r) {
+      const cliente = String(r['Cliente'] || r[0] || '').trim();
+      if (!cliente || cliente === 'Cliente') return;
+      const estado     = String(r['Estado']          || r[3] || '').trim();
+      const fecha      = String(r['Fecha_Inst']       || r[4] || '').trim();
+      const dias       = parseInt(r['Dias_Instalado'] || r[5] || 0) || 0;
+      const susp       = String(r['Suspendido']       || r[6] || '').trim() === 'Sí';
+      const temprano   = String(r['Es_Temprano']      || r[7] || '').trim() === 'Sí';
+      const zona       = String(r['Proyecto']         || r[2] || '').trim();
+      const usuario    = String(r['Usuario']          || r[1] || '').trim();
+
+      total60d++;
+      if (susp)                                   suspendidos++;
+      else if (estado.toLowerCase().includes('cancelado') ||
+               estado.toLowerCase().includes('baja'))  cancelados++;
+      else                                        activos++;
+      if (temprano)                               suspTemprano++;
+
+      let riesgo = 'Normal';
+      if (temprano)      riesgo = 'Crítico';
+      else if (susp)     riesgo = 'Alto';
+      else if (dias > 30) riesgo = 'Medio';
+
+      registros.push({ nombre: cliente, usuario, zona, plan: '', estado, fecha, dias, riesgo, ip: '' });
     });
-    mora60Data = { loaded:true, registros,
-      resumen:{ total60d:parseInt(meta['TOTAL_60D']||0), activos:parseInt(meta['ACTIVOS']||0),
-        suspendidos:parseInt(meta['SUSPENDIDOS']||0), suspTemprano:parseInt(meta['SUSP_TEMPRANO']||0),
-        cancelados:parseInt(meta['CANCELADOS']||0), tasaSusp:meta['TASA_SUSPENSION']||'0%', tasaCanc:meta['TASA_CANCELACION']||'0%' },
-      fecha: new Date().toLocaleDateString('es-SV') };
+
+    const tasaSusp = total60d > 0 ? (suspendidos / total60d * 100).toFixed(1) + '%' : '0%';
+    const tasaCanc = total60d > 0 ? (cancelados  / total60d * 100).toFixed(1) + '%' : '0%';
+
+    mora60Data = {
+      loaded: true, registros,
+      resumen: { total60d, activos, suspendidos, suspTemprano, cancelados, tasaSusp, tasaCanc },
+      fecha: new Date().toLocaleDateString('es-SV')
+    };
     console.log('[DigiLife] Mora60 loaded — total:', mora60Data.resumen.total60d, '| susp:', mora60Data.resumen.suspendidos);
     if (document.getElementById('page-cxc-mora60')?.classList.contains('active')) bMora60();
   } catch(e) { console.warn('[DigiLife] fetchMora60 error:', e); buildMora60Seed(); }
