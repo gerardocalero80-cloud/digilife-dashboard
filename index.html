@@ -3415,6 +3415,7 @@ async function cargarBajasDetalle() {
       if (l.startsWith('Referencia,') || l.startsWith('"Referencia"')) { headerIdx = i; break; }
     }
 
+    // Reconstruir CSV desde la línea de headers reales
     // Parsear headers manualmente desde la línea detectada
     const headers = lineas[headerIdx].split(',').map(function(h){ return h.replace(/"/g,'').trim(); });
 
