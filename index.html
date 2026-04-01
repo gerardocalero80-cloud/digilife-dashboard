@@ -3407,29 +3407,28 @@ async function cargarBajasDetalle() {
     const lineas = texto.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
                         .split('\n').filter(function(l){ return l.trim() !== ''; });
 
-    console.log('[DigiLife] BajasDetalle lineas[0]:', JSON.stringify(lineas[0]));
-    console.log('[DigiLife] BajasDetalle lineas[1]:', JSON.stringify(lineas[1]));
-
     // Detectar qué línea contiene los headers reales
+    // La fila de headers empieza con "Referencia," — buscar esa línea específica
     let headerIdx = 0;
     for (var i = 0; i < Math.min(lineas.length, 5); i++) {
       const l = lineas[i].trim();
       if (l.startsWith('Referencia,') || l.startsWith('"Referencia"')) { headerIdx = i; break; }
     }
 
-    console.log('[DigiLife] BajasDetalle headerIdx:', headerIdx);
+    // Parsear headers manualmente desde la línea detectada
+    const headers = lineas[headerIdx].split(',').map(function(h){ return h.replace(/"/g,'').trim(); });
 
-    // Reconstruir CSV desde la línea de headers reales
-    const csvLimpio = lineas.slice(headerIdx).join('\n');
-    const rows = parseCSV(csvLimpio);
+    // Construir objetos fila por fila con claves de headers
+    bajasDetalleCache = [];
+    for (var j = headerIdx + 1; j < lineas.length; j++) {
+      const cols = lineas[j].split(',');
+      const ref = (cols[0] || '').replace(/"/g,'').trim();
+      if (!ref || ref === 'Referencia') continue;
+      const obj = {};
+      headers.forEach(function(h, idx){ obj[h] = (cols[idx] || '').replace(/"/g,'').trim(); });
+      bajasDetalleCache.push(obj);
+    }
 
-    console.log('[DigiLife] BajasDetalle rows.length:', rows.length, '| keys[0]:', rows.length ? Object.keys(rows[0]).slice(0,4).join(',') : 'N/A');
-
-    bajasDetalleCache = rows.filter(function(r) {
-      return r['Referencia'] &&
-             r['Referencia'] !== 'Referencia' &&
-             r['Referencia'].trim() !== '';
-    });
     bajasDetalleCargado = true;
     console.log('[DigiLife] BajasDetalle loaded —', bajasDetalleCache.length, 'registros');
   } catch(e) {
