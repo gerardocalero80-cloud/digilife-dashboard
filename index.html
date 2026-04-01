@@ -3403,30 +3403,39 @@ async function cargarBajasDetalle() {
     if (!res.ok) return;
     const texto = await res.text();
 
-    // Normalizar saltos de línea (CRLF → LF) y separar líneas
     const lineas = texto.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
                         .split('\n').filter(function(l){ return l.trim() !== ''; });
 
-    // Detectar qué línea contiene los headers reales
-    // La fila de headers empieza con "Referencia," — buscar esa línea específica
+    // Parser CSV que respeta campos entre comillas
+    function parseLine(line) {
+      const result = [];
+      let current = '', inQ = false;
+      for (var k = 0; k < line.length; k++) {
+        const ch = line[k];
+        if (ch === '"') { inQ = !inQ; }
+        else if (ch === ',' && !inQ) { result.push(current.trim()); current = ''; }
+        else { current += ch; }
+      }
+      result.push(current.trim());
+      return result;
+    }
+
+    // Detectar línea de headers reales
     let headerIdx = 0;
     for (var i = 0; i < Math.min(lineas.length, 5); i++) {
       const l = lineas[i].trim();
       if (l.startsWith('Referencia,') || l.startsWith('"Referencia"')) { headerIdx = i; break; }
     }
 
-    // Reconstruir CSV desde la línea de headers reales
-    // Parsear headers manualmente desde la línea detectada
-    const headers = lineas[headerIdx].split(',').map(function(h){ return h.replace(/"/g,'').trim(); });
+    const headers = parseLine(lineas[headerIdx]);
 
-    // Construir objetos fila por fila con claves de headers
     bajasDetalleCache = [];
     for (var j = headerIdx + 1; j < lineas.length; j++) {
-      const cols = lineas[j].split(',');
-      const ref = (cols[0] || '').replace(/"/g,'').trim();
+      const cols = parseLine(lineas[j]);
+      const ref = (cols[0] || '').trim();
       if (!ref || ref === 'Referencia') continue;
       const obj = {};
-      headers.forEach(function(h, idx){ obj[h] = (cols[idx] || '').replace(/"/g,'').trim(); });
+      headers.forEach(function(h, idx){ obj[h] = (cols[idx] || '').trim(); });
       bajasDetalleCache.push(obj);
     }
 
@@ -5433,50 +5442,68 @@ async function fetchMora60() {
     const res = await fetch(URL_CONCIL_CXC60D);
     if (!res.ok) { buildMora60Seed(); return; }
 
-    // Parsear CSV manualmente con headers nombrados
-    // Formato real Apps Script v3.5:
-    // Headers: Cliente, Usuario, Proyecto, Estado, Fecha_Inst, Dias_Instalado, Suspendido, Es_Temprano
     const texto = await res.text();
     const lineas = texto.replace(/\r\n/g,'\n').replace(/\r/g,'\n')
                         .split('\n').filter(function(l){ return l.trim() !== ''; });
     if (!lineas.length) { buildMora60Seed(); return; }
 
-    const headers = lineas[0].split(',').map(function(h){ return h.replace(/"/g,'').trim(); });
+    // Parser CSV que respeta campos entre comillas (para proyectos con comas)
+    function parseLine(line) {
+      const result = [];
+      let current = '', inQ = false;
+      for (var k = 0; k < line.length; k++) {
+        const ch = line[k];
+        if (ch === '"') { inQ = !inQ; }
+        else if (ch === ',' && !inQ) { result.push(current.trim()); current = ''; }
+        else { current += ch; }
+      }
+      result.push(current.trim());
+      return result;
+    }
+
+    const headers = parseLine(lineas[0]);
+    // Mapear índices por nombre de columna
+    const iCliente  = headers.indexOf('Cliente');
+    const iUsuario  = headers.indexOf('Usuario');
+    const iProyecto = headers.indexOf('Proyecto');
+    const iEstado   = headers.indexOf('Estado');
+    const iFecha    = headers.indexOf('Fecha_Inst');
+    const iDias     = headers.indexOf('Dias_Instalado');
+    const iSusp     = headers.indexOf('Suspendido');
+    const iTemp     = headers.indexOf('Es_Temprano');
+
     const registros = [];
     let total60d = 0, activos = 0, suspendidos = 0, suspTemprano = 0, cancelados = 0;
 
     for (var i = 1; i < lineas.length; i++) {
-      const cols = lineas[i].split(',');
-      const cliente = (cols[0] || '').replace(/"/g,'').trim();
+      const c = parseLine(lineas[i]);
+      const cliente = (c[iCliente] || '').trim();
       if (!cliente || cliente === 'Cliente') continue;
 
-      const obj = {};
-      headers.forEach(function(h, idx){ obj[h] = (cols[idx] || '').replace(/"/g,'').trim(); });
-
-      const estado   = obj['Estado']          || '';
-      const fecha    = obj['Fecha_Inst']       || '';
-      const dias     = parseInt(obj['Dias_Instalado'] || '0') || 0;
-      const susp     = obj['Suspendido']       === 'Sí';
-      const temprano = obj['Es_Temprano']      === 'Sí';
-      const zona     = obj['Proyecto']         || '';
-      const usuario  = obj['Usuario']          || '';
+      const estado   = (c[iEstado]  || '').trim();
+      const fecha    = (c[iFecha]   || '').trim();
+      const dias     = parseInt(c[iDias] || '0') || 0;
+      const susp     = (c[iSusp]   || '') === 'Sí';
+      const temprano = (c[iTemp]   || '') === 'Sí';
+      const zona     = (c[iProyecto]|| '').trim();
+      const usuario  = (c[iUsuario] || '').trim();
 
       total60d++;
-      if (susp)                                              suspendidos++;
-      else if (/cancelad|baja/i.test(estado))               cancelados++;
-      else                                                   activos++;
-      if (temprano)                                          suspTemprano++;
+      if (susp)                        suspendidos++;
+      else if (/cancelad|baja/i.test(estado)) cancelados++;
+      else                             activos++;
+      if (temprano)                    suspTemprano++;
 
       let riesgo = 'Normal';
       if (temprano)       riesgo = 'Crítico';
       else if (susp)      riesgo = 'Alto';
       else if (dias > 30) riesgo = 'Medio';
 
-      registros.push({ nombre: cliente, usuario, zona, plan: '', estado, fecha, dias, riesgo, ip: '' });
+      registros.push({ nombre:cliente, usuario, zona, plan:'', estado, fecha, dias, riesgo, ip:'' });
     }
 
-    const tasaSusp = total60d > 0 ? (suspendidos / total60d * 100).toFixed(1) + '%' : '0%';
-    const tasaCanc = total60d > 0 ? (cancelados  / total60d * 100).toFixed(1) + '%' : '0%';
+    const tasaSusp = total60d > 0 ? (suspendidos/total60d*100).toFixed(1)+'%' : '0%';
+    const tasaCanc = total60d > 0 ? (cancelados /total60d*100).toFixed(1)+'%' : '0%';
 
     mora60Data = {
       loaded: true, registros,
